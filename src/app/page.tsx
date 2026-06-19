@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   getScheduleForStation,
   getServiceType,
@@ -1069,6 +1069,7 @@ function loadLineId(): string {
 }
 
 export default function Home() {
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const [selectedDate, setSelectedDate] = useState(getDefaultDate);
   const [direction, setDirection] = useState<Direction>(getDefaultDirection);
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
@@ -1422,21 +1423,27 @@ export default function Home() {
 
         {/* Date picker row */}
         <div className="flex items-center gap-2 px-4 pb-3">
-          <div className="relative flex-1">
-            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+          <button
+            type="button"
+            onClick={() => dateInputRef.current?.showPicker?.()}
+            className="shrink-0 h-9 w-9 flex items-center justify-center bg-white/10 text-white/70 rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+            aria-label="Open date picker"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
               <rect x="3" y="5" width="18" height="16" rx="2" />
               <path strokeLinecap="round" d="M3 9h18M8 3v4M16 3v4" />
               <circle cx="8" cy="13.5" r="1" fill="currentColor" stroke="none" />
               <circle cx="12" cy="13.5" r="1" fill="currentColor" stroke="none" />
               <circle cx="16" cy="13.5" r="1" fill="currentColor" stroke="none" />
             </svg>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="w-full bg-white/10 text-white text-sm rounded-lg pl-8 pr-3 py-2 border border-white/20 focus:outline-none focus:border-white/50"
-            />
-          </div>
+          </button>
+          <input
+            ref={dateInputRef}
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="flex-1 h-9 bg-white/10 text-white text-sm rounded-lg px-3 border border-white/20 focus:outline-none focus:border-white/50"
+          />
           <span className="text-white/60 text-xs shrink-0">{formatDisplayDate(selectedDate)}</span>
           {isToday ? (
             <button
@@ -1445,7 +1452,7 @@ export default function Home() {
                 setSelectedDate(getTomorrowStr());
                 setDirection('homeToOffice');
               }}
-              className="shrink-0 bg-white/10 text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              className="shrink-0 h-9 bg-white/10 text-white text-xs font-semibold px-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
             >
               Tomorrow →
             </button>
@@ -1455,7 +1462,7 @@ export default function Home() {
               onClick={() => {
                 setSelectedDate(todayStr);
               }}
-              className="shrink-0 bg-go-accent text-white text-xs font-semibold px-3 py-2 rounded-lg hover:opacity-90 transition-opacity"
+              className="shrink-0 h-9 bg-go-accent text-white text-xs font-semibold px-3 rounded-lg hover:opacity-90 transition-opacity"
             >
               ← Today
             </button>
