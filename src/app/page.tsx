@@ -1310,7 +1310,7 @@ export default function Home() {
             {/* Language toggle */}
             <button
               onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-              className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/80 text-xs font-semibold"
+              className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/80 text-xs font-semibold whitespace-nowrap shrink-0"
               title="EN / 中文"
             >
               {lang === 'en' ? '中文' : 'EN'}
