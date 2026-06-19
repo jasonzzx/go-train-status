@@ -35,7 +35,7 @@ function toLocalDateStr(d: Date): string {
 function formatDisplayDate(dateStr: string): string {
   const [y, m, d] = dateStr.split('-').map(Number);
   const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-CA', { weekday: 'long' });
 }
 
 function getDefaultDate(): string {
