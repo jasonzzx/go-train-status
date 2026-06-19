@@ -989,10 +989,10 @@ function WeekendNotice({ direction }: { direction: Direction }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
-      <h3 className="text-go-dark font-semibold text-lg mb-2">Weekend Schedule</h3>
+      <h3 className="text-go-dark font-semibold text-lg mb-2">No Trains Found</h3>
       <p className="text-gray-500 text-sm mb-4">
-        Weekend data not yet embedded.<br />
-        View it on the official GO Transit website.
+        No scheduled trains for this station on this date.<br />
+        View the official schedule on gotransit.com.
       </p>
       <a
         href={href}
@@ -1023,7 +1023,10 @@ export default function Home() {
 
   const [homeStationCode, setHomeStationCode] = useState<string>(() => {
     if (typeof window === 'undefined') return DEFAULT_HOME_STATION_CODE;
-    return localStorage.getItem(HOME_STATION_STORAGE_KEY) ?? DEFAULT_HOME_STATION_CODE;
+    const stored = localStorage.getItem(HOME_STATION_STORAGE_KEY) ?? DEFAULT_HOME_STATION_CODE;
+    // Migrate old station codes (before GTFS alignment) to new codes
+    const migration: Record<string, string> = { OE: 'LI', ER: 'ST', ML: 'MK', AO: 'AG', CN: 'CE', MK: 'MR' };
+    return migration[stored] ?? stored;
   });
   const homeStation: StationInfo = getStationByCode(homeStationCode);
 
@@ -1361,13 +1364,6 @@ export default function Home() {
           <WeekendNotice direction={direction} />
         ) : (
           <>
-            {/* Estimated schedule notice for non-Unionville stations */}
-            {homeStationCode !== 'UI' && (
-              <div className="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 mb-2 text-xs text-blue-700">
-                Schedule for <span className="font-semibold">{homeStation.name}</span> is estimated from the Unionville timetable. Verify times at gotransit.com.
-              </div>
-            )}
-
             {trips.map((trip, i) => {
               const isPast = isToday && nowMinutes !== null && parseTime(trip.departure) < nowMinutes;
               const isNext = i === nextIndex;
