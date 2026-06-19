@@ -1351,39 +1351,51 @@ export default function Home() {
         {/* Line picker */}
         <div className="flex items-center gap-2 mx-4 mb-2">
           <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-go-green" />
+            <span className="w-4 flex items-center justify-center shrink-0">
+              <span className="w-2.5 h-2.5 rounded-full bg-go-green" />
+            </span>
             Line
           </span>
-          <select
-            value={lineId}
-            onChange={(e) => handleLineChange(e.target.value)}
-            className="flex-1 bg-white/10 text-white text-xs rounded-lg px-2 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
-          >
-            {LINES.map((l) => (
-              <option key={l.id} value={l.id} className="bg-go-dark text-white">
-                {l.name} Line
-              </option>
-            ))}
-          </select>
+          <div className="relative flex-1">
+            <select
+              value={lineId}
+              onChange={(e) => handleLineChange(e.target.value)}
+              className="w-full bg-white/10 text-white text-xs rounded-lg pl-2 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
+            >
+              {LINES.map((l) => (
+                <option key={l.id} value={l.id} className="bg-go-dark text-white">
+                  {l.name} Line
+                </option>
+              ))}
+            </select>
+            <svg className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         {/* Home station picker */}
         <div className="flex items-center gap-2 mx-4 mb-2">
           <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
-            <span className="shrink-0">🏠</span>
+            <span className="w-4 flex items-center justify-center shrink-0">🏠</span>
             Home
           </span>
-          <select
-            value={homeStationCode}
-            onChange={(e) => setHomeStationCode(e.target.value)}
-            className="flex-1 bg-white/10 text-white text-xs rounded-lg px-2 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
-          >
-            {line.homeStations.map((s) => (
-              <option key={s.code} value={s.code} className="bg-go-dark text-white">
-                {s.name}
-              </option>
-            ))}
-          </select>
+          <div className="relative flex-1">
+            <select
+              value={homeStationCode}
+              onChange={(e) => setHomeStationCode(e.target.value)}
+              className="w-full bg-white/10 text-white text-xs rounded-lg pl-2 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
+            >
+              {line.homeStations.map((s) => (
+                <option key={s.code} value={s.code} className="bg-go-dark text-white">
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            <svg className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
 
         {/* Direction tabs */}
