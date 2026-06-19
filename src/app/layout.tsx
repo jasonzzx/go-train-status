@@ -1,5 +1,16 @@
 import type { Metadata, Viewport } from 'next';
+import { readFileSync } from 'fs';
 import './globals.css';
+import VersionWatcher from './VersionWatcher';
+
+function getBuildVersion(): string {
+  try {
+    const { version } = JSON.parse(readFileSync('public/version.json', 'utf-8'));
+    return version;
+  } catch {
+    return 'dev';
+  }
+}
 
 export const metadata: Metadata = {
   title: 'Go Train Status',
@@ -20,12 +31,16 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const buildVersion = getBuildVersion();
   return (
     <html lang="en">
       <head>
         <link rel="apple-touch-icon" href="/apple-icon.png" />
       </head>
-      <body>{children}</body>
+      <body>
+        <VersionWatcher buildVersion={buildVersion} />
+        {children}
+      </body>
     </html>
   );
 }
