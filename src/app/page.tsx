@@ -11,6 +11,7 @@ import {
   type StationStop,
 } from '@/lib/schedule-data';
 import {
+  LINES,
   getLine,
   getStation,
   DEFAULT_LINE_ID,
@@ -1039,7 +1040,31 @@ function WeekendNotice({ direction }: { direction: Direction }) {
 // Main Page
 // ──────────────────────────────────────────────────────────
 
+const LINE_STORAGE_KEY = 'go-train-line';
 const HOME_STATION_STORAGE_KEY = 'go-train-home-station';
+
+// Home station is remembered per line: "go-train-home-station:LW".
+// The un-suffixed key is the legacy Stouffville-only key (pre multi-line).
+function homeStationKey(lineId: string): string {
+  return `${HOME_STATION_STORAGE_KEY}:${lineId}`;
+}
+
+// Resolve the saved (or default) home station for a line, validating it against
+// the line's stations and migrating pre-GTFS Stouffville codes.
+function loadHomeStation(line: LineInfo): string {
+  if (typeof window === 'undefined') return line.defaultHomeCode;
+  let stored = localStorage.getItem(homeStationKey(line.id));
+  if (!stored && line.id === 'ST') stored = localStorage.getItem(HOME_STATION_STORAGE_KEY);
+  const migration: Record<string, string> = { OE: 'LI', ER: 'ST', ML: 'MK', AO: 'AG', CN: 'CE', MK: 'MR' };
+  const code = stored ? (migration[stored] ?? stored) : line.defaultHomeCode;
+  return line.homeStations.some((s) => s.code === code) ? code : line.defaultHomeCode;
+}
+
+function loadLineId(): string {
+  if (typeof window === 'undefined') return DEFAULT_LINE_ID;
+  const stored = localStorage.getItem(LINE_STORAGE_KEY) ?? DEFAULT_LINE_ID;
+  return LINES.some((l) => l.id === stored) ? stored : DEFAULT_LINE_ID;
+}
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(getDefaultDate);
@@ -1047,33 +1072,34 @@ export default function Home() {
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
   const [todayStr, setTodayStr] = useState<string>('');
 
-  // Active line (line selector is a separate feature; default for now).
-  const lineId = DEFAULT_LINE_ID;
+  // Active line + home station, both persisted (home station per line).
+  const [lineId, setLineId] = useState<string>(loadLineId);
   const line: LineInfo = getLine(lineId);
-
-  const [homeStationCode, setHomeStationCode] = useState<string>(() => {
-    if (typeof window === 'undefined') return line.defaultHomeCode;
-    const stored = localStorage.getItem(HOME_STATION_STORAGE_KEY) ?? line.defaultHomeCode;
-    // Migrate old Stouffville station codes (pre-GTFS-alignment) to new codes
-    const migration: Record<string, string> = { OE: 'LI', ER: 'ST', ML: 'MK', AO: 'AG', CN: 'CE', MK: 'MR' };
-    const code = migration[stored] ?? stored;
-    // Guard against a stored code that isn't valid on the active line
-    return line.homeStations.some((s) => s.code === code) ? code : line.defaultHomeCode;
-  });
+  const [homeStationCode, setHomeStationCode] = useState<string>(() => loadHomeStation(getLine(loadLineId())));
   const homeStation: StationInfo = getStation(lineId, homeStationCode);
 
+  // Switching line: remember the choice and restore that line's home station.
+  const handleLineChange = useCallback((newLineId: string) => {
+    setLineId(newLineId);
+    setHomeStationCode(loadHomeStation(getLine(newLineId)));
+  }, []);
+
   useEffect(() => {
-    localStorage.setItem(HOME_STATION_STORAGE_KEY, homeStationCode);
-  }, [homeStationCode]);
+    localStorage.setItem(LINE_STORAGE_KEY, lineId);
+  }, [lineId]);
+
+  useEffect(() => {
+    localStorage.setItem(homeStationKey(lineId), homeStationCode);
+  }, [lineId, homeStationCode]);
 
   // Tracker state (platform + expected)
   const [trackerTrips, setTrackerTrips] = useState<TrackerTrip[]>([]);
 
-  // Clear stale tracker data immediately when home station changes
+  // Clear stale tracker data immediately when line or home station changes
   useEffect(() => {
     setTrackerTrips([]);
     setLastRefreshed(null);
-  }, [homeStationCode]);
+  }, [lineId, homeStationCode]);
 
   // Alerts state
   const [alerts, setAlerts] = useState<ParsedAlert[]>([]);
@@ -1218,11 +1244,11 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [scrollTargetIndex, selectedDate, direction]);
 
-  // Collapse expanded cards when switching date or direction
+  // Collapse expanded cards when switching line, date or direction
   useEffect(() => {
     setExpandedDep(null);
     setOnBoardDep(null);
-  }, [selectedDate, direction]);
+  }, [lineId, selectedDate, direction]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col max-w-md mx-auto">
@@ -1318,6 +1344,25 @@ export default function Home() {
               Official ↗
             </a>
           </div>
+        </div>
+
+        {/* Line picker */}
+        <div className="flex items-center gap-2 mx-4 mb-2">
+          <span className="text-white/60 text-xs shrink-0 flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: line.color }} />
+            Line:
+          </span>
+          <select
+            value={lineId}
+            onChange={(e) => handleLineChange(e.target.value)}
+            className="flex-1 bg-white/10 text-white text-xs rounded-lg px-2 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
+          >
+            {LINES.map((l) => (
+              <option key={l.id} value={l.id} className="bg-go-dark text-white">
+                {l.name} Line
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Home station picker */}
