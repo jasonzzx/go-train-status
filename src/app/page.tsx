@@ -1351,8 +1351,8 @@ export default function Home() {
         {/* Line picker */}
         <div className="flex items-center gap-2 mx-4 mb-2">
           <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: line.color }} />
-            Line:
+            <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-go-green" />
+            Line
           </span>
           <select
             value={lineId}
@@ -1369,7 +1369,10 @@ export default function Home() {
 
         {/* Home station picker */}
         <div className="flex items-center gap-2 mx-4 mb-2">
-          <span className="text-white/60 text-xs shrink-0 w-14">🏠 Home:</span>
+          <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
+            <span className="shrink-0">🏠</span>
+            Home
+          </span>
           <select
             value={homeStationCode}
             onChange={(e) => setHomeStationCode(e.target.value)}
