@@ -502,18 +502,22 @@ function StationList({
 // Vehicle type icons (GO Transit style)
 // ──────────────────────────────────────────────────────────
 
-function TrainIcon({ className }: { className?: string }) {
+function TrainIcon({ className, inverted }: { className?: string; inverted?: boolean }) {
+  // "inverted" matches the app logo's white train body with dark green windows,
+  // used when the icon itself renders in white (e.g. on a solid green card).
+  const windowFill = inverted ? '#0b3d2c' : 'white';
+  const windowOpacity = inverted ? 0.85 : 0.9;
   return (
     <svg viewBox="0 0 28 24" fill="currentColor" className={className} aria-hidden="true">
       {/* body -->*/}
       <rect x="2" y="4" width="24" height="14" rx="3" />
       {/* cab window -->*/}
-      <rect x="17" y="6.5" width="6" height="5" rx="1" fill="white" opacity="0.9" />
+      <rect x="17" y="6.5" width="6" height="5" rx="1" fill={windowFill} opacity={windowOpacity} />
       {/* side windows -->*/}
-      <rect x="4" y="6.5" width="4" height="5" rx="1" fill="white" opacity="0.9" />
-      <rect x="10" y="6.5" width="4" height="5" rx="1" fill="white" opacity="0.9" />
+      <rect x="4" y="6.5" width="4" height="5" rx="1" fill={windowFill} opacity={windowOpacity} />
+      <rect x="10" y="6.5" width="4" height="5" rx="1" fill={windowFill} opacity={windowOpacity} />
       {/* stripe -->*/}
-      <rect x="2" y="13" width="24" height="2" fill="white" opacity="0.25" />
+      <rect x="2" y="13" width="24" height="2" fill={inverted ? '#0b3d2c' : 'white'} opacity={inverted ? 0.35 : 0.25} />
       {/* wheels -->*/}
       <circle cx="8" cy="20" r="2.5" />
       <circle cx="20" cy="20" r="2.5" />
@@ -561,7 +565,7 @@ function VehicleBadge({
 
   return (
     <div className="flex flex-col items-center justify-center w-10 shrink-0">
-      {type === 'train' ? <TrainIcon className={iconCls} /> : <BusIcon className={iconCls} />}
+      {type === 'train' ? <TrainIcon className={iconCls} inverted={isNext} /> : <BusIcon className={iconCls} />}
       <span className={textCls}>{type === 'train' ? 'Train' : 'Bus'}</span>
     </div>
   );
