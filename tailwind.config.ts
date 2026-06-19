@@ -6,9 +6,9 @@ const config: Config = {
     extend: {
       colors: {
         go: {
-          green: '#00853F',
-          dark: '#003B27',
-          light: '#E8F5EE',
+          green: '#0ea5e9',
+          dark: '#0b1c2e',
+          light: '#E6F4FD',
           accent: '#F5A623',
         },
       },

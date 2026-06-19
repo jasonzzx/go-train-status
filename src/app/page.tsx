@@ -1201,14 +1201,14 @@ export default function Home() {
           <div className="shrink-0 w-9 h-9">
             <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
               {/* Background circle */}
-              <circle cx="18" cy="18" r="18" fill="#00853E"/>
+              <circle cx="18" cy="18" r="18" fill="#0ea5e9"/>
               {/* Train body */}
               <rect x="6" y="13" width="24" height="10" rx="2.5" fill="white"/>
               {/* Cab window */}
-              <rect x="22" y="15" width="6" height="5" rx="1" fill="#00853E" opacity="0.85"/>
+              <rect x="22" y="15" width="6" height="5" rx="1" fill="#0ea5e9" opacity="0.85"/>
               {/* Side windows */}
-              <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
-              <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
+              <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#0ea5e9" opacity="0.85"/>
+              <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#0ea5e9" opacity="0.85"/>
               {/* Wheels */}
               <circle cx="11" cy="25" r="2.5" fill="white"/>
               <circle cx="25" cy="25" r="2.5" fill="white"/>
