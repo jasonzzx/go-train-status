@@ -595,7 +595,7 @@ function TrackerRow({
         <span className={`text-2xl font-extrabold leading-none mt-0.5 ${
           isNext ? 'text-yellow-300' : isPast ? 'text-yellow-700/50' : 'text-yellow-900'
         }`}>
-          {tracker.platform}
+          {tracker.platform.split(/[,/]/).map((p) => p.trim()).filter(Boolean).join(' ')}
         </span>
       </div>
     </div>
