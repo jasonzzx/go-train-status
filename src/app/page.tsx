@@ -1418,25 +1418,21 @@ export default function Home() {
         {/* Date picker row */}
         <div className="flex items-center justify-between gap-2 px-4 pb-3">
           <div className="relative h-9 w-[150px]">
-            <button
-              type="button"
-              onClick={() => dateInputRef.current?.showPicker?.()}
-              className="absolute left-0 inset-y-0 w-8 flex items-center justify-center text-white/50 z-10"
-              aria-label="Open date picker"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                <rect x="3" y="5" width="18" height="16" rx="2" />
-                <path strokeLinecap="round" d="M3 9h18M8 3v4M16 3v4" />
-                <circle cx="8" cy="13.5" r="1" fill="currentColor" stroke="none" />
-                <circle cx="12" cy="13.5" r="1" fill="currentColor" stroke="none" />
-                <circle cx="16" cy="13.5" r="1" fill="currentColor" stroke="none" />
-              </svg>
-            </button>
+            <svg className="absolute left-2.5 inset-y-0 my-auto w-4 h-4 text-white/50 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+              <rect x="3" y="5" width="18" height="16" rx="2" />
+              <path strokeLinecap="round" d="M3 9h18M8 3v4M16 3v4" />
+              <circle cx="8" cy="13.5" r="1" fill="currentColor" stroke="none" />
+              <circle cx="12" cy="13.5" r="1" fill="currentColor" stroke="none" />
+              <circle cx="16" cy="13.5" r="1" fill="currentColor" stroke="none" />
+            </svg>
             <input
               ref={dateInputRef}
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
+              onClick={(e) => {
+                e.currentTarget.showPicker?.();
+              }}
               className="w-full h-9 bg-white/10 text-white text-sm rounded-lg pl-8 pr-2 border border-white/20 focus:outline-none focus:border-white/50"
             />
           </div>
