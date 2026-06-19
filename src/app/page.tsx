@@ -1200,23 +1200,36 @@ export default function Home() {
         <div className="flex items-center gap-3 px-4 pt-4 pb-2">
           <div className="shrink-0 w-9 h-9">
             <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              <defs>
+                <linearGradient id="logoRim" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#e8fff0"/>
+                  <stop offset="0.3" stopColor="#7ED957"/>
+                  <stop offset="0.55" stopColor="#0b3d2c"/>
+                  <stop offset="0.8" stopColor="#7ED957"/>
+                  <stop offset="1" stopColor="#e8fff0"/>
+                </linearGradient>
+              </defs>
+              {/* Metallic bevel rim */}
+              <circle cx="18" cy="18" r="16.4" fill="none" stroke="url(#logoRim)" strokeWidth="1.6"/>
               {/* Background circle */}
-              <circle cx="18" cy="18" r="18" fill="#00853E"/>
-              {/* Train body */}
-              <rect x="6" y="13" width="24" height="10" rx="2.5" fill="white"/>
-              {/* Cab window */}
-              <rect x="22" y="15" width="6" height="5" rx="1" fill="#00853E" opacity="0.85"/>
-              {/* Side windows */}
-              <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
-              <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
-              {/* Wheels */}
-              <circle cx="11" cy="25" r="2.5" fill="white"/>
-              <circle cx="25" cy="25" r="2.5" fill="white"/>
-              {/* Rail */}
-              <rect x="4" y="27" width="28" height="1.5" rx="0.75" fill="white" opacity="0.4"/>
-              {/* Status dot — green pulse indicator */}
-              <circle cx="29" cy="9" r="4" fill="#1c3a5e"/>
-              <circle cx="29" cy="9" r="2.5" fill="#4ade80"/>
+              <circle cx="18" cy="18" r="14.4" fill="#00853E"/>
+              <g transform="translate(18,18) scale(0.8) translate(-18,-18)">
+                {/* Train body */}
+                <rect x="6" y="13" width="24" height="10" rx="2.5" fill="white"/>
+                {/* Cab window */}
+                <rect x="22" y="15" width="6" height="5" rx="1" fill="#00853E" opacity="0.85"/>
+                {/* Side windows */}
+                <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
+                <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
+                {/* Wheels */}
+                <circle cx="11" cy="25" r="2.5" fill="white"/>
+                <circle cx="25" cy="25" r="2.5" fill="white"/>
+                {/* Rail */}
+                <rect x="4" y="27" width="28" height="1.5" rx="0.75" fill="white" opacity="0.4"/>
+                {/* Status dot — green pulse indicator */}
+                <circle cx="29" cy="9" r="4" fill="#1c3a5e"/>
+                <circle cx="29" cy="9" r="2.5" fill="#4ade80"/>
+              </g>
             </svg>
           </div>
           <div>
