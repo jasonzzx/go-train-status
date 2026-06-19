@@ -20,6 +20,7 @@ import {
 } from '@/lib/lines';
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
+import { useLanguage, getStationName, type Lang } from '@/i18n';
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -44,6 +45,10 @@ function getTomorrowStr(): string {
 
 function getDefaultDirection(): Direction {
   return new Date().getHours() < 12 ? 'homeToOffice' : 'officeToHome';
+}
+
+function lineDisplayName(line: LineInfo, lang: Lang): string {
+  return lang === 'zh' ? line.nameZh : line.name;
 }
 
 function parseTime(time: string): number {
@@ -156,6 +161,7 @@ function ArrowRightIcon({ className }: { className?: string }) {
 // ──────────────────────────────────────────────────────────
 
 function AlertCard({ alert }: { alert: ParsedAlert }) {
+  const { t } = useLanguage();
   const isDelay = alert.title.toLowerCase().includes('delay');
   const isCancel = alert.title.toLowerCase().includes('cancel');
   const borderColor = isCancel ? 'border-red-500' : isDelay ? 'border-amber-500' : 'border-blue-400';
@@ -192,7 +198,7 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <span>
-            Scheduled:{' '}
+            {t('scheduled')}{' '}
             <span className="font-mono font-semibold text-gray-800">{alert.scheduledDeparture}</span>
             {alert.scheduledArrival && (
               <>
@@ -214,7 +220,7 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
             }`}
           />
           <span className="text-gray-600">
-            Status: <span className="font-medium text-gray-800">{alert.status}</span>
+            {t('status')}: <span className="font-medium text-gray-800">{alert.status}</span>
           </span>
         </div>
       )}
@@ -222,7 +228,7 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
       {/* Reason */}
       {alert.reason && (
         <div className="text-sm text-gray-500 ml-7 leading-relaxed">
-          <span className="text-gray-400">Reason: </span>{alert.reason}
+          <span className="text-gray-400">{t('reason')} </span>{alert.reason}
         </div>
       )}
     </div>
@@ -244,9 +250,11 @@ function ServiceAlertsSheet({
   lastUpdated: string | null;
   onClose: () => void;
 }) {
+  const { lang, t } = useLanguage();
   const formattedTime = lastUpdated
     ? new Date(lastUpdated).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })
     : null;
+  const lineName = lineDisplayName(line, lang);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
@@ -273,8 +281,8 @@ function ServiceAlertsSheet({
               <span className="text-xs leading-none">{line.id}</span>
             </div>
             <div>
-              <div className="font-bold text-base leading-tight">{line.name} Line</div>
-              <div className="text-white/60 text-xs">Service Updates</div>
+              <div className="font-bold text-base leading-tight">{t('lineOption', { name: lineName })}</div>
+              <div className="text-white/60 text-xs">{t('serviceUpdatesTitle')}</div>
             </div>
             <button
               onClick={onClose}
@@ -291,14 +299,14 @@ function ServiceAlertsSheet({
             /* Loading state */
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <div className="w-8 h-8 border-2 border-go-green border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm text-gray-500">Loading service updates…</span>
+              <span className="text-sm text-gray-500">{t('loadingServiceUpdates')}</span>
             </div>
           ) : !available ? (
             /* API unavailable */
             <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3 text-center">
               <div className="text-gray-400 text-2xl mb-2">📡</div>
-              <div className="text-sm font-medium text-gray-700 mb-1">Live data unavailable</div>
-              <div className="text-xs text-gray-500">Check the official GO Transit website for current alerts.</div>
+              <div className="text-sm font-medium text-gray-700 mb-1">{t('liveDataUnavailable')}</div>
+              <div className="text-xs text-gray-500">{t('checkOfficialSite')}</div>
             </div>
           ) : alerts.length === 0 ? (
             /* Good service */
@@ -306,8 +314,8 @@ function ServiceAlertsSheet({
               <div className="flex items-center gap-3">
                 <CheckCircleIcon className="w-8 h-8 text-go-green shrink-0" />
                 <div>
-                  <div className="font-semibold text-gray-900">Good Service</div>
-                  <div className="text-xs text-gray-500 mt-0.5">No active alerts on {line.name} line</div>
+                  <div className="font-semibold text-gray-900">{t('goodService')}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{t('noActiveAlerts', { name: lineName })}</div>
                 </div>
               </div>
             </div>
@@ -324,11 +332,9 @@ function ServiceAlertsSheet({
                   <span className="text-go-green text-xs font-bold">i</span>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-gray-800 mb-1">Special service Jun 10 – Jul 5</div>
+                  <div className="text-sm font-semibold text-gray-800 mb-1">{t('specialServiceNotice')}</div>
                   <div className="text-xs text-gray-600 leading-relaxed">
-                    Extra weekday trip added: Unionville GO{' '}
-                    <span className="font-mono font-semibold">16:36</span> → Union Station{' '}
-                    <span className="font-mono font-semibold">17:17</span> (FIFA World Cup 2026).
+                    {t('specialServiceDetail')}
                   </div>
                 </div>
               </div>
@@ -344,14 +350,14 @@ function ServiceAlertsSheet({
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full bg-go-green text-white font-semibold py-3 rounded-xl text-sm"
           >
-            View on gotransit.com
+            {t('viewOnGotransit')}
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
           {formattedTime && (
             <div className="text-center text-xs text-gray-400 mt-2">
-              Last updated {formattedTime}
+              {t('lastUpdated', { time: formattedTime })}
             </div>
           )}
         </div>
@@ -377,6 +383,7 @@ function StationList({
   onBoard: boolean;
   isNext: boolean;
 }) {
+  const { lang, t } = useLanguage();
   // For overnight trips (departure >22:00) normalize nowMinutes to absolute scale
   const effectiveNow = useMemo(() => {
     if (nowMinutes === null) return null;
@@ -453,18 +460,18 @@ function StationList({
                       ? isNext ? 'text-white font-semibold' : 'text-go-dark font-semibold'
                       : isNext ? 'text-white/85' : 'text-gray-700'
                   }`}>
-                    {stop.name}
+                    {getStationName(stop.code, stop.name, lang)}
                   </span>
                   {isUpcomingStation && (
                     <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
                       isNext ? 'bg-white/25 text-white' : 'bg-go-dark/10 text-go-dark'
                     }`}>
-                      next
+                      {t('next')}
                     </span>
                   )}
                   {isAtFinal && (
                     <span className="text-[10px] font-bold text-go-accent bg-go-accent/10 px-1.5 py-0.5 rounded-full shrink-0 animate-pulse">
-                      arrived
+                      {t('arrived')}
                     </span>
                   )}
                 </div>
@@ -556,6 +563,7 @@ function VehicleBadge({
   isNext: boolean;
   isPast: boolean;
 }) {
+  const { t } = useLanguage();
   const iconCls = `w-7 h-6 ${
     isNext ? 'text-white' : isPast ? 'text-gray-300' : type === 'train' ? 'text-go-dark' : 'text-amber-600'
   }`;
@@ -566,7 +574,7 @@ function VehicleBadge({
   return (
     <div className="flex flex-col items-center justify-center w-10 shrink-0">
       {type === 'train' ? <TrainIcon className={iconCls} inverted={isNext} /> : <BusIcon className={iconCls} />}
-      <span className={textCls}>{type === 'train' ? 'Train' : 'Bus'}</span>
+      <span className={textCls}>{type === 'train' ? t('train') : t('bus')}</span>
     </div>
   );
 }
@@ -584,6 +592,7 @@ function TrackerRow({
   isPast: boolean;
   isNext: boolean;
 }) {
+  const { t } = useLanguage();
   // Platform badge — outlined chip, the sharpest element on the card
   const platformBadge = tracker.platform ? (
     <div className={`flex flex-col items-center leading-none px-3.5 py-1 rounded-lg border-[3px] ${
@@ -596,7 +605,7 @@ function TrackerRow({
       <span className={`text-[9px] font-bold uppercase tracking-wider ${
         isNext ? 'text-yellow-200' : isPast ? 'text-yellow-600/50' : 'text-yellow-700'
       }`}>
-        Platform
+        {t('platform')}
       </span>
       <span className={`text-3xl font-black leading-none mt-0.5 ${
         isNext ? 'text-yellow-100' : isPast ? 'text-yellow-700/50' : 'text-yellow-800'
@@ -617,10 +626,10 @@ function TrackerRow({
           <div className="flex flex-col leading-none">
             <span className={`text-[10px] font-semibold uppercase tracking-wider ${
               isNext ? 'text-red-200' : 'text-red-500'
-            }`}>Status</span>
+            }`}>{t('status')}</span>
             <span className={`text-base font-extrabold leading-none mt-0.5 ${
               isNext ? 'text-red-200' : 'text-red-600'
-            }`}>Cancelled</span>
+            }`}>{t('cancelled')}</span>
           </div>
         </div>
       );
@@ -634,10 +643,10 @@ function TrackerRow({
           <div className="flex flex-col leading-none">
             <span className={`text-[10px] font-semibold uppercase tracking-wider ${
               isNext ? 'text-orange-200' : 'text-orange-600'
-            }`}>Delayed</span>
+            }`}>{t('delayed')}</span>
             <span className={`text-base font-extrabold leading-none mt-0.5 ${
               isNext ? 'text-orange-200' : 'text-orange-700'
-            }`}>+{tracker.delay} min</span>
+            }`}>{t('delayMin', { min: tracker.delay })}</span>
           </div>
         </div>
       );
@@ -650,10 +659,10 @@ function TrackerRow({
         <div className="flex flex-col leading-none">
           <span className={`text-[10px] font-semibold uppercase tracking-wider ${
             isNext ? 'text-white/70' : 'text-green-600'
-          }`}>Expected</span>
+          }`}>{t('expected')}</span>
           <span className={`text-base font-extrabold leading-none mt-0.5 ${
             isNext ? 'text-white/90' : 'text-green-700'
-          }`}>On Time</span>
+          }`}>{t('onTime')}</span>
         </div>
       </div>
     );
@@ -706,6 +715,7 @@ function TrainCard({
   onToggleOnBoard: () => void;
   onAlertClick: () => void;
 }) {
+  const { t } = useLanguage();
   const hasAlert = alerts.length > 0;
   const depMins = timeToMinutes(trip.departure);
   const arrMins = depMins + parseInt(trip.tripTime, 10);
@@ -739,12 +749,12 @@ function TrainCard({
         <div className="flex gap-1.5 pt-2 pb-0.5">
           {isNext && (
             <span className="text-[10px] font-bold uppercase tracking-widest bg-go-accent text-white px-2 py-0.5 rounded-full">
-              Next
+              {t('nextBadge')}
             </span>
           )}
           {isNowRunning && (
             <span className="text-[10px] font-bold uppercase tracking-widest bg-amber-500 text-white px-2 py-0.5 rounded-full animate-pulse">
-              Now
+              {t('nowBadge')}
             </span>
           )}
         </div>
@@ -766,7 +776,7 @@ function TrainCard({
           <div className={`text-2xl font-bold leading-none ${isNext ? 'text-white' : isNowRunning ? 'text-amber-700' : 'text-go-dark'}`}>
             {trip.departure}
           </div>
-          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>depart</div>
+          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>{t('depart')}</div>
         </div>
 
         {/* Center arrow */}
@@ -785,7 +795,7 @@ function TrainCard({
           <div className={`text-2xl font-bold leading-none ${isNext ? 'text-white' : isNowRunning ? 'text-go-dark' : 'text-go-dark'}`}>
             {trip.arrival}
           </div>
-          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>arrive</div>
+          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>{t('arrive')}</div>
         </div>
 
         {/* Alert badge */}
@@ -843,7 +853,7 @@ function TrainCard({
                     : 'bg-go-green text-white shadow-sm'
               }`}
             >
-              {isOnBoard ? '✕ Exit On Board' : '🚆 On Board'}
+              {isOnBoard ? t('exitOnBoard') : t('onBoard')}
             </button>
           )}
         </div>
@@ -857,6 +867,7 @@ function TrainCard({
 // ──────────────────────────────────────────────────────────
 
 function AddToHomeScreenBanner() {
+  const { t } = useLanguage();
   const [visible, setVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -942,22 +953,19 @@ function AddToHomeScreenBanner() {
 
         {/* Text */}
         <div className="flex-1 min-w-0">
-          <div className="text-white font-semibold text-sm leading-snug">Add to Home Screen</div>
+          <div className="text-white font-semibold text-sm leading-snug">{t('addToHomeScreen')}</div>
           {isIOS ? (
             <div className="text-white/60 text-xs mt-0.5 leading-relaxed">
-              Tap the{' '}
               <span className="inline-flex items-center gap-0.5 text-white/80 font-medium">
                 <svg className="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 2a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707A1 1 0 016.293 5.293l3-3A1 1 0 0110 2z"/>
                   <path d="M3 15a2 2 0 002 2h10a2 2 0 002-2v-4a1 1 0 10-2 0v4H5v-4a1 1 0 10-2 0v4z"/>
                 </svg>
-                Share
+                {t('tapShareThenAdd')}
               </span>
-              {' '}then{' '}
-              <span className="text-white/80 font-medium">"Add to Home Screen"</span>
             </div>
           ) : (
-            <div className="text-white/60 text-xs mt-0.5">Get quick access from your home screen</div>
+            <div className="text-white/60 text-xs mt-0.5">{t('getQuickAccess')}</div>
           )}
         </div>
 
@@ -968,7 +976,7 @@ function AddToHomeScreenBanner() {
               onClick={handleInstall}
               className="bg-go-accent text-white text-xs font-bold px-3 py-1.5 rounded-lg active:opacity-80"
             >
-              Install
+              {t('install')}
             </button>
           )}
           <button
@@ -985,9 +993,9 @@ function AddToHomeScreenBanner() {
       {isIOS && (
         <div className="flex items-center justify-center gap-4 pb-3 px-4">
           {[
-            { icon: '⬆️', label: 'Tap Share' },
-            { icon: '➕', label: 'Add to Home Screen' },
-            { icon: '✅', label: 'Done!' },
+            { icon: '⬆️', label: t('stepTapShare') },
+            { icon: '➕', label: t('stepAddToHomeScreen') },
+            { icon: '✅', label: t('stepDone') },
           ].map((step, i) => (
             <div key={i} className="flex flex-col items-center gap-0.5">
               <span className="text-lg leading-none">{step.icon}</span>
@@ -1005,6 +1013,7 @@ function AddToHomeScreenBanner() {
 // ──────────────────────────────────────────────────────────
 
 function WeekendNotice({ direction }: { direction: Direction }) {
+  const { t } = useLanguage();
   const href = direction === 'homeToOffice'
     ? 'https://www.gotransit.com/en/see-schedules?tripPoint=36888&departure=UI&destination=UN&transfers=true'
     : 'https://www.gotransit.com/en/see-schedules?tripPoint=86388&departure=UN&destination=UI&transfers=true';
@@ -1016,10 +1025,10 @@ function WeekendNotice({ direction }: { direction: Direction }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
       </div>
-      <h3 className="text-go-dark font-semibold text-lg mb-2">No Trains Found</h3>
+      <h3 className="text-go-dark font-semibold text-lg mb-2">{t('noTrainsFound')}</h3>
       <p className="text-gray-500 text-sm mb-4">
-        No scheduled trains for this station on this date.<br />
-        View the official schedule on gotransit.com.
+        {t('noScheduledTrains')}<br />
+        {t('viewOfficialSchedule')}
       </p>
       <a
         href={href}
@@ -1027,7 +1036,7 @@ function WeekendNotice({ direction }: { direction: Direction }) {
         rel="noopener noreferrer"
         className="inline-flex items-center gap-2 bg-go-green text-white font-semibold px-5 py-2.5 rounded-full text-sm"
       >
-        See Weekend Schedule
+        {t('seeWeekendSchedule')}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
         </svg>
@@ -1067,6 +1076,7 @@ function loadLineId(): string {
 }
 
 export default function Home() {
+  const { lang, setLang, t } = useLanguage();
   const dateInputRef = useRef<HTMLInputElement>(null);
   const [selectedDate, setSelectedDate] = useState(getDefaultDate);
   const [direction, setDirection] = useState<Direction>(getDefaultDirection);
@@ -1292,16 +1302,27 @@ export default function Home() {
             </svg>
           </div>
           <div>
-            <div className="font-bold text-base leading-tight">Go Train Status</div>
-            <div className="text-white/60 text-xs">{line.name} Line</div>
+            <div className="font-bold text-base leading-tight">{t('appTitle')}</div>
+            <div className="text-white/60 text-xs">{t('lineOption', { name: lineDisplayName(line, lang) })}</div>
           </div>
 
           <div className="ml-auto flex items-center gap-2">
+            {/* Language toggle */}
+            <button
+              onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+              className="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white/80 text-xs font-semibold"
+              title="EN / 中文"
+            >
+              {lang === 'en' ? '中文' : 'EN'}
+            </button>
+
+            <div className="w-px h-4 bg-white/20" />
+
             {/* Service alerts icon — always visible */}
             <button
               onClick={() => setShowAlertsSheet(true)}
               className="relative p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-              title={`${line.name} service updates`}
+              title={t('serviceUpdates', { name: lineDisplayName(line, lang) })}
             >
               <BellIcon className="w-5 h-5 text-white/70" />
               {/* Badge dot — red when alerts, amber when loading done */}
@@ -1317,7 +1338,7 @@ export default function Home() {
               onClick={handleRefresh}
               disabled={isRefreshing}
               className="p-1.5 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50"
-              title="Refresh live data"
+              title={t('refreshLiveData')}
             >
               <svg
                 className={`w-5 h-5 text-white/70 ${isRefreshing ? 'animate-spin' : ''}`}
@@ -1342,7 +1363,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="text-white/60 text-xs hover:text-white/90 transition-colors"
             >
-              Official ↗
+              {t('official')}
             </a>
           </div>
         </div>
@@ -1353,7 +1374,7 @@ export default function Home() {
             <span className="w-4 flex items-center justify-center shrink-0">
               <span className="w-2.5 h-2.5 rounded-full bg-go-green" />
             </span>
-            Line
+            {t('lineLabel')}
           </span>
           <div className="relative flex-1">
             <select
@@ -1363,7 +1384,7 @@ export default function Home() {
             >
               {LINES.map((l) => (
                 <option key={l.id} value={l.id} className="bg-go-dark text-white">
-                  {l.name} Line
+                  {t('lineOption', { name: lineDisplayName(l, lang) })}
                 </option>
               ))}
             </select>
@@ -1377,7 +1398,7 @@ export default function Home() {
         <div className="flex items-center gap-2 mx-4 mb-2">
           <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
             <span className="w-4 flex items-center justify-center shrink-0">🏠</span>
-            Home
+            {t('homeLabel')}
           </span>
           <div className="relative flex-1">
             <select
@@ -1387,7 +1408,7 @@ export default function Home() {
             >
               {line.homeStations.map((s) => (
                 <option key={s.code} value={s.code} className="bg-go-dark text-white">
-                  {s.name}
+                  {getStationName(s.code, s.name, lang)}
                 </option>
               ))}
             </select>
@@ -1405,8 +1426,8 @@ export default function Home() {
               direction === 'homeToOffice' ? 'bg-go-green text-white shadow' : 'text-white/70'
             }`}
           >
-            <div className="text-xs leading-tight">🏠 {homeStation.shortName}</div>
-            <div className="text-xs text-white/60">→ Union</div>
+            <div className="text-xs leading-tight">🏠 {getStationName(homeStation.code, homeStation.shortName, lang)}</div>
+            <div className="text-xs text-white/60">{t('homeToUnion')}</div>
           </button>
           <button
             onClick={() => setDirection('officeToHome')}
@@ -1414,8 +1435,8 @@ export default function Home() {
               direction === 'officeToHome' ? 'bg-go-green text-white shadow' : 'text-white/70'
             }`}
           >
-            <div className="text-xs leading-tight">🏢 Union</div>
-            <div className="text-xs text-white/60">→ {homeStation.shortName}</div>
+            <div className="text-xs leading-tight">🏢 {t('unionShort')}</div>
+            <div className="text-xs text-white/60">{t('unionToHome', { home: getStationName(homeStation.code, homeStation.shortName, lang) })}</div>
           </button>
         </div>
 
@@ -1449,7 +1470,7 @@ export default function Home() {
               }}
               className="shrink-0 h-9 bg-white/10 text-white text-xs font-semibold px-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
             >
-              Tomorrow →
+              {t('tomorrow')}
             </button>
           ) : (
             <button
@@ -1460,7 +1481,7 @@ export default function Home() {
               }}
               className="shrink-0 h-9 bg-go-accent text-white text-xs font-semibold px-3 rounded-lg hover:opacity-90 transition-opacity"
             >
-              ← Today
+              {t('today')}
             </button>
           )}
         </div>
@@ -1469,13 +1490,13 @@ export default function Home() {
       {/* Route bar */}
       <div className="bg-go-green text-white px-4 py-2 flex items-center gap-2 text-sm">
         <span className="font-semibold">
-          {direction === 'homeToOffice' ? homeStation.name : 'Union Station'}
+          {direction === 'homeToOffice' ? getStationName(homeStation.code, homeStation.name, lang) : t('unionStation')}
         </span>
         <ArrowRightIcon className="w-4 h-4 shrink-0" />
         <span className="font-semibold">
-          {direction === 'homeToOffice' ? 'Union Station' : homeStation.name}
+          {direction === 'homeToOffice' ? t('unionStation') : getStationName(homeStation.code, homeStation.name, lang)}
         </span>
-        <span className="ml-auto text-white/70 capitalize text-xs">{serviceType}</span>
+        <span className="ml-auto text-white/70 capitalize text-xs">{t(serviceType)}</span>
       </div>
 
       {/* Add to Home Screen banner (only in mobile browser, not standalone) */}
@@ -1489,9 +1510,9 @@ export default function Home() {
         >
           <span className="text-sm">⚠️</span>
           <span className="text-amber-800 text-xs font-medium flex-1">
-            {totalAlerts} active alert{totalAlerts !== 1 ? 's' : ''} on {line.name} line
+            {t('activeAlerts', { count: totalAlerts, plural: totalAlerts !== 1 ? 's' : '', name: lineDisplayName(line, lang) })}
           </span>
-          <span className="text-amber-600 text-xs font-semibold">View →</span>
+          <span className="text-amber-600 text-xs font-semibold">{t('view')}</span>
         </button>
       )}
 
@@ -1546,28 +1567,29 @@ export default function Home() {
                     <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
                   )}
                   <span className="text-xs font-medium text-gray-700">
-                    {isRefreshing ? 'Refreshing…' : 'Live data'}
+                    {isRefreshing ? t('refreshing') : t('liveData')}
                   </span>
                 </div>
                 <span className="text-xs text-gray-400">
-                  {!isRefreshing && `Next refresh in ${refreshCountdown}s`}
+                  {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
                 </span>
               </div>
               {lastRefreshed && (
                 <p className="text-[11px] text-gray-400 mt-1.5">
-                  Last updated:{' '}
-                  {lastRefreshed.toLocaleTimeString('en-CA', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: true,
+                  {t('lastUpdated', {
+                    time: lastRefreshed.toLocaleTimeString('en-CA', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit',
+                      hour12: true,
+                    }),
                   })}
                 </p>
               )}
             </div>
 
             <div className="text-center text-xs text-gray-400 mt-3 mb-2 pb-safe">
-              Schedule effective {line.effectiveDate} · {line.name} Line
+              {t('scheduleEffective', { date: line.effectiveDate, name: lineDisplayName(line, lang) })}
               <br />
               <a
                 href="https://github.com/jasonzzx/go-train-status/issues"
@@ -1575,7 +1597,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="underline mt-1 inline-block"
               >
-                Report issues on GitHub
+                {t('reportIssues')}
               </a>
             </div>
 
@@ -1585,7 +1607,7 @@ export default function Home() {
                 alt="Jason Zhong logo"
                 className="w-5 h-5 rounded-full"
               />
-              <span>Author: Jason Zhong</span>
+              <span>{t('authorBy')}</span>
               <a
                 href="mailto:jasonzzx@gmail.com"
                 title="Email Jason Zhong"

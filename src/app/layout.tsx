@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { readFileSync } from 'fs';
 import './globals.css';
 import VersionWatcher from './VersionWatcher';
+import { LanguageProvider } from '@/i18n';
 
 function getBuildVersion(): string {
   try {
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <VersionWatcher buildVersion={buildVersion} />
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

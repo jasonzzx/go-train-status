@@ -49,6 +49,7 @@ export const UNION_CODE = 'UN';
 interface LineMeta {
   id: string;
   name: string;        // "Stouffville Line"
+  nameZh: string;      // "士德圈线" — Simplified Chinese line name
   shortName: string;   // "Stouffville"
   color: string;       // official GO line colour (used for the line badge)
   defaultHomeCode?: string; // overrides the terminus default
@@ -57,13 +58,13 @@ interface LineMeta {
 // Hand-authored display metadata + official GO line colours.
 // Order here is the order shown in the line picker.
 const LINE_META: LineMeta[] = [
-  { id: 'LW', name: 'Lakeshore West', shortName: 'Lakeshore W', color: '#98002e', defaultHomeCode: 'OA' },
-  { id: 'LE', name: 'Lakeshore East', shortName: 'Lakeshore E', color: '#ff0d00', defaultHomeCode: 'WH' },
-  { id: 'ST', name: 'Stouffville',    shortName: 'Stouffville', color: '#794500', defaultHomeCode: 'UI' },
-  { id: 'RH', name: 'Richmond Hill',  shortName: 'Richmond Hill', color: '#0099c7' },
-  { id: 'BR', name: 'Barrie',         shortName: 'Barrie',      color: '#003767', defaultHomeCode: 'AU' },
-  { id: 'KI', name: 'Kitchener',      shortName: 'Kitchener',   color: '#00853e', defaultHomeCode: 'BE' },
-  { id: 'MI', name: 'Milton',         shortName: 'Milton',      color: '#f57f25' },
+  { id: 'LW', name: 'Lakeshore West', nameZh: '湖滨西',   shortName: 'Lakeshore W', color: '#98002e', defaultHomeCode: 'OA' },
+  { id: 'LE', name: 'Lakeshore East', nameZh: '湖滨东',   shortName: 'Lakeshore E', color: '#ff0d00', defaultHomeCode: 'WH' },
+  { id: 'ST', name: 'Stouffville',    nameZh: '斯托夫维尔', shortName: 'Stouffville', color: '#794500', defaultHomeCode: 'UI' },
+  { id: 'RH', name: 'Richmond Hill',  nameZh: '理查蒙德山', shortName: 'Richmond Hill', color: '#0099c7' },
+  { id: 'BR', name: 'Barrie',         nameZh: '巴里',     shortName: 'Barrie',      color: '#003767', defaultHomeCode: 'AU' },
+  { id: 'KI', name: 'Kitchener',      nameZh: '基奇纳',   shortName: 'Kitchener',   color: '#00853e', defaultHomeCode: 'BE' },
+  { id: 'MI', name: 'Milton',         nameZh: '米尔顿',   shortName: 'Milton',      color: '#f57f25' },
 ];
 
 export interface LineInfo extends LineMeta {
