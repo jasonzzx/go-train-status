@@ -901,16 +901,36 @@ function AddToHomeScreenBanner() {
   if (!visible) return null;
 
   return (
-    <div className="mx-3 mt-3 mb-1 rounded-2xl overflow-hidden shadow-sm border border-blue-100"
-         style={{ background: 'linear-gradient(135deg, #1c3a5e 0%, #0b1c2e 100%)' }}>
+    <div className="mx-3 mt-3 mb-1 rounded-2xl overflow-hidden shadow-sm border border-green-100"
+         style={{ background: 'linear-gradient(135deg, #0d4030 0%, #082b20 100%)' }}>
       <div className="flex items-start gap-3 px-4 py-3">
         {/* App icon */}
-        <div className="shrink-0 w-12 h-12 rounded-xl overflow-hidden shadow-md"
-             style={{ background: 'linear-gradient(135deg, #1c3a5e 0%, #0b1c2e 100%)', border: '1.5px solid rgba(255,255,255,0.15)' }}>
-          <div className="w-full h-full flex items-center justify-center relative">
-            <div className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-emerald-400" />
-            <span className="text-base font-black text-sky-300 tracking-tighter">GO</span>
-          </div>
+        <div className="shrink-0 w-12 h-12 rounded-xl overflow-hidden shadow-md p-1"
+             style={{ background: '#082b20', border: '1.5px solid rgba(255,255,255,0.15)' }}>
+          <svg viewBox="0 0 36 36" width="100%" height="100%">
+            <defs>
+              <linearGradient id="a2hsLogoRim" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#e8fff0" />
+                <stop offset="0.3" stopColor="#7ED957" />
+                <stop offset="0.55" stopColor="#0b3d2c" />
+                <stop offset="0.8" stopColor="#7ED957" />
+                <stop offset="1" stopColor="#e8fff0" />
+              </linearGradient>
+            </defs>
+            <circle cx="18" cy="18" r="16.4" fill="none" stroke="url(#a2hsLogoRim)" strokeWidth="1.6" />
+            <circle cx="18" cy="18" r="14.4" fill="#00853F" />
+            <g transform="translate(18,18) scale(0.8) translate(-18,-18)">
+              <rect x="6" y="13" width="24" height="10" rx="2.5" fill="white" />
+              <rect x="22" y="15" width="6" height="5" rx="1" fill="#0b3d2c" opacity="0.85" />
+              <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#0b3d2c" opacity="0.85" />
+              <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#0b3d2c" opacity="0.85" />
+              <circle cx="11" cy="25" r="2.5" fill="white" />
+              <circle cx="25" cy="25" r="2.5" fill="white" />
+              <rect x="4" y="27" width="28" height="1.5" rx="0.75" fill="white" opacity="0.45" />
+              <circle cx="29" cy="9" r="4" fill="#0b3d2c" />
+              <circle cx="29" cy="9" r="2.5" fill="#4ade80" />
+            </g>
+          </svg>
         </div>
 
         {/* Text */}
@@ -939,7 +959,7 @@ function AddToHomeScreenBanner() {
           {!isIOS && deferredPrompt && (
             <button
               onClick={handleInstall}
-              className="bg-sky-400 text-white text-xs font-bold px-3 py-1.5 rounded-lg active:opacity-80"
+              className="bg-go-accent text-white text-xs font-bold px-3 py-1.5 rounded-lg active:opacity-80"
             >
               Install
             </button>
