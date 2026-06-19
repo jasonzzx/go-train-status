@@ -978,6 +978,7 @@ function AddToHomeScreenBanner() {
 
 function LiveOnlyView({
   trackerTrips,
+  trackerLoading,
   direction,
   homeStation,
   isRefreshing,
@@ -985,6 +986,7 @@ function LiveOnlyView({
   refreshCountdown,
 }: {
   trackerTrips: TrackerTrip[];
+  trackerLoading: boolean;
   direction: Direction;
   homeStation: StationInfo;
   isRefreshing: boolean;
@@ -993,6 +995,7 @@ function LiveOnlyView({
 }) {
   const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
   const filtered = trackerTrips.filter((t) => t.directionCd === dirKey);
+  const isLoading = trackerLoading || (isRefreshing && filtered.length === 0);
 
   return (
     <div className="space-y-2">
@@ -1001,9 +1004,13 @@ function LiveOnlyView({
         Showing live trains from railsix.com only.
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
         <div className="rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-6 text-center text-sm text-gray-400">
-          {isRefreshing ? 'Loading live trains…' : 'No live trains found for this route.'}
+          Loading live trains…
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-6 text-center text-sm text-gray-400">
+          No live trains found for this route.
         </div>
       ) : (
         filtered.map((t) => {
@@ -1151,6 +1158,14 @@ export default function Home() {
 
   // Tracker state (platform + expected)
   const [trackerTrips, setTrackerTrips] = useState<TrackerTrip[]>([]);
+  const [trackerLoading, setTrackerLoading] = useState(true);
+
+  // Clear stale tracker data immediately when home station changes
+  useEffect(() => {
+    setTrackerTrips([]);
+    setTrackerLoading(true);
+    setLastRefreshed(null);
+  }, [homeStationCode]);
 
   // Alerts state
   const [alerts, setAlerts] = useState<ParsedAlert[]>([]);
@@ -1187,6 +1202,8 @@ export default function Home() {
       setRefreshCountdown(30);
     } catch {
       // non-critical
+    } finally {
+      setTrackerLoading(false);
     }
   }, [homeStation.railsixSlug]);
 
@@ -1473,6 +1490,7 @@ export default function Home() {
         {showLiveOnly ? (
           <LiveOnlyView
             trackerTrips={trackerTrips}
+            trackerLoading={trackerLoading}
             direction={direction}
             homeStation={homeStation}
             isRefreshing={isRefreshing}
