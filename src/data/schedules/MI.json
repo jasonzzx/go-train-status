@@ -1,0 +1,374 @@
+{
+  "id": "MI",
+  "effectiveDate": "2026-06-15",
+  "stations": [
+    {
+      "code": "ML",
+      "name": "Milton GO",
+      "shortName": "Milton",
+      "railsixSlug": "milton"
+    },
+    {
+      "code": "LS",
+      "name": "Lisgar GO",
+      "shortName": "Lisgar",
+      "railsixSlug": "lisgar"
+    },
+    {
+      "code": "ME",
+      "name": "Meadowvale GO",
+      "shortName": "Meadowvale",
+      "railsixSlug": "meadowvale"
+    },
+    {
+      "code": "SR",
+      "name": "Streetsville GO",
+      "shortName": "Streetsville",
+      "railsixSlug": "streetsville"
+    },
+    {
+      "code": "ER",
+      "name": "Erindale GO",
+      "shortName": "Erindale",
+      "railsixSlug": "erindale"
+    },
+    {
+      "code": "CO",
+      "name": "Cooksville GO",
+      "shortName": "Cooksville",
+      "railsixSlug": "cooksville"
+    },
+    {
+      "code": "DI",
+      "name": "Dixie GO",
+      "shortName": "Dixie",
+      "railsixSlug": "dixie"
+    },
+    {
+      "code": "KP",
+      "name": "Kipling GO",
+      "shortName": "Kipling",
+      "railsixSlug": "kipling"
+    },
+    {
+      "code": "UN",
+      "name": "Union Station",
+      "shortName": "Union",
+      "railsixSlug": "union"
+    }
+  ],
+  "weekday": {
+    "toUnion": [
+      {
+        "tripId": "20260904-MI-2706",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "07:03",
+          "KP": "06:43",
+          "DI": "06:36",
+          "CO": "06:31",
+          "ER": "06:25",
+          "SR": "06:20",
+          "ME": "06:13",
+          "LS": "06:08",
+          "ML": "06:00"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2710",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "07:33",
+          "KP": "07:13",
+          "DI": "07:06",
+          "CO": "07:01",
+          "ER": "06:55",
+          "SR": "06:50",
+          "ME": "06:43",
+          "LS": "06:38",
+          "ML": "06:30"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2712",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "07:48",
+          "KP": "07:28",
+          "DI": "07:21",
+          "CO": "07:16",
+          "ER": "07:10",
+          "SR": "07:05",
+          "ME": "06:58",
+          "LS": "06:53",
+          "ML": "06:45"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2714",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "08:03",
+          "KP": "07:43",
+          "DI": "07:36",
+          "CO": "07:31",
+          "ER": "07:25",
+          "SR": "07:20",
+          "ME": "07:13",
+          "LS": "07:08",
+          "ML": "07:00"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2716",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "08:18",
+          "KP": "07:58",
+          "DI": "07:51",
+          "CO": "07:46",
+          "ER": "07:40",
+          "SR": "07:35",
+          "ME": "07:28",
+          "LS": "07:23",
+          "ML": "07:15"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2718",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "08:33",
+          "KP": "08:13",
+          "DI": "08:06",
+          "CO": "08:01",
+          "ER": "07:55",
+          "SR": "07:50",
+          "ME": "07:43",
+          "LS": "07:38",
+          "ML": "07:30"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2720",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "08:48",
+          "KP": "08:28",
+          "DI": "08:21",
+          "CO": "08:16",
+          "ER": "08:10",
+          "SR": "08:05",
+          "ME": "07:58",
+          "LS": "07:53",
+          "ML": "07:45"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2722",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "09:03",
+          "KP": "08:43",
+          "DI": "08:36",
+          "CO": "08:31",
+          "ER": "08:25",
+          "SR": "08:20",
+          "ME": "08:13",
+          "LS": "08:08",
+          "ML": "08:00"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2724",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "09:18",
+          "KP": "08:58",
+          "DI": "08:51",
+          "CO": "08:46",
+          "ER": "08:40",
+          "SR": "08:35",
+          "ME": "08:28",
+          "LS": "08:23",
+          "ML": "08:15"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2726",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "09:33",
+          "KP": "09:13",
+          "DI": "09:06",
+          "CO": "09:01",
+          "ER": "08:55",
+          "SR": "08:50",
+          "ME": "08:43",
+          "LS": "08:38",
+          "ML": "08:30"
+        }
+      }
+    ],
+    "fromUnion": [
+      {
+        "tripId": "20260904-MI-2723",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "16:40",
+          "LS": "16:31",
+          "ME": "16:26",
+          "SR": "16:20",
+          "ER": "16:15",
+          "CO": "16:09",
+          "DI": "16:03",
+          "KP": "15:58",
+          "UN": "15:40"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2727",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "17:10",
+          "LS": "17:01",
+          "ME": "16:56",
+          "SR": "16:50",
+          "ER": "16:45",
+          "CO": "16:39",
+          "DI": "16:33",
+          "KP": "16:28",
+          "UN": "16:10"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2729",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "17:25",
+          "LS": "17:16",
+          "ME": "17:11",
+          "SR": "17:05",
+          "ER": "17:00",
+          "CO": "16:54",
+          "DI": "16:48",
+          "KP": "16:43",
+          "UN": "16:25"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2731",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "17:40",
+          "LS": "17:31",
+          "ME": "17:26",
+          "SR": "17:20",
+          "ER": "17:15",
+          "CO": "17:09",
+          "DI": "17:03",
+          "KP": "16:58",
+          "UN": "16:40"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2735",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "17:55",
+          "LS": "17:46",
+          "ME": "17:41",
+          "SR": "17:35",
+          "ER": "17:30",
+          "CO": "17:24",
+          "DI": "17:18",
+          "KP": "17:13",
+          "UN": "16:55"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2737",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "18:10",
+          "LS": "18:01",
+          "ME": "17:56",
+          "SR": "17:50",
+          "ER": "17:45",
+          "CO": "17:39",
+          "DI": "17:33",
+          "KP": "17:28",
+          "UN": "17:10"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2739",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "18:25",
+          "LS": "18:16",
+          "ME": "18:11",
+          "SR": "18:05",
+          "ER": "18:00",
+          "CO": "17:54",
+          "DI": "17:48",
+          "KP": "17:43",
+          "UN": "17:25"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2741",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "18:55",
+          "LS": "18:46",
+          "ME": "18:41",
+          "SR": "18:35",
+          "ER": "18:30",
+          "CO": "18:24",
+          "DI": "18:18",
+          "KP": "18:13",
+          "UN": "17:55"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2745",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "19:25",
+          "LS": "19:16",
+          "ME": "19:11",
+          "SR": "19:05",
+          "ER": "19:00",
+          "CO": "18:54",
+          "DI": "18:48",
+          "KP": "18:43",
+          "UN": "18:25"
+        }
+      },
+      {
+        "tripId": "20260904-MI-2749",
+        "vehicleType": "train",
+        "stopTimes": {
+          "ML": "20:10",
+          "LS": "20:01",
+          "ME": "19:56",
+          "SR": "19:50",
+          "ER": "19:45",
+          "CO": "19:39",
+          "DI": "19:33",
+          "KP": "19:28",
+          "UN": "19:10"
+        }
+      }
+    ]
+  },
+  "saturday": {
+    "toUnion": [],
+    "fromUnion": []
+  },
+  "sunday": {
+    "toUnion": [],
+    "fromUnion": []
+  }
+}

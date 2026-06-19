@@ -1,9 +1,72 @@
 {
+  "id": "ST",
   "effectiveDate": "2026-06-15",
+  "stations": [
+    {
+      "code": "LI",
+      "name": "Old Elm GO",
+      "shortName": "Old Elm",
+      "railsixSlug": "old-elm"
+    },
+    {
+      "code": "ST",
+      "name": "Stouffville GO",
+      "shortName": "Stouffville",
+      "railsixSlug": "stouffville"
+    },
+    {
+      "code": "MJ",
+      "name": "Mount Joy GO",
+      "shortName": "Mount Joy",
+      "railsixSlug": "mount-joy"
+    },
+    {
+      "code": "MR",
+      "name": "Markham GO",
+      "shortName": "Markham",
+      "railsixSlug": "markham"
+    },
+    {
+      "code": "CE",
+      "name": "Centennial GO",
+      "shortName": "Centennial",
+      "railsixSlug": "centennial"
+    },
+    {
+      "code": "UI",
+      "name": "Unionville GO",
+      "shortName": "Unionville",
+      "railsixSlug": "unionville"
+    },
+    {
+      "code": "MK",
+      "name": "Milliken GO",
+      "shortName": "Milliken",
+      "railsixSlug": "milliken"
+    },
+    {
+      "code": "AG",
+      "name": "Agincourt GO",
+      "shortName": "Agincourt",
+      "railsixSlug": "agincourt"
+    },
+    {
+      "code": "KE",
+      "name": "Kennedy GO",
+      "shortName": "Kennedy",
+      "railsixSlug": "kennedy"
+    },
+    {
+      "code": "UN",
+      "name": "Union Station",
+      "shortName": "Union",
+      "railsixSlug": "union"
+    }
+  ],
   "weekday": {
-    "sb": [
+    "toUnion": [
       {
-        "tripId": "20260616-71-71050",
+        "tripId": "20260703-71-71050",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "05:45",
@@ -15,7 +78,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7705",
+        "tripId": "20260703-ST-7705",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "06:20",
@@ -31,7 +94,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7707",
+        "tripId": "20260703-ST-7707",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:20",
@@ -47,7 +110,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7907",
+        "tripId": "20260703-ST-7907",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:50",
@@ -63,7 +126,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7709",
+        "tripId": "20260703-ST-7709",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:20",
@@ -79,7 +142,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7909",
+        "tripId": "20260703-ST-7909",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:50",
@@ -95,7 +158,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7209",
+        "tripId": "20260703-ST-7209",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:40",
@@ -106,7 +169,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7711",
+        "tripId": "20260703-ST-7711",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:20",
@@ -122,7 +185,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7713",
+        "tripId": "20260703-ST-7713",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:20",
@@ -138,7 +201,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7415",
+        "tripId": "20260703-ST-7415",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:20",
@@ -152,7 +215,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7417",
+        "tripId": "20260703-ST-7417",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:20",
@@ -166,7 +229,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7419",
+        "tripId": "20260703-ST-7419",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:20",
@@ -180,7 +243,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7421",
+        "tripId": "20260703-ST-7421",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:20",
@@ -194,7 +257,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7423",
+        "tripId": "20260703-ST-7423",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:20",
@@ -208,7 +271,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7425",
+        "tripId": "20260703-ST-7425",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:20",
@@ -222,7 +285,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71630",
+        "tripId": "20260703-71-71630",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "17:25",
@@ -234,7 +297,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71620",
+        "tripId": "20260703-71-71620",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "17:20",
@@ -245,7 +308,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7127",
+        "tripId": "20260703-ST-7127",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:17",
@@ -256,7 +319,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7129",
+        "tripId": "20260703-ST-7129",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:20",
@@ -267,7 +330,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71650",
+        "tripId": "20260703-71-71650",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "19:35",
@@ -279,7 +342,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7433",
+        "tripId": "20260703-ST-7433",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:20",
@@ -293,7 +356,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7435",
+        "tripId": "20260703-ST-7435",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:20",
@@ -307,7 +370,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7437",
+        "tripId": "20260703-ST-7437",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:20",
@@ -321,7 +384,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7439",
+        "tripId": "20260703-ST-7439",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:20",
@@ -335,7 +398,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71840",
+        "tripId": "20260703-71-71840",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "24:10",
@@ -347,7 +410,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71910",
+        "tripId": "20260703-71-71910",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "26:15",
@@ -359,9 +422,9 @@
         }
       }
     ],
-    "nb": [
+    "fromUnion": [
       {
-        "tripId": "20260616-71-71111",
+        "tripId": "20260703-71-71111",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "07:58",
@@ -373,7 +436,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71171",
+        "tripId": "20260703-71-71171",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "09:17",
@@ -385,7 +448,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7410",
+        "tripId": "20260703-ST-7410",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "09:56",
@@ -399,7 +462,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7412",
+        "tripId": "20260703-ST-7412",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "10:56",
@@ -413,7 +476,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7414",
+        "tripId": "20260703-ST-7414",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "11:56",
@@ -427,7 +490,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7416",
+        "tripId": "20260703-ST-7416",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "12:56",
@@ -441,7 +504,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7418",
+        "tripId": "20260703-ST-7418",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "13:56",
@@ -455,7 +518,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7420",
+        "tripId": "20260703-ST-7420",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "14:56",
@@ -469,7 +532,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7622",
+        "tripId": "20260703-ST-7622",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "16:13",
@@ -485,7 +548,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7222",
+        "tripId": "20260703-ST-7222",
         "vehicleType": "train",
         "stopTimes": {
           "UI": "16:13",
@@ -496,7 +559,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7624",
+        "tripId": "20260703-ST-7624",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "17:13",
@@ -512,7 +575,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7824",
+        "tripId": "20260703-ST-7824",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "17:43",
@@ -528,7 +591,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7324",
+        "tripId": "20260703-ST-7324",
         "vehicleType": "train",
         "stopTimes": {
           "UI": "17:31",
@@ -539,7 +602,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7626",
+        "tripId": "20260703-ST-7626",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "18:13",
@@ -555,7 +618,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7826",
+        "tripId": "20260703-ST-7826",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "18:45",
@@ -571,7 +634,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7428",
+        "tripId": "20260703-ST-7428",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "19:11",
@@ -585,7 +648,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7430",
+        "tripId": "20260703-ST-7430",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "19:56",
@@ -599,7 +662,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7432",
+        "tripId": "20260703-ST-7432",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "20:56",
@@ -613,7 +676,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7434",
+        "tripId": "20260703-ST-7434",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "21:56",
@@ -627,7 +690,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7436",
+        "tripId": "20260703-ST-7436",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "22:56",
@@ -641,7 +704,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7638",
+        "tripId": "20260703-ST-7638",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "24:12",
@@ -657,7 +720,7 @@
         }
       },
       {
-        "tripId": "20260616-ST-7640",
+        "tripId": "20260703-ST-7640",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "25:12",
@@ -673,7 +736,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71901",
+        "tripId": "20260703-71-71901",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "26:10",
@@ -685,7 +748,7 @@
         }
       },
       {
-        "tripId": "20260616-71-71961",
+        "tripId": "20260703-71-71961",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "27:45",
@@ -699,9 +762,9 @@
     ]
   },
   "saturday": {
-    "sb": [
+    "toUnion": [
       {
-        "tripId": "20260620-71-71140",
+        "tripId": "20260829-71-71140",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "07:15",
@@ -713,7 +776,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7709",
+        "tripId": "20260829-ST-7709",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:20",
@@ -729,7 +792,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7711",
+        "tripId": "20260829-ST-7711",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:20",
@@ -745,7 +808,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7713",
+        "tripId": "20260829-ST-7713",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:20",
@@ -761,7 +824,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7415",
+        "tripId": "20260829-ST-7415",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:20",
@@ -775,7 +838,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7417",
+        "tripId": "20260829-ST-7417",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:20",
@@ -789,7 +852,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7419",
+        "tripId": "20260829-ST-7419",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:20",
@@ -803,7 +866,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7421",
+        "tripId": "20260829-ST-7421",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:20",
@@ -817,7 +880,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7423",
+        "tripId": "20260829-ST-7423",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:20",
@@ -831,7 +894,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7425",
+        "tripId": "20260829-ST-7425",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:20",
@@ -845,7 +908,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7427",
+        "tripId": "20260829-ST-7427",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:20",
@@ -859,7 +922,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7429",
+        "tripId": "20260829-ST-7429",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:20",
@@ -873,7 +936,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7431",
+        "tripId": "20260829-ST-7431",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:20",
@@ -887,7 +950,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7433",
+        "tripId": "20260829-ST-7433",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:20",
@@ -901,7 +964,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7435",
+        "tripId": "20260829-ST-7435",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:20",
@@ -915,7 +978,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7437",
+        "tripId": "20260829-ST-7437",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:20",
@@ -929,7 +992,7 @@
         }
       },
       {
-        "tripId": "20260620-71-71840",
+        "tripId": "20260829-71-71840",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "23:05",
@@ -941,7 +1004,7 @@
         }
       },
       {
-        "tripId": "20260620-71-71880",
+        "tripId": "20260829-71-71880",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "24:15",
@@ -953,7 +1016,7 @@
         }
       },
       {
-        "tripId": "20260620-71-71910",
+        "tripId": "20260829-71-71910",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "26:10",
@@ -965,9 +1028,9 @@
         }
       }
     ],
-    "nb": [
+    "fromUnion": [
       {
-        "tripId": "20260620-71-71171",
+        "tripId": "20260829-71-71171",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "08:53",
@@ -979,7 +1042,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7410",
+        "tripId": "20260829-ST-7410",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "09:55",
@@ -993,7 +1056,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7412",
+        "tripId": "20260829-ST-7412",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "10:55",
@@ -1007,7 +1070,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7414",
+        "tripId": "20260829-ST-7414",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "11:55",
@@ -1021,7 +1084,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7416",
+        "tripId": "20260829-ST-7416",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "12:55",
@@ -1035,7 +1098,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7418",
+        "tripId": "20260829-ST-7418",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "13:55",
@@ -1049,7 +1112,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7420",
+        "tripId": "20260829-ST-7420",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "14:55",
@@ -1063,7 +1126,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7422",
+        "tripId": "20260829-ST-7422",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "15:55",
@@ -1077,7 +1140,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7424",
+        "tripId": "20260829-ST-7424",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "16:55",
@@ -1091,7 +1154,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7426",
+        "tripId": "20260829-ST-7426",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "17:55",
@@ -1105,7 +1168,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7428",
+        "tripId": "20260829-ST-7428",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "18:55",
@@ -1119,7 +1182,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7430",
+        "tripId": "20260829-ST-7430",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "19:55",
@@ -1133,7 +1196,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7432",
+        "tripId": "20260829-ST-7432",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "20:55",
@@ -1147,7 +1210,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7634",
+        "tripId": "20260829-ST-7634",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "22:12",
@@ -1163,7 +1226,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7636",
+        "tripId": "20260829-ST-7636",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "23:12",
@@ -1179,7 +1242,7 @@
         }
       },
       {
-        "tripId": "20260620-ST-7638",
+        "tripId": "20260829-ST-7638",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "24:12",
@@ -1195,7 +1258,7 @@
         }
       },
       {
-        "tripId": "20260620-71-71891",
+        "tripId": "20260829-71-71891",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "25:30",
@@ -1207,7 +1270,7 @@
         }
       },
       {
-        "tripId": "20260620-71-71901",
+        "tripId": "20260829-71-71901",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "26:20",
@@ -1219,7 +1282,7 @@
         }
       },
       {
-        "tripId": "20260620-71-71961",
+        "tripId": "20260829-71-71961",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "27:45",
@@ -1233,9 +1296,9 @@
     ]
   },
   "sunday": {
-    "sb": [
+    "toUnion": [
       {
-        "tripId": "20260621-71-71140",
+        "tripId": "20260830-71-71140",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "07:15",
@@ -1247,7 +1310,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7709",
+        "tripId": "20260830-ST-7709",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:20",
@@ -1263,7 +1326,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7711",
+        "tripId": "20260830-ST-7711",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:20",
@@ -1279,7 +1342,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7713",
+        "tripId": "20260830-ST-7713",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:20",
@@ -1295,7 +1358,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7415",
+        "tripId": "20260830-ST-7415",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:20",
@@ -1309,7 +1372,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7417",
+        "tripId": "20260830-ST-7417",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:20",
@@ -1323,7 +1386,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7419",
+        "tripId": "20260830-ST-7419",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:20",
@@ -1337,7 +1400,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7421",
+        "tripId": "20260830-ST-7421",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:20",
@@ -1351,7 +1414,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7423",
+        "tripId": "20260830-ST-7423",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:20",
@@ -1365,7 +1428,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7425",
+        "tripId": "20260830-ST-7425",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:20",
@@ -1379,7 +1442,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7427",
+        "tripId": "20260830-ST-7427",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:20",
@@ -1393,7 +1456,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7429",
+        "tripId": "20260830-ST-7429",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:20",
@@ -1407,7 +1470,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7431",
+        "tripId": "20260830-ST-7431",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:20",
@@ -1421,7 +1484,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7433",
+        "tripId": "20260830-ST-7433",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:20",
@@ -1435,7 +1498,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7435",
+        "tripId": "20260830-ST-7435",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:20",
@@ -1449,7 +1512,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7437",
+        "tripId": "20260830-ST-7437",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:20",
@@ -1463,7 +1526,7 @@
         }
       },
       {
-        "tripId": "20260621-71-71840",
+        "tripId": "20260830-71-71840",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "23:05",
@@ -1475,7 +1538,7 @@
         }
       },
       {
-        "tripId": "20260621-71-71880",
+        "tripId": "20260830-71-71880",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "24:15",
@@ -1487,7 +1550,7 @@
         }
       },
       {
-        "tripId": "20260621-71-71910",
+        "tripId": "20260830-71-71910",
         "vehicleType": "bus",
         "stopTimes": {
           "UN": "26:10",
@@ -1499,9 +1562,9 @@
         }
       }
     ],
-    "nb": [
+    "fromUnion": [
       {
-        "tripId": "20260621-71-71171",
+        "tripId": "20260830-71-71171",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "08:53",
@@ -1513,7 +1576,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7410",
+        "tripId": "20260830-ST-7410",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "09:55",
@@ -1527,7 +1590,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7412",
+        "tripId": "20260830-ST-7412",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "10:55",
@@ -1541,7 +1604,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7414",
+        "tripId": "20260830-ST-7414",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "11:55",
@@ -1555,7 +1618,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7416",
+        "tripId": "20260830-ST-7416",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "12:55",
@@ -1569,7 +1632,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7418",
+        "tripId": "20260830-ST-7418",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "13:55",
@@ -1583,7 +1646,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7420",
+        "tripId": "20260830-ST-7420",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "14:55",
@@ -1597,7 +1660,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7422",
+        "tripId": "20260830-ST-7422",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "15:55",
@@ -1611,7 +1674,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7424",
+        "tripId": "20260830-ST-7424",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "16:55",
@@ -1625,7 +1688,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7426",
+        "tripId": "20260830-ST-7426",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "17:55",
@@ -1639,7 +1702,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7428",
+        "tripId": "20260830-ST-7428",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "18:55",
@@ -1653,7 +1716,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7430",
+        "tripId": "20260830-ST-7430",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "19:55",
@@ -1667,7 +1730,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7432",
+        "tripId": "20260830-ST-7432",
         "vehicleType": "train",
         "stopTimes": {
           "MJ": "20:55",
@@ -1681,7 +1744,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7634",
+        "tripId": "20260830-ST-7634",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "22:12",
@@ -1697,7 +1760,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7636",
+        "tripId": "20260830-ST-7636",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "23:12",
@@ -1713,7 +1776,7 @@
         }
       },
       {
-        "tripId": "20260621-ST-7638",
+        "tripId": "20260830-ST-7638",
         "vehicleType": "train",
         "stopTimes": {
           "LI": "24:12",
@@ -1729,7 +1792,7 @@
         }
       },
       {
-        "tripId": "20260621-71-71891",
+        "tripId": "20260830-71-71891",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "25:30",
@@ -1741,7 +1804,7 @@
         }
       },
       {
-        "tripId": "20260621-71-71901",
+        "tripId": "20260830-71-71901",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "26:20",
@@ -1753,7 +1816,7 @@
         }
       },
       {
-        "tripId": "20260621-71-71961",
+        "tripId": "20260830-71-71961",
         "vehicleType": "bus",
         "stopTimes": {
           "LI": "27:45",

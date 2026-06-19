@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 
 export const revalidate = 60; // cache for 60 seconds at the edge
+
+// Valid GO rail line codes (gotransit service-update `code` param)
+const VALID_LINE_CODES = new Set(['ST', 'LW', 'LE', 'BR', 'RH', 'KI', 'MI']);
 
 export interface ParsedAlert {
   id: string;
@@ -145,7 +149,10 @@ function parseDirection(s: string): ParsedAlert['direction'] {
 // ---------------------------------------------------------------------------
 // Route handler
 // ---------------------------------------------------------------------------
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const codeParam = request.nextUrl.searchParams.get('code')?.toUpperCase() ?? 'ST';
+  const lineCode = VALID_LINE_CODES.has(codeParam) ? codeParam : 'ST';
+
   const headers = {
     'User-Agent':
       'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
@@ -159,7 +166,7 @@ export async function GET() {
 
   try {
     const res = await fetch(
-      'https://www.gotransit.com/en/service-updates?mode=t&code=ST',
+      `https://www.gotransit.com/en/service-updates?mode=t&code=${lineCode}`,
       { headers, next: { revalidate: 60 } }
     );
 

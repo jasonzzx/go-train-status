@@ -1,0 +1,179 @@
+{
+  "id": "RH",
+  "effectiveDate": "2026-06-15",
+  "stations": [
+    {
+      "code": "BM",
+      "name": "Bloomington GO",
+      "shortName": "Bloomington",
+      "railsixSlug": "bloomington"
+    },
+    {
+      "code": "GO",
+      "name": "Gormley GO",
+      "shortName": "Gormley",
+      "railsixSlug": "gormley"
+    },
+    {
+      "code": "RI",
+      "name": "Richmond Hill GO",
+      "shortName": "Richmond Hill",
+      "railsixSlug": "richmond-hill"
+    },
+    {
+      "code": "LA",
+      "name": "Langstaff GO",
+      "shortName": "Langstaff",
+      "railsixSlug": "langstaff"
+    },
+    {
+      "code": "OL",
+      "name": "Old Cummer GO",
+      "shortName": "Old Cummer",
+      "railsixSlug": "old-cummer"
+    },
+    {
+      "code": "OR",
+      "name": "Oriole GO",
+      "shortName": "Oriole",
+      "railsixSlug": "oriole"
+    },
+    {
+      "code": "UN",
+      "name": "Union Station",
+      "shortName": "Union",
+      "railsixSlug": "union"
+    }
+  ],
+  "weekday": {
+    "toUnion": [
+      {
+        "tripId": "20260904-RH-5006",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "06:59",
+          "OR": "06:28",
+          "OL": "06:23",
+          "LA": "06:15",
+          "RI": "06:09",
+          "GO": "05:59",
+          "BM": "05:53"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5008",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "08:00",
+          "OR": "07:29",
+          "OL": "07:24",
+          "LA": "07:16",
+          "RI": "07:10",
+          "GO": "07:00",
+          "BM": "06:54"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5208",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "08:30",
+          "OR": "07:59",
+          "OL": "07:54",
+          "LA": "07:46",
+          "RI": "07:40",
+          "GO": "07:30",
+          "BM": "07:24"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5010",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "09:00",
+          "OR": "08:29",
+          "OL": "08:24",
+          "LA": "08:16",
+          "RI": "08:10",
+          "GO": "08:00",
+          "BM": "07:54"
+        }
+      }
+    ],
+    "fromUnion": [
+      {
+        "tripId": "20260904-RH-5323",
+        "vehicleType": "train",
+        "stopTimes": {
+          "BM": "16:49",
+          "GO": "16:42",
+          "RI": "16:32",
+          "LA": "16:25",
+          "OL": "16:17",
+          "OR": "16:12",
+          "UN": "15:45"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5325",
+        "vehicleType": "train",
+        "stopTimes": {
+          "BM": "17:49",
+          "GO": "17:42",
+          "RI": "17:32",
+          "LA": "17:25",
+          "OL": "17:17",
+          "OR": "17:12",
+          "UN": "16:45"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5127",
+        "vehicleType": "train",
+        "stopTimes": {
+          "BM": "18:19",
+          "GO": "18:12",
+          "RI": "18:02",
+          "LA": "17:55",
+          "OL": "17:47",
+          "OR": "17:42",
+          "UN": "17:15"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5327",
+        "vehicleType": "train",
+        "stopTimes": {
+          "BM": "18:49",
+          "GO": "18:42",
+          "RI": "18:32",
+          "LA": "18:25",
+          "OL": "18:17",
+          "OR": "18:12",
+          "UN": "17:45"
+        }
+      },
+      {
+        "tripId": "20260904-RH-5329",
+        "vehicleType": "train",
+        "stopTimes": {
+          "BM": "19:49",
+          "GO": "19:42",
+          "RI": "19:32",
+          "LA": "19:25",
+          "OL": "19:17",
+          "OR": "19:12",
+          "UN": "18:45"
+        }
+      }
+    ]
+  },
+  "saturday": {
+    "toUnion": [],
+    "fromUnion": []
+  },
+  "sunday": {
+    "toUnion": [],
+    "fromUnion": []
+  }
+}

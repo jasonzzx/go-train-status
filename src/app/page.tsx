@@ -6,15 +6,17 @@ import {
   getServiceType,
   getStops,
   timeToMinutes,
-  SCHEDULE_EFFECTIVE_DATE,
-  STOUFFVILLE_HOME_STATIONS,
-  DEFAULT_HOME_STATION_CODE,
-  getStationByCode,
   type Direction,
   type Trip,
   type StationStop,
-  type StationInfo,
 } from '@/lib/schedule-data';
+import {
+  getLine,
+  getStation,
+  DEFAULT_LINE_ID,
+  type LineInfo,
+  type StationInfo,
+} from '@/lib/lines';
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
 
@@ -233,12 +235,14 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
 }
 
 function ServiceAlertsSheet({
+  line,
   alerts,
   loading,
   available,
   lastUpdated,
   onClose,
 }: {
+  line: LineInfo;
   alerts: ParsedAlert[];
   loading: boolean;
   available: boolean;
@@ -266,15 +270,15 @@ function ServiceAlertsSheet({
         {/* Sheet header — GO dark green, matching app header */}
         <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
           <div className="flex items-center gap-3">
-            {/* ST line badge */}
+            {/* Line badge */}
             <div
               className="w-11 h-11 rounded-xl flex flex-col items-center justify-center font-extrabold text-white shrink-0"
-              style={{ backgroundColor: '#794500' }}
+              style={{ backgroundColor: line.color }}
             >
-              <span className="text-xs leading-none">ST</span>
+              <span className="text-xs leading-none">{line.id}</span>
             </div>
             <div>
-              <div className="font-bold text-base leading-tight">Stouffville Line</div>
+              <div className="font-bold text-base leading-tight">{line.name} Line</div>
               <div className="text-white/60 text-xs">Service Updates</div>
             </div>
             <button
@@ -308,7 +312,7 @@ function ServiceAlertsSheet({
                 <CheckCircleIcon className="w-8 h-8 text-go-green shrink-0" />
                 <div>
                   <div className="font-semibold text-gray-900">Good Service</div>
-                  <div className="text-xs text-gray-500 mt-0.5">No active alerts on Stouffville line</div>
+                  <div className="text-xs text-gray-500 mt-0.5">No active alerts on {line.name} line</div>
                 </div>
               </div>
             </div>
@@ -317,8 +321,8 @@ function ServiceAlertsSheet({
             alerts.map((alert, i) => <AlertCard key={i} alert={alert} />)
           )}
 
-          {/* Static special notice (always relevant) */}
-          {!loading && (
+          {/* Static special notice — Stouffville only (FIFA World Cup 2026) */}
+          {!loading && line.id === 'ST' && (
             <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
               <div className="flex items-start gap-2.5">
                 <div className="w-6 h-6 rounded-full bg-go-light flex items-center justify-center shrink-0 mt-0.5">
@@ -340,7 +344,7 @@ function ServiceAlertsSheet({
         {/* Footer */}
         <div className="px-4 pt-3 pb-6 border-t border-gray-200 bg-white rounded-none shrink-0">
           <a
-            href="https://www.gotransit.com/en/service-updates?mode=t&code=ST"
+            href={`https://www.gotransit.com/en/service-updates?mode=t&code=${line.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full bg-go-green text-white font-semibold py-3 rounded-xl text-sm"
@@ -673,6 +677,7 @@ function TrainCard({
   alerts,
   tracker,
   direction,
+  lineId,
   homeStationCode,
   nowMinutes,
   isToday,
@@ -689,6 +694,7 @@ function TrainCard({
   alerts: ParsedAlert[];
   tracker: TrackerInfo | null;
   direction: Direction;
+  lineId: string;
   homeStationCode: string;
   nowMinutes: number | null;
   isToday: boolean;
@@ -712,8 +718,8 @@ function TrainCard({
   const canOnBoard = isNowRunning;
 
   const stops = useMemo(
-    () => getStops(trip, direction, homeStationCode, liveStops.length > 0 ? liveStops : undefined),
-    [trip, direction, homeStationCode, liveStops]
+    () => getStops(lineId, trip, direction, homeStationCode, liveStops.length > 0 ? liveStops : undefined),
+    [lineId, trip, direction, homeStationCode, liveStops]
   );
 
   return (
@@ -1041,14 +1047,20 @@ export default function Home() {
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
   const [todayStr, setTodayStr] = useState<string>('');
 
+  // Active line (line selector is a separate feature; default for now).
+  const lineId = DEFAULT_LINE_ID;
+  const line: LineInfo = getLine(lineId);
+
   const [homeStationCode, setHomeStationCode] = useState<string>(() => {
-    if (typeof window === 'undefined') return DEFAULT_HOME_STATION_CODE;
-    const stored = localStorage.getItem(HOME_STATION_STORAGE_KEY) ?? DEFAULT_HOME_STATION_CODE;
-    // Migrate old station codes (before GTFS alignment) to new codes
+    if (typeof window === 'undefined') return line.defaultHomeCode;
+    const stored = localStorage.getItem(HOME_STATION_STORAGE_KEY) ?? line.defaultHomeCode;
+    // Migrate old Stouffville station codes (pre-GTFS-alignment) to new codes
     const migration: Record<string, string> = { OE: 'LI', ER: 'ST', ML: 'MK', AO: 'AG', CN: 'CE', MK: 'MR' };
-    return migration[stored] ?? stored;
+    const code = migration[stored] ?? stored;
+    // Guard against a stored code that isn't valid on the active line
+    return line.homeStations.some((s) => s.code === code) ? code : line.defaultHomeCode;
   });
-  const homeStation: StationInfo = getStationByCode(homeStationCode);
+  const homeStation: StationInfo = getStation(lineId, homeStationCode);
 
   useEffect(() => {
     localStorage.setItem(HOME_STATION_STORAGE_KEY, homeStationCode);
@@ -1110,7 +1122,7 @@ export default function Home() {
   // Fetch alerts every 5 min
   const fetchAlerts = useCallback(async () => {
     try {
-      const res = await fetch('/api/alerts');
+      const res = await fetch(`/api/alerts?code=${lineId}`);
       if (!res.ok) throw new Error();
       const data = await res.json();
       setAlerts(data.alerts ?? []);
@@ -1121,7 +1133,7 @@ export default function Home() {
     } finally {
       setAlertsLoading(false);
     }
-  }, []);
+  }, [lineId]);
 
   useEffect(() => {
     fetchAlerts();
@@ -1154,8 +1166,8 @@ export default function Home() {
   }, [selectedDate]);
 
   const trips: Trip[] = useMemo(
-    () => getScheduleForStation(direction, serviceType, homeStationCode),
-    [direction, serviceType, homeStationCode]
+    () => getScheduleForStation(lineId, direction, serviceType, homeStationCode),
+    [lineId, direction, serviceType, homeStationCode]
   );
 
   const isToday = selectedDate === todayStr;
@@ -1254,7 +1266,7 @@ export default function Home() {
           </div>
           <div>
             <div className="font-bold text-base leading-tight">Go Train Status</div>
-            <div className="text-white/60 text-xs">Stouffville Line</div>
+            <div className="text-white/60 text-xs">{line.name} Line</div>
           </div>
 
           <div className="ml-auto flex items-center gap-2">
@@ -1262,7 +1274,7 @@ export default function Home() {
             <button
               onClick={() => setShowAlertsSheet(true)}
               className="relative p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-              title="Stouffville service updates"
+              title={`${line.name} service updates`}
             >
               <BellIcon className="w-5 h-5 text-white/70" />
               {/* Badge dot — red when alerts, amber when loading done */}
@@ -1316,7 +1328,7 @@ export default function Home() {
             onChange={(e) => setHomeStationCode(e.target.value)}
             className="flex-1 bg-white/10 text-white text-xs rounded-lg px-2 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
           >
-            {STOUFFVILLE_HOME_STATIONS.map((s) => (
+            {line.homeStations.map((s) => (
               <option key={s.code} value={s.code} className="bg-go-dark text-white">
                 {s.name}
               </option>
@@ -1403,7 +1415,7 @@ export default function Home() {
         >
           <span className="text-sm">⚠️</span>
           <span className="text-amber-800 text-xs font-medium flex-1">
-            {totalAlerts} active alert{totalAlerts !== 1 ? 's' : ''} on Stouffville line
+            {totalAlerts} active alert{totalAlerts !== 1 ? 's' : ''} on {line.name} line
           </span>
           <span className="text-amber-600 text-xs font-semibold">View →</span>
         </button>
@@ -1433,6 +1445,7 @@ export default function Home() {
                     alerts={tripAlerts}
                     tracker={tracker}
                     direction={direction}
+                    lineId={lineId}
                     homeStationCode={homeStationCode}
                     nowMinutes={nowMinutes}
                     isToday={isToday}
@@ -1480,7 +1493,7 @@ export default function Home() {
             </div>
 
             <div className="text-center text-xs text-gray-400 mt-3 mb-8 pb-safe">
-              Schedule effective {SCHEDULE_EFFECTIVE_DATE} · Stouffville Line
+              Schedule effective {line.effectiveDate} · {line.name} Line
               <br />
               <a
                 href="https://github.com/jasonzzx/go-train-status/issues"
@@ -1498,6 +1511,7 @@ export default function Home() {
       {/* Service Alerts Sheet */}
       {showAlertsSheet && (
         <ServiceAlertsSheet
+          line={line}
           alerts={alerts}
           loading={alertsLoading}
           available={alertsAvailable}
