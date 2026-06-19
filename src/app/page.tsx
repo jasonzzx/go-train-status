@@ -586,23 +586,25 @@ function TrackerRow({
   isPast: boolean;
   isNext: boolean;
 }) {
-  // Platform badge — always yellow
+  // Platform badge — outlined chip, the sharpest element on the card
   const platformBadge = tracker.platform ? (
-    <div className={`flex items-center gap-2 px-3 py-1.5 rounded-xl ${
-      isNext ? 'bg-yellow-400/25' : isPast ? 'bg-yellow-100/60' : 'bg-yellow-400'
+    <div className={`flex flex-col items-center leading-none px-3.5 py-1 rounded-lg border-[3px] ${
+      isNext
+        ? 'border-yellow-300 bg-yellow-300/10'
+        : isPast
+        ? 'border-yellow-200 bg-transparent'
+        : 'border-yellow-500 bg-yellow-50'
     }`}>
-      <div className="flex flex-col items-center leading-none">
-        <span className={`text-[10px] font-semibold uppercase tracking-wider ${
-          isNext ? 'text-yellow-200' : isPast ? 'text-yellow-600/60' : 'text-yellow-900'
-        }`}>
-          Platform
-        </span>
-        <span className={`text-2xl font-extrabold leading-none mt-0.5 ${
-          isNext ? 'text-yellow-300' : isPast ? 'text-yellow-700/50' : 'text-yellow-900'
-        }`}>
-          {tracker.platform.split(/[,/]/).map((p) => p.trim()).filter(Boolean).join(' ')}
-        </span>
-      </div>
+      <span className={`text-[9px] font-bold uppercase tracking-wider ${
+        isNext ? 'text-yellow-200' : isPast ? 'text-yellow-600/50' : 'text-yellow-700'
+      }`}>
+        Platform
+      </span>
+      <span className={`text-3xl font-black leading-none mt-0.5 ${
+        isNext ? 'text-yellow-100' : isPast ? 'text-yellow-700/50' : 'text-yellow-800'
+      }`}>
+        {tracker.platform.split(/[,/]/).map((p) => p.trim()).filter(Boolean).join(' ')}
+      </span>
     </div>
   ) : null;
 
