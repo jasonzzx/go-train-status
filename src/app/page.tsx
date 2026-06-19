@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import {
-  scheduleData,
+  getScheduleForStation,
   getServiceType,
   getStops,
   timeToMinutes,
@@ -673,6 +673,7 @@ function TrainCard({
   alerts,
   tracker,
   direction,
+  homeStationCode,
   nowMinutes,
   isToday,
   isExpanded,
@@ -688,6 +689,7 @@ function TrainCard({
   alerts: ParsedAlert[];
   tracker: TrackerInfo | null;
   direction: Direction;
+  homeStationCode: string;
   nowMinutes: number | null;
   isToday: boolean;
   isExpanded: boolean;
@@ -709,10 +711,9 @@ function TrainCard({
   // Show "On Board" only when trip is in progress
   const canOnBoard = isNowRunning;
 
-  // Use live stop names from tracker when available, otherwise use schedule-based pattern
   const stops = useMemo(
-    () => getStops(trip, direction, liveStops.length > 0 ? liveStops : undefined),
-    [trip, direction, liveStops]
+    () => getStops(trip, direction, homeStationCode, liveStops.length > 0 ? liveStops : undefined),
+    [trip, direction, homeStationCode, liveStops]
   );
 
   return (
@@ -973,132 +974,6 @@ function AddToHomeScreenBanner() {
 }
 
 // ──────────────────────────────────────────────────────────
-// Live-only view (for stations without static schedule data)
-// ──────────────────────────────────────────────────────────
-
-function LiveOnlyView({
-  trackerTrips,
-  trackerLoading,
-  direction,
-  homeStation,
-  isRefreshing,
-  lastRefreshed,
-  refreshCountdown,
-}: {
-  trackerTrips: TrackerTrip[];
-  trackerLoading: boolean;
-  direction: Direction;
-  homeStation: StationInfo;
-  isRefreshing: boolean;
-  lastRefreshed: Date | null;
-  refreshCountdown: number;
-}) {
-  const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
-  const filtered = trackerTrips.filter((t) => t.directionCd === dirKey);
-  const isLoading = trackerLoading || (isRefreshing && filtered.length === 0);
-
-  return (
-    <div className="space-y-2">
-      <div className="rounded-xl bg-amber-50 border border-amber-200 px-4 py-3 text-xs text-amber-800">
-        <span className="font-semibold">Static schedule not available</span> for {homeStation.name}.
-        Showing live trains from railsix.com only.
-      </div>
-
-      {isLoading ? (
-        <div className="rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-6 text-center text-sm text-gray-400">
-          Loading live trains…
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-6 text-center text-sm text-gray-400">
-          No live trains found for this route.
-        </div>
-      ) : (
-        filtered.map((t) => {
-          const statusColor = t.cancelled
-            ? 'text-red-600'
-            : t.delay > 0
-            ? 'text-amber-600'
-            : 'text-go-green';
-          const statusText = t.cancelled ? 'Cancelled' : t.expected;
-
-          return (
-            <div
-              key={`${t.directionCd}:${t.scheduledTime}`}
-              className="rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3 flex items-center gap-3"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-base text-gray-900">{t.scheduledTime}</span>
-                  {t.arrivalTime && (
-                    <span className="text-xs text-gray-400">→ {t.arrivalTime}</span>
-                  )}
-                  {t.tripNumber && (
-                    <span className="text-xs text-gray-400 ml-auto">#{t.tripNumber}</span>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <span className={`text-xs font-semibold ${statusColor}`}>{statusText}</span>
-                  {t.platform && (
-                    <span className="text-xs text-gray-400">· Platform {t.platform}</span>
-                  )}
-                  {t.cars && (
-                    <span className="text-xs text-gray-400">· {t.cars} cars</span>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })
-      )}
-
-      <div className="mt-4 mb-2 mx-1 rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {isRefreshing ? (
-              <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            ) : (
-              <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
-            )}
-            <span className="text-xs font-medium text-gray-700">
-              {isRefreshing ? 'Refreshing…' : 'Live data'}
-            </span>
-          </div>
-          <span className="text-xs text-gray-400">
-            {!isRefreshing && `Next refresh in ${refreshCountdown}s`}
-          </span>
-        </div>
-        {lastRefreshed && (
-          <p className="text-[11px] text-gray-400 mt-1.5">
-            Last updated:{' '}
-            {lastRefreshed.toLocaleTimeString('en-CA', {
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit',
-              hour12: true,
-            })}
-          </p>
-        )}
-      </div>
-
-      <div className="text-center text-xs text-gray-400 mt-3 mb-8 pb-safe">
-        Live data · Stouffville Line
-        <br />
-        <a
-          href="https://www.gotransit.com/en/see-schedules"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline mt-1 inline-block"
-        >
-          Full schedule on gotransit.com
-        </a>
-      </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────
 // Weekend notice
 // ──────────────────────────────────────────────────────────
 
@@ -1158,12 +1033,10 @@ export default function Home() {
 
   // Tracker state (platform + expected)
   const [trackerTrips, setTrackerTrips] = useState<TrackerTrip[]>([]);
-  const [trackerLoading, setTrackerLoading] = useState(true);
 
   // Clear stale tracker data immediately when home station changes
   useEffect(() => {
     setTrackerTrips([]);
-    setTrackerLoading(true);
     setLastRefreshed(null);
   }, [homeStationCode]);
 
@@ -1202,8 +1075,6 @@ export default function Home() {
       setRefreshCountdown(30);
     } catch {
       // non-critical
-    } finally {
-      setTrackerLoading(false);
     }
   }, [homeStation.railsixSlug]);
 
@@ -1260,10 +1131,9 @@ export default function Home() {
   }, [selectedDate]);
 
   const trips: Trip[] = useMemo(
-    () => homeStation.hasScheduleData ? (scheduleData[direction][serviceType] ?? []) : [],
-    [direction, serviceType, homeStation.hasScheduleData]
+    () => getScheduleForStation(direction, serviceType, homeStationCode),
+    [direction, serviceType, homeStationCode]
   );
-  const showLiveOnly = !homeStation.hasScheduleData;
 
   const isToday = selectedDate === todayStr;
 
@@ -1487,20 +1357,17 @@ export default function Home() {
 
       {/* Train list */}
       <main className="flex-1 px-3 py-3 overflow-y-auto">
-        {showLiveOnly ? (
-          <LiveOnlyView
-            trackerTrips={trackerTrips}
-            trackerLoading={trackerLoading}
-            direction={direction}
-            homeStation={homeStation}
-            isRefreshing={isRefreshing}
-            lastRefreshed={lastRefreshed}
-            refreshCountdown={refreshCountdown}
-          />
-        ) : trips.length === 0 ? (
+        {trips.length === 0 ? (
           <WeekendNotice direction={direction} />
         ) : (
           <>
+            {/* Estimated schedule notice for non-Unionville stations */}
+            {homeStationCode !== 'UI' && (
+              <div className="rounded-xl bg-blue-50 border border-blue-100 px-3 py-2 mb-2 text-xs text-blue-700">
+                Schedule for <span className="font-semibold">{homeStation.name}</span> is estimated from the Unionville timetable. Verify times at gotransit.com.
+              </div>
+            )}
+
             {trips.map((trip, i) => {
               const isPast = isToday && nowMinutes !== null && parseTime(trip.departure) < nowMinutes;
               const isNext = i === nextIndex;
@@ -1508,7 +1375,6 @@ export default function Home() {
               const tracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
               const isExpanded = expandedDep === trip.departure;
               const isOnBoard = onBoardDep === trip.departure;
-              // Look up live stops from railsix tracker data
               const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
               const liveStops = trackerStopsMap.get(`${dirKey}:${trip.departure}`) ?? [];
               return (
@@ -1520,6 +1386,7 @@ export default function Home() {
                     alerts={tripAlerts}
                     tracker={tracker}
                     direction={direction}
+                    homeStationCode={homeStationCode}
                     nowMinutes={nowMinutes}
                     isToday={isToday}
                     isExpanded={isExpanded}
