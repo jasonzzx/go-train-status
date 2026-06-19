@@ -2,7 +2,7 @@
 
 A mobile-first PWA for the GO Transit Stouffville line between **Unionville GO** and **Union Station**. Shows live departure schedules, real-time platform/delay status, service alerts, and expandable stop-by-stop breakdowns.
 
-Live: https://personal-go-train.vercel.app
+Live: https://go-train-status.vercel.app/
 
 ---
 
@@ -21,19 +21,24 @@ Live: https://personal-go-train.vercel.app
 src/
   app/
     page.tsx              # Main UI — schedule list, TrainCard, all client state
-    layout.tsx            # Root layout, PWA meta tags
-    icon.tsx              # 32×32 favicon (next/og ImageResponse)
-    apple-icon.tsx        # 180×180 Apple touch icon
-    globals.css           # Tailwind base styles
+    layout.tsx            # Root layout, PWA meta tags, embeds build version
+    VersionWatcher.tsx     # Client poller — auto-reloads when a new deploy is detected
+    icon.tsx               # 32×32 favicon (next/og ImageResponse)
+    apple-icon.tsx          # 180×180 Apple touch icon
+    globals.css            # Tailwind base styles
     api/
       tracker/route.ts    # GET /api/tracker — live platform + delay from railsix.com
       alerts/route.ts     # GET /api/alerts  — service alerts from GO Transit RSS
   lib/
     schedule-data.ts      # Static timetable (scraped from gotransit.com), stop lists, getStops()
+scripts/
+  write-version.mjs       # Generates public/version.json (timestamp + git SHA) on every build
 public/
   manifest.json           # PWA manifest (icons, theme colours)
   logo.svg                # App icon source SVG
   icons/                  # PNG icon exports (15 sizes, generated from logo.svg via cairosvg)
+  personal-icons/         # Author logo assets shown in the footer
+  version.json            # Build-time version stamp (generated, gitignored)
 ```
 
 ---
@@ -88,6 +93,18 @@ Custom GO Transit palette in `tailwind.config.ts`:
 | `go-dark` | `#003B27` | Header background |
 | `go-light` | `#E8F5EE` | Subtle green tints |
 | `go-accent` | `#F5A623` | "Next" badge, platform badge |
+
+---
+
+## Auto-Update on Deploy
+
+Since this is an installed PWA (standalone mode on iOS/Android), browsers can keep serving a stale cached build indefinitely after a new deploy. To fix that:
+
+- `scripts/write-version.mjs` runs as a `prebuild` step and writes `public/version.json` with a `{timestamp}-{gitSha}` version string on every build.
+- `next.config.mjs` sets `Cache-Control: no-cache, no-store, must-revalidate` on `/`, `/manifest.json`, and `/version.json` so the HTML shell and version probe are never cached.
+- `layout.tsx` reads `public/version.json` at build time and passes it into `VersionWatcher`, a client component that polls `/version.json` every 60s (plus on tab focus/visibility change) and calls `window.location.reload()` if the server's version no longer matches the one baked into the page.
+
+Result: any open tab or installed PWA picks up a new deployment automatically, without the user needing to force-quit and relaunch the app.
 
 ---
 
