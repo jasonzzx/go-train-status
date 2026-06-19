@@ -1452,6 +1452,7 @@ export default function Home() {
               key="today-btn"
               onClick={() => {
                 setSelectedDate(todayStr);
+                setDirection(getDefaultDirection());
               }}
               className="shrink-0 h-9 bg-go-accent text-white text-xs font-semibold px-3 rounded-lg hover:opacity-90 transition-opacity"
             >
