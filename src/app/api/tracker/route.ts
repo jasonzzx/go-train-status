@@ -1,8 +1,13 @@
 import { NextResponse } from 'next/server';
+import { type NextRequest } from 'next/server';
 
-// Railsix.com route pages — SvelteKit SSR embeds live trip data in script tags
-const RAILSIX_SB = 'https://railsix.com/routes/unionville-to-union';  // homeToOffice
-const RAILSIX_NB = 'https://railsix.com/routes/union-to-unionville';   // officeToHome
+// Railsix URL pattern: railsix.com/routes/{home-slug}-to-union (SB) / union-to-{home-slug} (NB)
+function buildRailsixUrls(homeSlug: string) {
+  return {
+    sb: `https://railsix.com/routes/${homeSlug}-to-union`,
+    nb: `https://railsix.com/routes/union-to-${homeSlug}`,
+  };
+}
 
 const FETCH_HEADERS = {
   'User-Agent':
@@ -113,7 +118,10 @@ async function fetchPage(url: string): Promise<string> {
 
 export const dynamic = 'force-dynamic'; // prevent Vercel from caching this route at the edge
 
-export async function GET(): Promise<NextResponse<TrackerResponse>> {
+export async function GET(request: NextRequest): Promise<NextResponse<TrackerResponse>> {
+  const homeSlug = request.nextUrl.searchParams.get('home') ?? 'unionville';
+  const { sb: RAILSIX_SB, nb: RAILSIX_NB } = buildRailsixUrls(homeSlug);
+
   // No CDN/browser caching — the client polls every 30s itself
   const cacheHeaders = {
     'Cache-Control': 'no-store, no-cache, must-revalidate',

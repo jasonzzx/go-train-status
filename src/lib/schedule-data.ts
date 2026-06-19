@@ -1,3 +1,31 @@
+export interface StationInfo {
+  name: string;         // "Unionville GO"
+  shortName: string;    // "Unionville"
+  code: string;         // "UI"
+  railsixSlug: string;  // "unionville" — used in railsix.com route URLs
+  hasScheduleData: boolean;
+}
+
+// All Stouffville line home stations (excludes Union Station which is always the office)
+// Ordered north → south (Lincolnville end → Toronto end)
+export const STOUFFVILLE_HOME_STATIONS: StationInfo[] = [
+  { name: 'Old Elm GO',     shortName: 'Old Elm',     code: 'OE', railsixSlug: 'old-elm',     hasScheduleData: false },
+  { name: 'Stouffville GO', shortName: 'Stouffville', code: 'ER', railsixSlug: 'stouffville', hasScheduleData: false },
+  { name: 'Mount Joy GO',   shortName: 'Mount Joy',   code: 'MJ', railsixSlug: 'mount-joy',   hasScheduleData: false },
+  { name: 'Markham GO',     shortName: 'Markham',     code: 'MK', railsixSlug: 'markham',     hasScheduleData: false },
+  { name: 'Centennial GO',  shortName: 'Centennial',  code: 'CN', railsixSlug: 'centennial',  hasScheduleData: false },
+  { name: 'Unionville GO',  shortName: 'Unionville',  code: 'UI', railsixSlug: 'unionville',  hasScheduleData: true  },
+  { name: 'Milliken GO',    shortName: 'Milliken',    code: 'ML', railsixSlug: 'milliken',    hasScheduleData: false },
+  { name: 'Agincourt GO',   shortName: 'Agincourt',   code: 'AO', railsixSlug: 'agincourt',   hasScheduleData: false },
+  { name: 'Kennedy GO',     shortName: 'Kennedy',     code: 'KE', railsixSlug: 'kennedy',     hasScheduleData: false },
+];
+
+export const DEFAULT_HOME_STATION_CODE = 'UI';
+
+export function getStationByCode(code: string): StationInfo {
+  return STOUFFVILLE_HOME_STATIONS.find((s) => s.code === code) ?? STOUFFVILLE_HOME_STATIONS[5]; // fallback to Unionville
+}
+
 export interface Trip {
   departure: string;              // "HH:MM"
   arrival: string;                // "HH:MM"
