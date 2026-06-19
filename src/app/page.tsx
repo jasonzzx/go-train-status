@@ -1198,8 +1198,26 @@ export default function Home() {
       <header className="sticky top-0 z-20 bg-go-dark text-white shadow-lg">
         {/* Top bar */}
         <div className="flex items-center gap-3 px-4 pt-4 pb-2">
-          <div className="bg-go-green rounded-full w-9 h-9 flex items-center justify-center font-extrabold text-sm shrink-0">
-            GO
+          <div className="shrink-0 w-9 h-9">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+              {/* Background circle */}
+              <circle cx="18" cy="18" r="18" fill="#00853E"/>
+              {/* Train body */}
+              <rect x="6" y="13" width="24" height="10" rx="2.5" fill="white"/>
+              {/* Cab window */}
+              <rect x="22" y="15" width="6" height="5" rx="1" fill="#00853E" opacity="0.85"/>
+              {/* Side windows */}
+              <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
+              <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#00853E" opacity="0.85"/>
+              {/* Wheels */}
+              <circle cx="11" cy="25" r="2.5" fill="white"/>
+              <circle cx="25" cy="25" r="2.5" fill="white"/>
+              {/* Rail */}
+              <rect x="4" y="27" width="28" height="1.5" rx="0.75" fill="white" opacity="0.4"/>
+              {/* Status dot — green pulse indicator */}
+              <circle cx="29" cy="9" r="4" fill="#1c3a5e"/>
+              <circle cx="29" cy="9" r="2.5" fill="#4ade80"/>
+            </svg>
           </div>
           <div>
             <div className="font-bold text-base leading-tight">Go Train Status</div>
@@ -1432,12 +1450,12 @@ export default function Home() {
               Schedule effective {SCHEDULE_EFFECTIVE_DATE} · Stouffville Line
               <br />
               <a
-                href="https://www.gotransit.com/en/see-schedules"
+                href="https://github.com/jasonzzx/go-train-status/issues"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline mt-1 inline-block"
               >
-                Verify on gotransit.com
+                Report issues on GitHub
               </a>
             </div>
           </>
