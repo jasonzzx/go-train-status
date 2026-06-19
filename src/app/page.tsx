@@ -32,12 +32,6 @@ function toLocalDateStr(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-function formatDisplayDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const date = new Date(y, m - 1, d);
-  return date.toLocaleDateString('en-CA', { weekday: 'short' }).slice(0, 3).toUpperCase();
-}
-
 function getDefaultDate(): string {
   return toLocalDateStr(new Date());
 }
@@ -1422,8 +1416,8 @@ export default function Home() {
         </div>
 
         {/* Date picker row */}
-        <div className="flex items-center gap-2 px-4 pb-3">
-          <div className="relative shrink-0 w-[158px] h-9">
+        <div className="flex items-center justify-between gap-2 px-4 pb-3">
+          <div className="relative h-9 w-[150px]">
             <button
               type="button"
               onClick={() => dateInputRef.current?.showPicker?.()}
@@ -1446,9 +1440,6 @@ export default function Home() {
               className="w-full h-9 bg-white/10 text-white text-sm rounded-lg pl-8 pr-2 border border-white/20 focus:outline-none focus:border-white/50"
             />
           </div>
-          <span className="shrink-0 inline-flex items-center justify-center min-w-[44px] h-9 px-2 rounded-lg bg-white/10 border border-white/20 text-white text-xs font-bold tracking-wide">
-            {formatDisplayDate(selectedDate)}
-          </span>
           {isToday ? (
             <button
               key="tomorrow-btn"
