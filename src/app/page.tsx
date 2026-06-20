@@ -1643,7 +1643,7 @@ export default function Home() {
                 setSelectedDate(getTomorrowStr());
                 setDirection('homeToOffice');
               }}
-              className="shrink-0 h-9 bg-white/10 text-white text-xs font-semibold px-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              className="shrink-0 h-9 bg-white/10 text-white text-sm font-semibold px-3 rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
             >
               {t('tomorrow')}
             </button>
@@ -1654,7 +1654,7 @@ export default function Home() {
                 setSelectedDate(todayStr);
                 setDirection(getDefaultDirection());
               }}
-              className="shrink-0 h-9 bg-go-accent text-white text-xs font-semibold px-3 rounded-lg hover:opacity-90 transition-opacity"
+              className="shrink-0 h-9 bg-go-accent text-white text-sm font-semibold px-3 rounded-lg hover:opacity-90 transition-opacity"
             >
               {t('today')}
             </button>
