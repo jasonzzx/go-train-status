@@ -21,7 +21,7 @@ import {
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
-import { PLATFORM_MAP_IMAGE, getPlatformZones, isPlatformMapped } from '@/lib/union-platform-map';
+import { PLATFORM_MAP_IMAGE, getPlatformPins, isPlatformMapped } from '@/lib/union-platform-map';
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -236,6 +236,11 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
   );
 }
 
+// How far the map zooms in on the platform pin, and the on-screen viewport's
+// fixed aspect ratio (matches the source image so zoomed-out shows it whole).
+const PLATFORM_MAP_ZOOM = 3;
+const PLATFORM_MAP_ASPECT = 1600 / 547;
+
 function PlatformMapSheet({
   platform,
   onClose,
@@ -244,7 +249,17 @@ function PlatformMapSheet({
   onClose: () => void;
 }) {
   const { t } = useLanguage();
-  const zones = getPlatformZones(platform);
+  const pins = useMemo(() => getPlatformPins(platform), [platform]);
+  const [zoomedIn, setZoomedIn] = useState(pins.length > 0);
+
+  // Centre the zoom on the average position of all pins (handles multi-platform strings like "12, 13").
+  const focus = pins.length > 0
+    ? { x: pins.reduce((s, p) => s + p.x, 0) / pins.length, y: pins.reduce((s, p) => s + p.y, 0) / pins.length }
+    : { x: 50, y: 50 };
+
+  const scale = zoomedIn && pins.length > 0 ? PLATFORM_MAP_ZOOM : 1;
+  const clampedLeft = Math.min(0, Math.max(-(scale - 1) * 100, 50 - focus.x * scale));
+  const clampedTop = Math.min(0, Math.max(-(scale - 1) * 100, 50 - focus.y * scale));
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
@@ -282,28 +297,54 @@ function PlatformMapSheet({
         {/* Scrollable content */}
         <div className="overflow-y-auto flex-1 px-4 pt-4 pb-2">
           <div className="bg-white rounded-xl border border-gray-200 p-2 mb-3">
-            <div className="relative w-full">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={PLATFORM_MAP_IMAGE} alt={t('platformMapSubtitle')} className="w-full rounded-lg" />
-              {zones.map((zone) => (
-                <div
-                  key={zone.id}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${zone.x}%`, top: `${zone.y}%` }}
+            <div
+              className="relative w-full overflow-hidden rounded-lg bg-gray-100 cursor-zoom-in"
+              style={{ aspectRatio: PLATFORM_MAP_ASPECT }}
+              onClick={(e) => { e.stopPropagation(); if (pins.length > 0) setZoomedIn((z) => !z); }}
+            >
+              {/* Stage — scaled + translated together so pins stay locked to the map */}
+              <div
+                className="absolute transition-transform duration-300 ease-out"
+                style={{
+                  left: `${clampedLeft}%`,
+                  top: `${clampedTop}%`,
+                  width: `${scale * 100}%`,
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={PLATFORM_MAP_IMAGE} alt={t('platformMapSubtitle')} className="w-full block" draggable={false} />
+                {pins.map((pin) => (
+                  <div
+                    key={pin.platform}
+                    className="absolute -translate-x-1/2 -translate-y-1/2"
+                    style={{ left: `${pin.x}%`, top: `${pin.y}%` }}
+                  >
+                    <span className="absolute inline-flex h-5 w-5 -left-2.5 -top-2.5 rounded-full bg-yellow-500/60 animate-ping" />
+                    <span className="relative block h-3 w-3 rounded-full bg-yellow-600 ring-2 ring-white" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Zoom toggle */}
+              {pins.length > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setZoomedIn((z) => !z); }}
+                  className="absolute bottom-2 right-2 bg-white/90 backdrop-blur-sm text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-full shadow flex items-center gap-1"
                 >
-                  <span className="absolute inline-flex h-5 w-5 -left-2.5 -top-2.5 rounded-full bg-yellow-500/60 animate-ping" />
-                  <span className="relative block h-3 w-3 rounded-full bg-yellow-600 ring-2 ring-white" />
-                </div>
-              ))}
+                  {zoomedIn ? (
+                    <>🔍︎− {t('viewFullMap')}</>
+                  ) : (
+                    <>🔍︎+ {t('zoomToPlatform')}</>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
-          {zones.length > 0 ? (
-            zones.map((zone) => (
-              <div key={zone.id} className="bg-white rounded-xl border border-gray-200 p-3 mb-3 text-sm text-gray-700">
-                {t(zone.labelKey)}
-              </div>
-            ))
+          {pins.length > 0 ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-3 mb-3 text-sm text-gray-700">
+              {t(pins[0].labelKey)}
+            </div>
           ) : (
             <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3 text-center">
               <div className="text-sm text-gray-600">{t('platformMapUnavailable')}</div>

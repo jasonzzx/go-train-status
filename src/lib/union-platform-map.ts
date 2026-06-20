@@ -1,15 +1,17 @@
 // Union Station platform location lookup, derived from the City of Toronto
-// Union Station Map PDF (Lower Level / Concourses), which labels platform
-// *ranges* via concourse/walkway zones rather than individual platforms:
-//   - "Covered Walkway — Platforms 4-7, 10-11" (York St. side)
+// Union Station Map PDF (Lower Level / Concourses). The source map only
+// labels platform *ranges* via concourse/walkway zones, not individual
+// platform pins:
+//   - "Covered Walkway — Platforms 4-7, 10-11" (York St. side, west)
 //   - "YORK Concourse Hall — Platforms 3-13" (also repeated at the VIA
-//     Concourse Hall and the Bay St. covered walkway)
-// The map has no finer resolution than that, so each zone below is the most
-// precise location the source supports for the platforms it lists.
+//     Concourse Hall and the Bay St. covered walkway, east)
+// Platforms 3-13 run west (York St., lower numbers) to east (Bay St.,
+// higher numbers), so each platform's pin position is interpolated along
+// that west→east span rather than collapsed onto one of two fixed dots.
+// This is still an approximation — the map itself has no finer resolution.
 
-export interface PlatformZone {
-  id: string;
-  platforms: number[];
+export interface PlatformPin {
+  platform: number;
   labelKey: string; // i18n key for the zone's display name
   x: number; // pin position, % of image width
   y: number; // pin position, % of image height
@@ -17,16 +19,19 @@ export interface PlatformZone {
 
 export const PLATFORM_MAP_IMAGE = '/union-platform-map.png';
 
-export const UNION_PLATFORM_ZONES: PlatformZone[] = [
-  { id: 'west-walkway', platforms: [4, 5, 6, 7, 10, 11], labelKey: 'platformZoneWestWalkway', x: 6, y: 75 },
-  { id: 'york-concourse', platforms: [3, 8, 9, 12, 13], labelKey: 'platformZoneYorkConcourse', x: 21, y: 78 },
-];
+/** Platforms shown on the map, in west→east physical order. */
+const MAPPED_PLATFORMS = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
 
-/** Union platform numbers covered by the source map (3-13). */
-const MAPPED_RANGE_MIN = 3;
-const MAPPED_RANGE_MAX = 13;
+/** West (York St. walkway) and east (Bay St. walkway) edges of the platform corridor, % of image width. */
+const X_WEST = 7;
+const X_EAST = 95;
 
-/** Parses a tracker platform string like "12" or "12, 13" into numbers. */
+/** Vertical position of the platform corridor / walkway path, % of image height. */
+const PIN_Y = 58;
+
+/** Platforms with a dedicated west covered walkway (in addition to the central concourse halls). */
+const WEST_WALKWAY_PLATFORMS = new Set([4, 5, 6, 7, 10, 11]);
+
 function parsePlatformNumbers(platform: string): number[] {
   return platform
     .split(/[,/]/)
@@ -34,14 +39,26 @@ function parsePlatformNumbers(platform: string): number[] {
     .filter((n) => !Number.isNaN(n));
 }
 
-/** Returns the distinct zones a (possibly multi-platform) tracker string falls into, or [] if unmapped. */
-export function getPlatformZones(platform: string): PlatformZone[] {
-  const numbers = parsePlatformNumbers(platform);
-  const zones = UNION_PLATFORM_ZONES.filter((z) => numbers.some((n) => z.platforms.includes(n)));
-  return zones;
+function pinForPlatform(num: number): PlatformPin | null {
+  const index = MAPPED_PLATFORMS.indexOf(num);
+  if (index === -1) return null;
+  const t = index / (MAPPED_PLATFORMS.length - 1);
+  return {
+    platform: num,
+    labelKey: WEST_WALKWAY_PLATFORMS.has(num) ? 'platformZoneWestWalkway' : 'platformZoneYorkConcourse',
+    x: X_WEST + t * (X_EAST - X_WEST),
+    y: PIN_Y,
+  };
 }
 
-/** Whether at least one platform number is within the map's covered range (3-13), even if not in a defined zone. */
+/** Returns one pin per platform number in a (possibly multi-platform) tracker string, e.g. "12, 13". */
+export function getPlatformPins(platform: string): PlatformPin[] {
+  return parsePlatformNumbers(platform)
+    .map(pinForPlatform)
+    .filter((p): p is PlatformPin => p !== null);
+}
+
+/** Whether at least one platform number is within the map's covered range (3-13). */
 export function isPlatformMapped(platform: string): boolean {
-  return parsePlatformNumbers(platform).some((n) => n >= MAPPED_RANGE_MIN && n <= MAPPED_RANGE_MAX);
+  return getPlatformPins(platform).length > 0;
 }
