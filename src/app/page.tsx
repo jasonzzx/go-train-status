@@ -1261,26 +1261,32 @@ export default function Home() {
   const homeStation: StationInfo = getStation(lineId, homeStationCode);
 
   // Switching line: remember the choice and restore that line's home station.
+  // Persistence happens here (and in handleHomeStationChange below) — only on
+  // explicit user action — rather than in a generic effect keyed on
+  // [lineId]/[homeStationCode]. A generic persist-on-change effect would also
+  // fire for the mount-time restoration below, racing it: the effect's first
+  // pass (still holding the pre-restoration closure) would overwrite the
+  // just-restored localStorage value with the SSR default.
   const handleLineChange = useCallback((newLineId: string) => {
+    const newHome = loadHomeStation(getLine(newLineId));
     setLineId(newLineId);
-    setHomeStationCode(loadHomeStation(getLine(newLineId)));
+    setHomeStationCode(newHome);
+    localStorage.setItem(LINE_STORAGE_KEY, newLineId);
+    localStorage.setItem(homeStationKey(newLineId), newHome);
   }, []);
 
-  // Restore the persisted line/home station after mount (client-only).
+  const handleHomeStationChange = useCallback((code: string) => {
+    setHomeStationCode(code);
+    localStorage.setItem(homeStationKey(lineId), code);
+  }, [lineId]);
+
+  // Restore the persisted line/home station after mount (client-only) —
+  // read-only, does not touch localStorage.
   useEffect(() => {
     const storedLineId = loadLineId();
     setLineId(storedLineId);
     setHomeStationCode(loadHomeStation(getLine(storedLineId)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem(LINE_STORAGE_KEY, lineId);
-  }, [lineId]);
-
-  useEffect(() => {
-    localStorage.setItem(homeStationKey(lineId), homeStationCode);
-  }, [lineId, homeStationCode]);
 
   // Tracker state (platform + expected)
   const [trackerTrips, setTrackerTrips] = useState<TrackerTrip[]>([]);
@@ -1572,7 +1578,7 @@ export default function Home() {
           <div className="relative flex-1">
             <select
               value={homeStationCode}
-              onChange={(e) => setHomeStationCode(e.target.value)}
+              onChange={(e) => handleHomeStationChange(e.target.value)}
               className="w-full bg-white/10 text-white text-xs rounded-lg pl-2 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
             >
               {line.homeStations.map((s) => (
