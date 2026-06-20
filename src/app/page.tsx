@@ -866,18 +866,13 @@ function TrainCard({
 // Install (Add to Home Screen) detection + sheet
 // ──────────────────────────────────────────────────────────
 
-type InstallPlatform = 'ios' | 'ios-other' | 'android' | 'desktop-chromium' | 'other';
+type InstallPlatform = 'ios' | 'android' | 'desktop-chromium' | 'other';
 
 function detectInstallPlatform(): InstallPlatform {
   const ua = navigator.userAgent;
-  const isIOSDevice = /iPhone|iPad|iPod/.test(ua);
-  if (isIOSDevice) {
-    // Every iOS browser is just a Safari WebKit shell — only Safari itself
-    // exposes "Add to Home Screen" in its Share sheet. Chrome/Firefox/Edge
-    // on iOS (CriOS/FxiOS/EdgiOS/OPiOS in the UA) don't have that option.
-    const isSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
-    return isSafari ? 'ios' : 'ios-other';
-  }
+  // All iOS browsers (Safari, Chrome, Firefox, Edge) can add to the Home
+  // Screen via their Share/menu icon, so treat every iOS browser the same.
+  if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
   if (/Android/.test(ua)) return 'android';
   if (/Chrome|Edg|Chromium/.test(ua) && !/Firefox/.test(ua)) return 'desktop-chromium';
   return 'other';
@@ -982,10 +977,6 @@ function InstallSheet({
                   </div>
                 ))}
               </div>
-            </div>
-          ) : platform === 'ios-other' ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
-              {t('installIOSOtherBrowser')}
             </div>
           ) : platform === 'android' ? (
             <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">

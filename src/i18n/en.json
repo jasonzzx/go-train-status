@@ -50,7 +50,6 @@
   "stepAddToHomeScreen": "Add to Home Screen",
   "stepDone": "Done!",
   "installSheetTitle": "Add to Home Screen",
-  "installIOSOtherBrowser": "On iOS, only Safari can add apps to the Home Screen. Open this page in Safari, tap Share, then \"Add to Home Screen\".",
   "installAndroidSteps": "Tap the ⋮ menu in your browser, then choose \"Add to Home screen\" or \"Install app\".",
   "installDesktopSteps": "Click the install icon in the address bar, or open the ⋮ menu and choose \"Install app\".",
   "installUnsupported": "Look for \"Add to Home Screen\" or \"Install app\" in your browser's menu — the exact option varies by browser.",
