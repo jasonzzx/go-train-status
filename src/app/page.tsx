@@ -21,6 +21,7 @@ import {
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
+import { PLATFORM_MAP_IMAGE, getPlatformZones, isPlatformMapped } from '@/lib/union-platform-map';
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -231,6 +232,90 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
           <span className="text-gray-400">{t('reason')} </span>{alert.reason}
         </div>
       )}
+    </div>
+  );
+}
+
+function PlatformMapSheet({
+  platform,
+  onClose,
+}: {
+  platform: string;
+  onClose: () => void;
+}) {
+  const { t } = useLanguage();
+  const zones = getPlatformZones(platform);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+      {/* Sheet */}
+      <div
+        className="relative w-full max-w-md flex flex-col bg-gray-50 rounded-t-2xl max-h-[90vh]"
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.25)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-white/40 rounded-full" />
+
+        {/* Sheet header */}
+        <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center font-extrabold text-white shrink-0 bg-yellow-600/80 text-lg">
+              {platform}
+            </div>
+            <div>
+              <div className="font-bold text-base leading-tight">{t('platformMapTitle', { platform })}</div>
+              <div className="text-white/60 text-xs">{t('platformMapSubtitle')}</div>
+            </div>
+            <button
+              onClick={onClose}
+              className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 text-lg leading-none"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable content */}
+        <div className="overflow-y-auto flex-1 px-4 pt-4 pb-2">
+          <div className="bg-white rounded-xl border border-gray-200 p-2 mb-3">
+            <div className="relative w-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={PLATFORM_MAP_IMAGE} alt={t('platformMapSubtitle')} className="w-full rounded-lg" />
+              {zones.map((zone) => (
+                <div
+                  key={zone.id}
+                  className="absolute -translate-x-1/2 -translate-y-1/2"
+                  style={{ left: `${zone.x}%`, top: `${zone.y}%` }}
+                >
+                  <span className="absolute inline-flex h-5 w-5 -left-2.5 -top-2.5 rounded-full bg-yellow-500/60 animate-ping" />
+                  <span className="relative block h-3 w-3 rounded-full bg-yellow-600 ring-2 ring-white" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {zones.length > 0 ? (
+            zones.map((zone) => (
+              <div key={zone.id} className="bg-white rounded-xl border border-gray-200 p-3 mb-3 text-sm text-gray-700">
+                {t(zone.labelKey)}
+              </div>
+            ))
+          ) : (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3 text-center">
+              <div className="text-sm text-gray-600">{t('platformMapUnavailable')}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-4 pt-3 pb-6 border-t border-gray-200 bg-white rounded-none shrink-0">
+          <div className="text-center text-xs text-gray-400">{t('platformMapSource')}</div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -587,25 +672,38 @@ function TrackerRow({
   tracker,
   isPast,
   isNext,
+  direction,
+  onPlatformClick,
 }: {
   tracker: TrackerInfo;
   isPast: boolean;
   isNext: boolean;
+  direction: Direction;
+  onPlatformClick: (platform: string) => void;
 }) {
   const { t } = useLanguage();
-  // Platform badge — outlined chip, the sharpest element on the card
+  // Platform badge — outlined chip, the sharpest element on the card.
+  // Only platforms departing Union (officeToHome) are on the Union platform
+  // map; homeToOffice platform numbers belong to the home station instead.
+  const isUnionPlatform = direction === 'officeToHome' && isPlatformMapped(tracker.platform);
   const platformBadge = tracker.platform ? (
-    <div className={`flex flex-col items-center leading-none px-3.5 py-1 rounded-lg border-[3px] ${
-      isNext
-        ? 'border-yellow-300 bg-yellow-300/10'
-        : isPast
-        ? 'border-yellow-200 bg-transparent'
-        : 'border-yellow-500 bg-yellow-50'
-    }`}>
+    <div
+      onClick={isUnionPlatform ? (e) => { e.stopPropagation(); onPlatformClick(tracker.platform); } : undefined}
+      role={isUnionPlatform ? 'button' : undefined}
+      className={`flex flex-col items-center leading-none px-3.5 py-1 rounded-lg border-[3px] ${
+        isUnionPlatform ? 'cursor-pointer active:scale-95 transition-transform' : ''
+      } ${
+        isNext
+          ? 'border-yellow-300 bg-yellow-300/10'
+          : isPast
+          ? 'border-yellow-200 bg-transparent'
+          : 'border-yellow-500 bg-yellow-50'
+      }`}
+    >
       <span className={`text-[9px] font-bold uppercase tracking-wider ${
         isNext ? 'text-yellow-200' : isPast ? 'text-yellow-600/50' : 'text-yellow-700'
       }`}>
-        {t('platform')}
+        {t('platform')}{isUnionPlatform ? ' 🗺️' : ''}
       </span>
       <span className={`text-3xl font-black leading-none mt-0.5 ${
         isNext ? 'text-yellow-100' : isPast ? 'text-yellow-700/50' : 'text-yellow-800'
@@ -697,6 +795,7 @@ function TrainCard({
   onToggleExpand,
   onToggleOnBoard,
   onAlertClick,
+  onPlatformClick,
 }: {
   trip: Trip;
   isNext: boolean;
@@ -714,6 +813,7 @@ function TrainCard({
   onToggleExpand: () => void;
   onToggleOnBoard: () => void;
   onAlertClick: () => void;
+  onPlatformClick: (platform: string) => void;
 }) {
   const { t } = useLanguage();
   const hasAlert = alerts.length > 0;
@@ -824,7 +924,7 @@ function TrainCard({
       {/* Tracker row: platform + expected */}
       {tracker && (
         <div className="pb-3">
-          <TrackerRow tracker={tracker} isPast={effectiveIsPast} isNext={isNext} />
+          <TrackerRow tracker={tracker} isPast={effectiveIsPast} isNext={isNext} direction={direction} onPlatformClick={onPlatformClick} />
         </div>
       )}
 
@@ -1107,6 +1207,7 @@ export default function Home() {
   const [alertsAvailable, setAlertsAvailable] = useState(false);
   const [alertsLastUpdated, setAlertsLastUpdated] = useState<string | null>(null);
   const [showAlertsSheet, setShowAlertsSheet] = useState(false);
+  const [platformSheet, setPlatformSheet] = useState<string | null>(null);
   const [showInstallSheet, setShowInstallSheet] = useState(false);
   const installPrompt = useInstallPrompt();
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -1540,6 +1641,7 @@ export default function Home() {
                     onToggleExpand={() => setExpandedDep(isExpanded ? null : trip.departure)}
                     onToggleOnBoard={() => setOnBoardDep(isOnBoard ? null : trip.departure)}
                     onAlertClick={() => setShowAlertsSheet(true)}
+                    onPlatformClick={(platform) => setPlatformSheet(platform)}
                   />
                 </div>
               );
@@ -1623,6 +1725,11 @@ export default function Home() {
           lastUpdated={alertsLastUpdated}
           onClose={() => setShowAlertsSheet(false)}
         />
+      )}
+
+      {/* Platform Map Sheet */}
+      {platformSheet && (
+        <PlatformMapSheet platform={platformSheet} onClose={() => setPlatformSheet(null)} />
       )}
 
       {/* Install Sheet */}
