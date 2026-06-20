@@ -1226,8 +1226,11 @@ function homeStationKey(lineId: string): string {
 
 // Resolve the saved (or default) home station for a line, validating it against
 // the line's stations and migrating pre-GTFS Stouffville codes.
+// These read localStorage and so must only ever run client-side, after
+// mount — never as a useState lazy initializer, or the client's first
+// render (during hydration) won't match the server-rendered default and
+// React will throw a hydration mismatch.
 function loadHomeStation(line: LineInfo): string {
-  if (typeof window === 'undefined') return line.defaultHomeCode;
   let stored = localStorage.getItem(homeStationKey(line.id));
   if (!stored && line.id === 'ST') stored = localStorage.getItem(HOME_STATION_STORAGE_KEY);
   const migration: Record<string, string> = { OE: 'LI', ER: 'ST', ML: 'MK', AO: 'AG', CN: 'CE', MK: 'MR' };
@@ -1236,7 +1239,6 @@ function loadHomeStation(line: LineInfo): string {
 }
 
 function loadLineId(): string {
-  if (typeof window === 'undefined') return DEFAULT_LINE_ID;
   const stored = localStorage.getItem(LINE_STORAGE_KEY) ?? DEFAULT_LINE_ID;
   return LINES.some((l) => l.id === stored) ? stored : DEFAULT_LINE_ID;
 }
@@ -1250,15 +1252,26 @@ export default function Home() {
   const [todayStr, setTodayStr] = useState<string>('');
 
   // Active line + home station, both persisted (home station per line).
-  const [lineId, setLineId] = useState<string>(loadLineId);
+  // Initial state must match the SSR-rendered default exactly — the
+  // persisted choice is restored client-side after mount (see effect below)
+  // to avoid a hydration mismatch.
+  const [lineId, setLineId] = useState<string>(DEFAULT_LINE_ID);
   const line: LineInfo = getLine(lineId);
-  const [homeStationCode, setHomeStationCode] = useState<string>(() => loadHomeStation(getLine(loadLineId())));
+  const [homeStationCode, setHomeStationCode] = useState<string>(() => getLine(DEFAULT_LINE_ID).defaultHomeCode);
   const homeStation: StationInfo = getStation(lineId, homeStationCode);
 
   // Switching line: remember the choice and restore that line's home station.
   const handleLineChange = useCallback((newLineId: string) => {
     setLineId(newLineId);
     setHomeStationCode(loadHomeStation(getLine(newLineId)));
+  }, []);
+
+  // Restore the persisted line/home station after mount (client-only).
+  useEffect(() => {
+    const storedLineId = loadLineId();
+    setLineId(storedLineId);
+    setHomeStationCode(loadHomeStation(getLine(storedLineId)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
