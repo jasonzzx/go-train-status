@@ -59,8 +59,6 @@
   "checkOfficialSite": "Check the official GO Transit website for current alerts.",
   "goodService": "Good Service",
   "noActiveAlerts": "No active alerts on {name} line",
-  "specialServiceNotice": "Special service Jun 10 – Jul 5",
-  "specialServiceDetail": "Extra weekday trip added: Unionville GO 16:36 → Union Station 17:17 (FIFA World Cup 2026).",
   "viewOnGotransit": "View on gotransit.com",
   "platformMapTitle": "Union Station Platform {platform}",
   "platformMapSubtitle": "Lower Level / Concourses",

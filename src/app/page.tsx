@@ -500,22 +500,6 @@ function ServiceAlertsSheet({
             alerts.map((alert, i) => <AlertCard key={i} alert={alert} />)
           )}
 
-          {/* Static special notice — Stouffville only (FIFA World Cup 2026) */}
-          {!loading && line.id === 'ST' && (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
-              <div className="flex items-start gap-2.5">
-                <div className="w-6 h-6 rounded-full bg-go-light flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-go-green text-xs font-bold">i</span>
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-gray-800 mb-1">{t('specialServiceNotice')}</div>
-                  <div className="text-xs text-gray-600 leading-relaxed">
-                    {t('specialServiceDetail')}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
@@ -1598,8 +1582,8 @@ export default function Home() {
               direction === 'homeToOffice' ? 'bg-go-green text-white shadow' : 'text-white/70'
             }`}
           >
-            <div className="text-xs leading-tight">🏠 {getStationName(homeStation.code, homeStation.shortName, lang)}</div>
-            <div className="text-xs text-white/60">{t('homeToUnion')}</div>
+            <div className="text-sm leading-tight">🏠 {getStationName(homeStation.code, homeStation.shortName, lang)}</div>
+            <div className="text-sm text-white/60">{t('homeToUnion')}</div>
           </button>
           <button
             onClick={() => setDirection('officeToHome')}
@@ -1607,8 +1591,8 @@ export default function Home() {
               direction === 'officeToHome' ? 'bg-go-green text-white shadow' : 'text-white/70'
             }`}
           >
-            <div className="text-xs leading-tight">🏢 {t('unionShort')}</div>
-            <div className="text-xs text-white/60">{t('unionToHome', { home: getStationName(homeStation.code, homeStation.shortName, lang) })}</div>
+            <div className="text-sm leading-tight">🏢 {t('unionShort')}</div>
+            <div className="text-sm text-white/60">{t('unionToHome', { home: getStationName(homeStation.code, homeStation.shortName, lang) })}</div>
           </button>
         </div>
 

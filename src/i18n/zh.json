@@ -59,8 +59,6 @@
   "checkOfficialSite": "请查看GO Transit官网获取当前警报信息。",
   "goodService": "服务正常",
   "noActiveAlerts": "{name}线目前没有活动警报",
-  "specialServiceNotice": "特别服务 6月10日 – 7月5日",
-  "specialServiceDetail": "新增工作日班次：联合维尔GO 16:36 → 联合车站 17:17（2026年世界杯期间）。",
   "viewOnGotransit": "在gotransit.com上查看",
   "platformMapTitle": "联合车站 {platform} 号站台",
   "platformMapSubtitle": "下层 / 站厅",
