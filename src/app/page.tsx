@@ -101,7 +101,7 @@ function LinePicker({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-2 bg-white/10 text-white text-xs rounded-lg pl-1.5 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50"
+        className="w-full flex items-center gap-2 bg-white/10 text-white text-sm rounded-lg pl-1.5 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50"
       >
         <LineBadge line={line} size="sm" />
         <span className="truncate">{t('lineOption', { name: lineDisplayName(line, lang) })}</span>
@@ -119,7 +119,7 @@ function LinePicker({
               key={l.id}
               type="button"
               onClick={() => { onChange(l.id); setOpen(false); }}
-              className={`w-full flex items-center gap-2 px-2 py-2 text-left text-xs text-white hover:bg-white/10 ${l.id === line.id ? 'bg-white/10' : ''}`}
+              className={`w-full flex items-center gap-2 px-2 py-2 text-left text-sm text-white hover:bg-white/10 ${l.id === line.id ? 'bg-white/10' : ''}`}
             >
               <LineBadge line={l} size="sm" />
               <span className="truncate">{t('lineOption', { name: lineDisplayName(l, lang) })}</span>
@@ -1560,7 +1560,7 @@ export default function Home() {
 
         {/* Line picker */}
         <div className="flex items-center gap-2 mx-4 mb-2">
-          <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
+          <span className="text-white/60 text-sm shrink-0 w-14 flex items-center gap-1.5">
             <span className="w-4 flex items-center justify-center shrink-0">
               <span className="w-2.5 h-2.5 rounded-full bg-go-green" />
             </span>
@@ -1571,7 +1571,7 @@ export default function Home() {
 
         {/* Home station picker */}
         <div className="flex items-center gap-2 mx-4 mb-2">
-          <span className="text-white/60 text-xs shrink-0 w-14 flex items-center gap-1.5">
+          <span className="text-white/60 text-sm shrink-0 w-14 flex items-center gap-1.5">
             <span className="w-4 flex items-center justify-center shrink-0">🏠</span>
             {t('homeLabel')}
           </span>
@@ -1579,7 +1579,7 @@ export default function Home() {
             <select
               value={homeStationCode}
               onChange={(e) => handleHomeStationChange(e.target.value)}
-              className="w-full bg-white/10 text-white text-xs rounded-lg pl-2 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
+              className="w-full bg-white/10 text-white text-sm rounded-lg pl-2 pr-7 py-1.5 border border-white/20 focus:outline-none focus:border-white/50 appearance-none"
             >
               {line.homeStations.map((s) => (
                 <option key={s.code} value={s.code} className="bg-go-dark text-white">
