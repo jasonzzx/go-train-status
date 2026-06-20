@@ -863,147 +863,135 @@ function TrainCard({
 }
 
 // ──────────────────────────────────────────────────────────
-// Add to Home Screen banner
+// Install (Add to Home Screen) detection + sheet
 // ──────────────────────────────────────────────────────────
 
-function AddToHomeScreenBanner() {
-  const { t } = useLanguage();
-  const [visible, setVisible] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
+type InstallPlatform = 'ios' | 'android' | 'desktop-chromium' | 'other';
+
+function detectInstallPlatform(): InstallPlatform {
+  const ua = navigator.userAgent;
+  const isIOS = /iPhone|iPad|iPod/.test(ua) && !/CriOS|FxiOS/.test(ua) && /Safari/.test(ua);
+  if (isIOS) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  if (/Chrome|Edg|Chromium/.test(ua) && !/Firefox/.test(ua)) return 'desktop-chromium';
+  return 'other';
+}
+
+function useInstallPrompt() {
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [platform, setPlatform] = useState<InstallPlatform>('other');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
-    // Already running as installed PWA — hide banner
-    const isStandalone =
+    setIsStandalone(
       window.matchMedia('(display-mode: standalone)').matches ||
-      (navigator as { standalone?: boolean }).standalone === true;
-    if (isStandalone) return;
+      (navigator as { standalone?: boolean }).standalone === true
+    );
+    setPlatform(detectInstallPlatform());
 
-    // User already dismissed this session
-    if (sessionStorage.getItem('a2hs-dismissed')) return;
-
-    const ua = navigator.userAgent;
-    // iOS Safari (not Chrome/Firefox on iOS)
-    const iosDevice = /iPhone|iPad|iPod/.test(ua) && !/CriOS|FxiOS/.test(ua) && /Safari/.test(ua);
-
-    if (iosDevice) {
-      setIsIOS(true);
-      setVisible(true);
-      return;
-    }
-
-    // Android / Desktop Chrome — capture beforeinstallprompt
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      setVisible(true);
     };
     window.addEventListener('beforeinstallprompt', handler);
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
-  const handleInstall = async () => {
+  const install = useCallback(async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') dismiss();
+    await deferredPrompt.userChoice;
     setDeferredPrompt(null);
-  };
+  }, [deferredPrompt]);
 
-  const dismiss = () => {
-    sessionStorage.setItem('a2hs-dismissed', '1');
-    setVisible(false);
-  };
+  return { isStandalone, platform, deferredPrompt, install };
+}
 
-  if (!visible) return null;
+function InstallSheet({
+  platform,
+  deferredPrompt,
+  install,
+  onClose,
+}: {
+  platform: InstallPlatform;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deferredPrompt: any;
+  install: () => void;
+  onClose: () => void;
+}) {
+  const { t } = useLanguage();
 
   return (
-    <div className="mx-3 mt-3 mb-1 rounded-2xl overflow-hidden shadow-sm border border-green-100"
-         style={{ background: 'linear-gradient(135deg, #0d4030 0%, #082b20 100%)' }}>
-      <div className="flex items-start gap-3 px-4 py-3">
-        {/* App icon */}
-        <div className="shrink-0 w-12 h-12 rounded-xl overflow-hidden shadow-md p-1"
-             style={{ background: '#082b20', border: '1.5px solid rgba(255,255,255,0.15)' }}>
-          <svg viewBox="0 0 36 36" width="100%" height="100%">
-            <defs>
-              <linearGradient id="a2hsLogoRim" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#e8fff0" />
-                <stop offset="0.3" stopColor="#7ED957" />
-                <stop offset="0.55" stopColor="#0b3d2c" />
-                <stop offset="0.8" stopColor="#7ED957" />
-                <stop offset="1" stopColor="#e8fff0" />
-              </linearGradient>
-            </defs>
-            <circle cx="18" cy="18" r="16.4" fill="none" stroke="url(#a2hsLogoRim)" strokeWidth="1.6" />
-            <circle cx="18" cy="18" r="14.4" fill="#00853F" />
-            <g transform="translate(18,18) scale(0.8) translate(-18,-18)">
-              <rect x="6" y="13" width="24" height="10" rx="2.5" fill="white" />
-              <rect x="22" y="15" width="6" height="5" rx="1" fill="#0b3d2c" opacity="0.85" />
-              <rect x="8" y="15" width="4" height="3.5" rx="0.8" fill="#0b3d2c" opacity="0.85" />
-              <rect x="14" y="15" width="4" height="3.5" rx="0.8" fill="#0b3d2c" opacity="0.85" />
-              <circle cx="11" cy="25" r="2.5" fill="white" />
-              <circle cx="25" cy="25" r="2.5" fill="white" />
-              <rect x="4" y="27" width="28" height="1.5" rx="0.75" fill="white" opacity="0.45" />
-              <circle cx="29" cy="9" r="4" fill="#0b3d2c" />
-              <circle cx="29" cy="9" r="2.5" fill="#4ade80" />
-            </g>
-          </svg>
+    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+
+      {/* Sheet */}
+      <div
+        className="relative w-full max-w-md flex flex-col bg-gray-50 rounded-t-2xl max-h-[90vh]"
+        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.25)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drag handle */}
+        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-white/40 rounded-full" />
+
+        {/* Sheet header */}
+        <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="font-bold text-base leading-tight">{t('installSheetTitle')}</div>
+            <button
+              onClick={onClose}
+              className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 text-lg leading-none"
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
-        {/* Text */}
-        <div className="flex-1 min-w-0">
-          <div className="text-white font-semibold text-sm leading-snug">{t('addToHomeScreen')}</div>
-          {isIOS ? (
-            <div className="text-white/60 text-xs mt-0.5 leading-relaxed">
-              <span className="inline-flex items-center gap-0.5 text-white/80 font-medium">
-                <svg className="w-3 h-3 inline" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707A1 1 0 016.293 5.293l3-3A1 1 0 0110 2z"/>
-                  <path d="M3 15a2 2 0 002 2h10a2 2 0 002-2v-4a1 1 0 10-2 0v4H5v-4a1 1 0 10-2 0v4z"/>
-                </svg>
-                {t('tapShareThenAdd')}
-              </span>
+        {/* Content */}
+        <div className="overflow-y-auto flex-1 px-4 pt-4 pb-6">
+          {deferredPrompt ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+              <div className="text-sm text-gray-600 mb-3">{t('getQuickAccess')}</div>
+              <button
+                onClick={install}
+                className="w-full bg-go-green text-white font-semibold py-3 rounded-xl text-sm"
+              >
+                {t('install')}
+              </button>
+            </div>
+          ) : platform === 'ios' ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-4">
+              <div className="text-sm text-gray-700 font-medium mb-3 text-center">{t('tapShareThenAdd')}</div>
+              <div className="flex items-center justify-center gap-6">
+                {[
+                  { icon: '⬆️', label: t('stepTapShare') },
+                  { icon: '➕', label: t('stepAddToHomeScreen') },
+                  { icon: '✅', label: t('stepDone') },
+                ].map((step, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1">
+                    <span className="text-2xl leading-none">{step.icon}</span>
+                    <span className="text-[11px] text-gray-500 text-center leading-tight">{step.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : platform === 'android' ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
+              {t('installAndroidSteps')}
+            </div>
+          ) : platform === 'desktop-chromium' ? (
+            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
+              {t('installDesktopSteps')}
             </div>
           ) : (
-            <div className="text-white/60 text-xs mt-0.5">{t('getQuickAccess')}</div>
+            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
+              {t('installUnsupported')}
+            </div>
           )}
-        </div>
-
-        {/* Action / dismiss */}
-        <div className="shrink-0 flex flex-col items-end gap-1.5">
-          {!isIOS && deferredPrompt && (
-            <button
-              onClick={handleInstall}
-              className="bg-go-accent text-white text-xs font-bold px-3 py-1.5 rounded-lg active:opacity-80"
-            >
-              {t('install')}
-            </button>
-          )}
-          <button
-            onClick={dismiss}
-            className="text-white/40 hover:text-white/70 text-xs px-1"
-            aria-label="Dismiss"
-          >
-            ✕
-          </button>
         </div>
       </div>
-
-      {/* iOS step hint strip */}
-      {isIOS && (
-        <div className="flex items-center justify-center gap-4 pb-3 px-4">
-          {[
-            { icon: '⬆️', label: t('stepTapShare') },
-            { icon: '➕', label: t('stepAddToHomeScreen') },
-            { icon: '✅', label: t('stepDone') },
-          ].map((step, i) => (
-            <div key={i} className="flex flex-col items-center gap-0.5">
-              <span className="text-lg leading-none">{step.icon}</span>
-              <span className="text-[9px] text-white/50 text-center leading-tight">{step.label}</span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -1118,6 +1106,8 @@ export default function Home() {
   const [alertsAvailable, setAlertsAvailable] = useState(false);
   const [alertsLastUpdated, setAlertsLastUpdated] = useState<string | null>(null);
   const [showAlertsSheet, setShowAlertsSheet] = useState(false);
+  const [showInstallSheet, setShowInstallSheet] = useState(false);
+  const installPrompt = useInstallPrompt();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
@@ -1351,20 +1341,22 @@ export default function Home() {
               </svg>
             </button>
 
-            <div className="w-px h-4 bg-white/20" />
+            {!installPrompt.isStandalone && (
+              <>
+                <div className="w-px h-4 bg-white/20" />
 
-            <a
-              href={
-                direction === 'homeToOffice'
-                  ? `https://www.gotransit.com/en/see-schedules?departure=${homeStation.code}&destination=UN&transfers=true`
-                  : `https://www.gotransit.com/en/see-schedules?departure=UN&destination=${homeStation.code}&transfers=true`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/60 text-xs hover:text-white/90 transition-colors"
-            >
-              {t('official')}
-            </a>
+                {/* Install button */}
+                <button
+                  onClick={() => setShowInstallSheet(true)}
+                  className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                  title={t('install')}
+                >
+                  <svg className="w-5 h-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" />
+                  </svg>
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -1499,9 +1491,6 @@ export default function Home() {
         <span className="ml-auto text-white/70 capitalize text-xs">{t(serviceType)}</span>
       </div>
 
-      {/* Add to Home Screen banner (only in mobile browser, not standalone) */}
-      <AddToHomeScreenBanner />
-
       {/* Slim alert banner (only when active alerts exist) */}
       {!alertsLoading && totalAlerts > 0 && (
         <button
@@ -1632,6 +1621,16 @@ export default function Home() {
           available={alertsAvailable}
           lastUpdated={alertsLastUpdated}
           onClose={() => setShowAlertsSheet(false)}
+        />
+      )}
+
+      {/* Install Sheet */}
+      {showInstallSheet && (
+        <InstallSheet
+          platform={installPrompt.platform}
+          deferredPrompt={installPrompt.deferredPrompt}
+          install={installPrompt.install}
+          onClose={() => setShowInstallSheet(false)}
         />
       )}
     </div>
