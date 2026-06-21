@@ -1399,6 +1399,7 @@ function loadLineId(): string {
 export default function Home() {
   const { lang, setLang, t } = useLanguage();
   const dateInputRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const [selectedDate, setSelectedDate] = useState(getDefaultDate);
   const [direction, setDirection] = useState<Direction>(getDefaultDirection);
   const [nowMinutes, setNowMinutes] = useState<number | null>(null);
@@ -1591,15 +1592,29 @@ export default function Home() {
     return idx >= 0 ? idx : 0;
   }, [isToday, nextIndex, trips]);
 
-  // Auto-scroll whenever the visible schedule changes
+  // Auto-scroll whenever the visible schedule changes, positioning the
+  // "now" card as the 2nd card visible below the sticky header (so the
+  // card before it peeks in at the top). Computed manually rather than via
+  // scrollIntoView, which ignores the sticky header's overlap and leaves
+  // cards sitting too high. Re-runs once alerts finish loading, since the
+  // alert banner can grow the header and shift the layout after the first
+  // scroll already ran.
   useEffect(() => {
     if (scrollTargetIndex < 0) return;
     const t = setTimeout(() => {
-      const el = document.getElementById('scroll-target');
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const nextEl = document.getElementById('scroll-target');
+      if (!nextEl) return;
+      const nowEl = nextEl.previousElementSibling as HTMLElement | null;
+      const beforeNowEl = nowEl?.previousElementSibling as HTMLElement | null;
+      const anchorEl = beforeNowEl ?? nowEl ?? nextEl;
+      const headerHeight = headerRef.current?.getBoundingClientRect().height ?? 0;
+      const anchorRect = anchorEl.getBoundingClientRect();
+      const anchorTopInDoc = window.scrollY + anchorRect.top;
+      const targetScrollY = anchorTopInDoc - headerHeight;
+      window.scrollTo({ top: Math.max(0, targetScrollY), behavior: 'smooth' });
     }, 150);
     return () => clearTimeout(t);
-  }, [scrollTargetIndex, selectedDate, direction]);
+  }, [scrollTargetIndex, selectedDate, direction, alertsLoading]);
 
   // Collapse expanded cards when switching line, date or direction
   useEffect(() => {
@@ -1610,7 +1625,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col max-w-md mx-auto">
       {/* ── Header ── */}
-      <header className="sticky top-0 z-20 bg-go-dark text-white shadow-lg">
+      <header ref={headerRef} className="sticky top-0 z-20 bg-go-dark text-white shadow-lg">
         {/* Top bar */}
         <div className="flex items-center gap-3 px-4 pt-4 pb-2">
           <div className="shrink-0 w-9 h-9">
