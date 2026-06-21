@@ -93,7 +93,11 @@ export function getScheduleForStation(
         tripId: t.tripId,
         stopTimes: t.stopTimes,
       };
-    });
+    })
+    // dayTrips is ordered by each trip's own origin time, which isn't
+    // necessarily this station's time (e.g. short-turn trips starting
+    // partway down the line) — re-sort by this station's actual departure.
+    .sort((a, b) => timeToMinutes(a.departure) - timeToMinutes(b.departure));
 }
 
 // ── Stop sequence ─────────────────────────────────────────
