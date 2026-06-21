@@ -1049,10 +1049,10 @@ function TrainCard({
   const hasAlert = alerts.length > 0;
   const depMins = timeToMinutes(trip.departure);
   const arrMins = depMins + parseInt(trip.tripTime, 10);
-  // A trip is "now running" if we're between departure and arrival (±5 min grace).
+  // A trip is "now running" only between its exact departure and arrival time.
   // NOTE: isPast becomes true as soon as departure passes, so we must NOT include !isPast here.
   const isNowRunning = isToday && nowMinutes !== null
-    && nowMinutes >= depMins - 5 && nowMinutes <= arrMins + 5;
+    && nowMinutes >= depMins && nowMinutes <= arrMins;
   // For display: only gray out if truly past (arrived) AND not currently running
   const effectiveIsPast = isPast && !isNowRunning;
   // Show "On Board" only when trip is in progress
@@ -1553,7 +1553,7 @@ export default function Home() {
 
   const nextIndex = useMemo(() => {
     if (!isToday || nowMinutes === null) return -1;
-    return trips.findIndex((t) => parseTime(t.departure) >= nowMinutes);
+    return trips.findIndex((t) => parseTime(t.departure) > nowMinutes);
   }, [trips, isToday, nowMinutes]);
 
   const alertMap = useMemo(
