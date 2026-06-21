@@ -9,7 +9,7 @@ export type Lang = 'en' | 'zh';
 
 const DICTS: Record<Lang, Record<string, string>> = { en, zh };
 
-const LANG_STORAGE_KEY = 'go-train-lang';
+export const LANG_STORAGE_KEY = 'go-train-lang';
 
 function loadLang(): Lang {
   if (typeof window === 'undefined') return 'en';
