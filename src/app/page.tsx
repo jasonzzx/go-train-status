@@ -155,6 +155,19 @@ function buildAlertMap(alerts: ParsedAlert[], direction: Direction): Map<string,
 }
 
 // ──────────────────────────────────────────────────────────
+// Overall line status — mirrors gotransit.com's status badge:
+// "Good Service" / "Minor Delays" / "No Scheduled Service Today"
+// ──────────────────────────────────────────────────────────
+
+export type LineStatus = 'good' | 'minor' | 'noService';
+
+function computeLineStatus(trips: Trip[], trackerTrips: TrackerTrip[]): LineStatus {
+  if (trips.length === 0) return 'noService';
+  if (trackerTrips.some((t) => t.cancelled || t.delay > 0)) return 'minor';
+  return 'good';
+}
+
+// ──────────────────────────────────────────────────────────
 // Tracker lookup helpers
 // ──────────────────────────────────────────────────────────
 
@@ -226,6 +239,41 @@ function CheckCircleIcon({ className }: { className?: string }) {
         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
     </svg>
   );
+}
+
+// Status badges matching gotransit.com's service-updates page styling.
+function GoodServiceIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="9" fill="#22a454" />
+      <path d="M6.2 10.3l2.4 2.3 5.2-5.4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MinorDelaysIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="9" fill="#f5821f" />
+      <rect x="9.1" y="5" width="1.8" height="6.2" rx="0.9" fill="white" />
+      <circle cx="10" cy="14" r="1.05" fill="white" />
+    </svg>
+  );
+}
+
+function NoServiceIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="9" fill="#eab308" />
+      <path d="M6.8 6.8l6.4 6.4M13.2 6.8l-6.4 6.4" stroke="#1f2937" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function LineStatusIcon({ status, className }: { status: LineStatus; className?: string }) {
+  if (status === 'noService') return <NoServiceIcon className={className} />;
+  if (status === 'minor') return <MinorDelaysIcon className={className} />;
+  return <GoodServiceIcon className={className} />;
 }
 
 function ArrowRightIcon({ className }: { className?: string }) {
@@ -417,6 +465,7 @@ function ServiceAlertsSheet({
   loading,
   available,
   lastUpdated,
+  status,
   onClose,
 }: {
   line: LineInfo;
@@ -424,6 +473,7 @@ function ServiceAlertsSheet({
   loading: boolean;
   available: boolean;
   lastUpdated: string | null;
+  status: LineStatus;
   onClose: () => void;
 }) {
   const { lang, t } = useLanguage();
@@ -484,20 +534,50 @@ function ServiceAlertsSheet({
               <div className="text-sm font-medium text-gray-700 mb-1">{t('liveDataUnavailable')}</div>
               <div className="text-xs text-gray-500">{t('checkOfficialSite')}</div>
             </div>
-          ) : alerts.length === 0 ? (
-            /* Good service */
-            <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
-              <div className="flex items-center gap-3">
-                <CheckCircleIcon className="w-8 h-8 text-go-green shrink-0" />
-                <div>
-                  <div className="font-semibold text-gray-900">{t('goodService')}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{t('noActiveAlerts', { name: lineName })}</div>
-                </div>
-              </div>
-            </div>
           ) : (
-            /* Alert cards */
-            alerts.map((alert, i) => <AlertCard key={i} alert={alert} />)
+            <>
+              {status === 'noService' ? (
+                /* No scheduled service today */
+                <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
+                  <div className="flex items-center gap-3">
+                    <NoServiceIcon className="w-8 h-8 shrink-0" />
+                    <div>
+                      <div className="font-semibold text-gray-900">{t('noScheduledServiceToday')}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {t('noScheduledServiceDesc', { name: lineName })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : status === 'minor' ? (
+                /* Minor delays */
+                <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
+                  <div className="flex items-center gap-3">
+                    <MinorDelaysIcon className="w-8 h-8 shrink-0" />
+                    <div>
+                      <div className="font-semibold text-gray-900">{t('minorDelays')}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">
+                        {t('minorDelaysDesc', { name: lineName })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : alerts.length === 0 ? (
+                /* Good service */
+                <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3">
+                  <div className="flex items-center gap-3">
+                    <CheckCircleIcon className="w-8 h-8 text-go-green shrink-0" />
+                    <div>
+                      <div className="font-semibold text-gray-900">{t('goodService')}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{t('noActiveAlerts', { name: lineName })}</div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {/* Alert cards — shown alongside the status block above when present */}
+              {alerts.map((alert, i) => <AlertCard key={i} alert={alert} />)}
+            </>
           )}
 
         </div>
@@ -1426,6 +1506,11 @@ export default function Home() {
 
   const totalAlerts = alerts.length;
 
+  const lineStatus: LineStatus = useMemo(
+    () => computeLineStatus(trips, trackerTrips),
+    [trips, trackerTrips]
+  );
+
   // For today: scroll to next train. For other dates: scroll to first train at/after 8am.
   const scrollTargetIndex = useMemo(() => {
     if (isToday) return nextIndex;
@@ -1506,16 +1591,16 @@ export default function Home() {
 
             <div className="w-px h-4 bg-white/20" />
 
-            {/* Service alerts icon — always visible */}
+            {/* Service status icon — always visible; mirrors gotransit.com's status badge */}
             <button
               onClick={() => setShowAlertsSheet(true)}
               className="relative p-1.5 rounded-lg hover:bg-white/10 transition-colors"
               title={t('serviceUpdates', { name: lineDisplayName(line, lang) })}
             >
-              <BellIcon className="w-5 h-5 text-white/70" />
-              {/* Badge dot — red when alerts, amber when loading done */}
-              {!alertsLoading && totalAlerts > 0 && (
-                <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 bg-amber-400 rounded-full border-2 border-go-dark" />
+              {alertsLoading ? (
+                <BellIcon className="w-5 h-5 text-white/70" />
+              ) : (
+                <LineStatusIcon status={lineStatus} className="w-5 h-5" />
               )}
             </button>
 
@@ -1804,6 +1889,7 @@ export default function Home() {
           loading={alertsLoading}
           available={alertsAvailable}
           lastUpdated={alertsLastUpdated}
+          status={lineStatus}
           onClose={() => setShowAlertsSheet(false)}
         />
       )}
