@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { readFileSync } from 'fs';
+import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 import VersionWatcher from './VersionWatcher';
 import { LanguageProvider } from '@/i18n';
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <VersionWatcher buildVersion={buildVersion} />
         <LanguageProvider>{children}</LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );

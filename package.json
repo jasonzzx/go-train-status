@@ -12,6 +12,7 @@
     "generate-icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "cheerio": "^1.2.0",
     "next": "^14.2.0",
     "react": "^18.3.0",
