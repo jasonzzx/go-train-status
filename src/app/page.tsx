@@ -1803,33 +1803,33 @@ export default function Home() {
             </button>
           )}
         </div>
-      </header>
 
-      {/* Route bar */}
-      <div className="bg-go-green text-white px-4 py-2 flex items-center gap-2 text-sm">
-        <span className="font-semibold">
-          {direction === 'homeToOffice' ? getStationName(homeStation.code, homeStation.name, lang) : t('unionStation')}
-        </span>
-        <ArrowRightIcon className="w-4 h-4 shrink-0" />
-        <span className="font-semibold">
-          {direction === 'homeToOffice' ? t('unionStation') : getStationName(homeStation.code, homeStation.name, lang)}
-        </span>
-        <span className="ml-auto text-white/70 capitalize text-xs">{t(serviceType)}</span>
-      </div>
-
-      {/* Slim alert banner (only when active alerts exist) */}
-      {!alertsLoading && totalAlerts > 0 && (
-        <button
-          onClick={() => setShowAlertsSheet(true)}
-          className="w-full flex items-center gap-2 bg-amber-50 border-b border-amber-200 px-4 py-2 text-left"
-        >
-          <span className="text-sm">⚠️</span>
-          <span className="text-amber-800 text-xs font-medium flex-1">
-            {t('activeAlerts', { count: totalAlerts, plural: totalAlerts !== 1 ? 's' : '', name: lineDisplayName(line, lang) })}
+        {/* Route bar */}
+        <div className="bg-go-green text-white px-4 py-2 flex items-center gap-2 text-sm">
+          <span className="font-semibold">
+            {direction === 'homeToOffice' ? getStationName(homeStation.code, homeStation.name, lang) : t('unionStation')}
           </span>
-          <span className="text-amber-600 text-xs font-semibold">{t('view')}</span>
-        </button>
-      )}
+          <ArrowRightIcon className="w-4 h-4 shrink-0" />
+          <span className="font-semibold">
+            {direction === 'homeToOffice' ? t('unionStation') : getStationName(homeStation.code, homeStation.name, lang)}
+          </span>
+          <span className="ml-auto text-white/70 capitalize text-xs">{t(serviceType)}</span>
+        </div>
+
+        {/* Slim alert banner (only when active alerts exist) */}
+        {!alertsLoading && totalAlerts > 0 && (
+          <button
+            onClick={() => setShowAlertsSheet(true)}
+            className="w-full flex items-center gap-2 bg-amber-50 border-b border-amber-200 px-4 py-2 text-left"
+          >
+            <span className="text-sm">⚠️</span>
+            <span className="text-amber-800 text-xs font-medium flex-1">
+              {t('activeAlerts', { count: totalAlerts, plural: totalAlerts !== 1 ? 's' : '', name: lineDisplayName(line, lang) })}
+            </span>
+            <span className="text-amber-600 text-xs font-semibold">{t('view')}</span>
+          </button>
+        )}
+      </header>
 
       {/* Train list */}
       <main className="flex-1 px-3 py-3 overflow-y-auto">
