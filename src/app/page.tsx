@@ -1711,6 +1711,21 @@ export default function Home() {
               </svg>
             </button>
 
+            <div className="w-px h-4 bg-white/20" />
+
+            <a
+              href={
+                direction === 'homeToOffice'
+                  ? `https://www.gotransit.com/en/see-schedules?departure=${homeStation.code}&destination=UN&transfers=true`
+                  : `https://www.gotransit.com/en/see-schedules?departure=UN&destination=${homeStation.code}&transfers=true`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 text-xs hover:text-white/90 transition-colors"
+            >
+              {t('official')}
+            </a>
+
             {!installPrompt.isStandalone && (
               <>
                 <div className="w-px h-4 bg-white/20" />
