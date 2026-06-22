@@ -1667,6 +1667,20 @@ export default function Home() {
             <div className="text-white/60 text-xs">{t('lineOption', { name: lineDisplayName(line, lang) })}</div>
           </div>
 
+          {/* Service status icon — same size as the logo so it's the most visible thing
+              in the header, since this app's whole purpose is showing line status. */}
+          <button
+            onClick={() => setShowAlertsSheet(true)}
+            className="relative shrink-0 w-9 h-9 rounded-lg hover:bg-white/10 transition-colors flex items-center justify-center"
+            title={t('serviceUpdates', { name: lineDisplayName(line, lang) })}
+          >
+            {alertsLoading ? (
+              <BellIcon className="w-6 h-6 text-white/70" />
+            ) : (
+              <LineStatusIcon status={lineStatus} className="w-6 h-6" />
+            )}
+          </button>
+
           <div className="ml-auto flex items-center gap-2">
             {/* Language toggle */}
             <button
@@ -1675,21 +1689,6 @@ export default function Home() {
               title="EN / 中文"
             >
               {lang === 'en' ? '中文' : 'EN'}
-            </button>
-
-            <div className="w-px h-4 bg-white/20" />
-
-            {/* Service status icon — always visible; mirrors gotransit.com's status badge */}
-            <button
-              onClick={() => setShowAlertsSheet(true)}
-              className="relative p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-              title={t('serviceUpdates', { name: lineDisplayName(line, lang) })}
-            >
-              {alertsLoading ? (
-                <BellIcon className="w-5 h-5 text-white/70" />
-              ) : (
-                <LineStatusIcon status={lineStatus} className="w-5 h-5" />
-              )}
             </button>
 
             <div className="w-px h-4 bg-white/20" />
