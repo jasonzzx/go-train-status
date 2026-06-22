@@ -1790,7 +1790,7 @@ export default function Home() {
               onClick={(e) => {
                 e.currentTarget.showPicker?.();
               }}
-              className="w-full h-9 bg-white/10 text-white text-sm rounded-lg pl-8 pr-2 border border-white/20 focus:outline-none focus:border-white/50"
+              className="w-full h-9 box-border appearance-none bg-white/10 text-white text-sm rounded-lg pl-8 pr-2 border border-white/20 focus:outline-none focus:border-white/50"
             />
           </div>
           {isToday ? (
