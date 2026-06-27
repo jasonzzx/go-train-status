@@ -1469,6 +1469,12 @@ export default function Home() {
   const [alertsSource, setAlertsSource] = useState<string | null>(null);
   const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
 
+  // Pinned platform slot: keyed by "direction:departure". Keeps the platform
+  // badge on its current card (showing the last known value) until the next
+  // departure publishes its own platform, then hands off — so the badge
+  // never disappears mid-handoff and never shows on two cards at once.
+  const [pinnedPlatform, setPinnedPlatform] = useState<{ key: string; platform: string } | null>(null);
+
   // Author photo "zoom from icon" reveal — see openAuthorPhoto/closeAuthorPhoto below.
   const authorIconRef = useRef<HTMLButtonElement>(null);
   const [authorPhase, setAuthorPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
@@ -1619,6 +1625,29 @@ export default function Home() {
     () => buildTrackerMaps(trackerTrips),
     [trackerTrips]
   );
+
+  // Advance the pinned platform slot: stay put while its card still reports
+  // a platform; once that card's platform clears, hand off to the nearest
+  // upcoming card that has published its own — never both, never neither.
+  useEffect(() => {
+    if (!isToday) {
+      setPinnedPlatform(null);
+      return;
+    }
+    const candidates = trips.map((trip) => ({
+      key: `${direction}:${trip.departure}`,
+      platform: getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform || '',
+    }));
+
+    setPinnedPlatform((prev) => {
+      const idx = prev ? candidates.findIndex((c) => c.key === prev.key) : -1;
+      if (idx === -1) {
+        return candidates.find((c) => c.platform) ?? null;
+      }
+      if (candidates[idx].platform) return candidates[idx];
+      return candidates.slice(idx + 1).find((c) => c.platform) ?? prev;
+    });
+  }, [trips, direction, isToday, trackerInbound, trackerOutbound]);
 
   // Live stop names from tracker: "directionCd:scheduledTime" → stops[]
   const trackerStopsMap = useMemo(() => {
@@ -1923,7 +1952,19 @@ export default function Home() {
               const isPast = isToday && nowMinutes !== null && parseTime(trip.departure) < nowMinutes;
               const isNext = i === nextIndex;
               const tripAlerts = alertMap.get(trip.departure) ?? [];
-              const tracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
+              const rawTracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
+              const isPinnedPlatformCard = isToday && pinnedPlatform !== null && pinnedPlatform.key === `${direction}:${trip.departure}`;
+              const tracker: TrackerInfo | null = isPinnedPlatformCard && pinnedPlatform
+                ? {
+                    platform: pinnedPlatform.platform,
+                    expected: rawTracker?.expected ?? '',
+                    delay: rawTracker?.delay ?? 0,
+                    cancelled: rawTracker?.cancelled ?? false,
+                    arriveIn: rawTracker?.arriveIn ?? '',
+                  }
+                : rawTracker
+                ? { ...rawTracker, platform: '' }
+                : null;
               const isExpanded = expandedDep === trip.departure;
               const isOnBoard = onBoardDep === trip.departure;
               const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
