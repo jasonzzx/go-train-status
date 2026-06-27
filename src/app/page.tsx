@@ -1951,16 +1951,16 @@ export default function Home() {
               </a>
             </div>
 
-            <div className="relative flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-8 pb-safe">
+            <div className="relative flex items-center justify-center gap-2.5 text-base text-gray-400 mb-8 pb-safe">
               <button
                 onClick={() => setShowDataSourceInfo((v) => !v)}
-                className="flex items-center gap-1.5 focus:outline-none"
+                className="flex items-center gap-2.5 focus:outline-none"
                 aria-label="Show data source info"
               >
                 <img
                   src="/personal-icons/JASON_LOGO_512.png"
                   alt="Jason Zhong logo"
-                  className="w-5 h-5 rounded-full"
+                  className="w-9 h-9 rounded-full"
                 />
                 <span>{t('authorBy')}</span>
               </button>
@@ -1968,9 +1968,9 @@ export default function Home() {
                 href="mailto:jasonzzx@gmail.com"
                 title="Email Jason Zhong"
                 aria-label="Email Jason Zhong"
-                className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-500 hover:bg-go-light hover:text-go-green transition-colors"
+                className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-500 hover:bg-go-light hover:text-go-green transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </a>
