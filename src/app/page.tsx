@@ -22,6 +22,7 @@ import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
 import { getMappedPlatforms, getPlatformLabelKey, isPlatformMapped } from '@/lib/union-platform-map';
+import { loadPlatformCache, savePlatformCache } from '@/lib/platform-cache';
 import UnionPlatformMap, { MAP_VIEWBOX_WIDTH, MAP_VIEWBOX_HEIGHT } from '@/components/UnionPlatformMap';
 
 // Temporarily disabled — the platform map schematic needs a better source
@@ -1474,11 +1475,11 @@ export default function Home() {
   const [alertsSource, setAlertsSource] = useState<string | null>(null);
   const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
 
-  // Pinned platform slot: keyed by "direction:departure". Keeps the platform
-  // badge on its current card (showing the last known value) until the next
-  // departure publishes its own platform, then hands off — so the badge
-  // never disappears mid-handoff and never shows on two cards at once.
-  const [pinnedPlatform, setPinnedPlatform] = useState<{ key: string; platform: string } | null>(null);
+  // Last-known platform per train ("direction:departure" → platform), remembered
+  // in this browser's localStorage for the current service day. The live feed
+  // drops a platform the moment its train departs, so we fall back to this so
+  // the badge survives the NEXT → NOW flip and page reloads. See platform-cache.
+  const [platformCache, setPlatformCache] = useState<Record<string, string>>({});
 
   // Author photo "zoom from icon" reveal — see openAuthorPhoto/closeAuthorPhoto below.
   const authorIconRef = useRef<HTMLButtonElement>(null);
@@ -1643,28 +1644,58 @@ export default function Home() {
     [trackerTrips]
   );
 
-  // Advance the pinned platform slot: stay put while its card still reports
-  // a platform; once that card's platform clears, hand off to the nearest
-  // upcoming card that has published its own — never both, never neither.
+  // Load this browser's remembered platforms for the current service day.
   useEffect(() => {
-    if (!isToday) {
-      setPinnedPlatform(null);
-      return;
-    }
-    const candidates = trips.map((trip) => ({
-      key: `${direction}:${trip.departure}`,
-      platform: getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform || '',
-    }));
+    if (todayStr) setPlatformCache(loadPlatformCache(todayStr));
+  }, [todayStr]);
 
-    setPinnedPlatform((prev) => {
-      const idx = prev ? candidates.findIndex((c) => c.key === prev.key) : -1;
-      if (idx === -1) {
-        return candidates.find((c) => c.platform) ?? null;
+  // Record every platform the live feed publishes, so we can keep showing it
+  // after the feed drops it at departure. Only the viewed direction carries a
+  // platform (Union departures), which is exactly what's in scope here.
+  useEffect(() => {
+    if (!isToday || !todayStr) return;
+    setPlatformCache((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const trip of trips) {
+        const live = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform;
+        const key = `${direction}:${trip.departure}`;
+        if (live && next[key] !== live) {
+          next[key] = live;
+          changed = true;
+        }
       }
-      if (candidates[idx].platform) return candidates[idx];
-      return candidates.slice(idx + 1).find((c) => c.platform) ?? prev;
+      if (!changed) return prev;
+      savePlatformCache(todayStr, next);
+      return next;
     });
-  }, [trips, direction, isToday, trackerInbound, trackerOutbound]);
+  }, [trips, direction, isToday, todayStr, trackerInbound, trackerOutbound]);
+
+  // Platform to show for a trip: the live value, or the last one we cached for
+  // it earlier today (survives the feed dropping it after departure / reload).
+  const platformFor = useCallback(
+    (trip: { departure: string; arrival: string }): string => {
+      const live = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform;
+      return live || platformCache[`${direction}:${trip.departure}`] || '';
+    },
+    [direction, trackerInbound, trackerOutbound, platformCache]
+  );
+
+  // The single card that shows the platform badge: the soonest upcoming train
+  // once its platform is known; otherwise a train that's already left but is
+  // still en route (NOW), so the badge doesn't vanish at departure before the
+  // next platform is posted. Exactly one card, never two.
+  const platformCardIndex = useMemo(() => {
+    if (!isToday || nowMinutes === null) return -1;
+    if (nextIndex >= 0 && platformFor(trips[nextIndex])) return nextIndex;
+    for (let i = (nextIndex === -1 ? trips.length : nextIndex) - 1; i >= 0; i--) {
+      const t = trips[i];
+      const arrMins = parseTime(t.departure) + parseInt(t.tripTime, 10);
+      if (nowMinutes > arrMins) break; // already arrived → older trains are too
+      if (platformFor(t)) return i;
+    }
+    return -1;
+  }, [isToday, nowMinutes, nextIndex, trips, platformFor]);
 
   // Live stop names from tracker: "directionCd:scheduledTime" → stops[]
   const trackerStopsMap = useMemo(() => {
@@ -1970,17 +2001,13 @@ export default function Home() {
               const isNext = i === nextIndex;
               const tripAlerts = alertMap.get(trip.departure) ?? [];
               const rawTracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
-              const isPinnedPlatformCard = isToday && pinnedPlatform !== null && pinnedPlatform.key === `${direction}:${trip.departure}`;
-              const tracker: TrackerInfo | null = isPinnedPlatformCard && pinnedPlatform
-                ? {
-                    platform: pinnedPlatform.platform,
-                    expected: rawTracker?.expected ?? '',
-                    delay: rawTracker?.delay ?? 0,
-                    cancelled: rawTracker?.cancelled ?? false,
-                    arriveIn: rawTracker?.arriveIn ?? '',
-                  }
-                : rawTracker
-                ? { ...rawTracker, platform: '' }
+              // Show the platform on exactly one card (platformCardIndex), backed
+              // by the localStorage cache so it survives the feed dropping it.
+              const showPlatform = isToday && i === platformCardIndex ? platformFor(trip) : '';
+              const tracker: TrackerInfo | null = rawTracker
+                ? { ...rawTracker, platform: showPlatform }
+                : showPlatform
+                ? { platform: showPlatform, expected: '', delay: 0, cancelled: false, arriveIn: '' }
                 : null;
               const isExpanded = expandedDep === trip.departure;
               const isOnBoard = onBoardDep === trip.departure;
