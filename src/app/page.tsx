@@ -2037,12 +2037,12 @@ export default function Home() {
                 ref={authorIconRef}
                 onClick={openAuthorPhoto}
                 aria-label="Show author photo"
-                className="rounded-full focus:outline-none"
+                className="inline-flex w-12 h-12 rounded-full shadow-md shadow-go-green/30 transition-all duration-200 hover:scale-110 hover:shadow-lg hover:shadow-go-green/40 active:scale-95 focus:outline-none"
               >
                 <img
                   src="/personal-icons/JASON_LOGO_512.png"
                   alt="Jason Zhong logo"
-                  className="w-9 h-9 rounded-full"
+                  className="w-12 h-12 rounded-full"
                 />
               </button>
               <span>{t('authorBy')}</span>
