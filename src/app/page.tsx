@@ -1469,6 +1469,54 @@ export default function Home() {
   const [alertsSource, setAlertsSource] = useState<string | null>(null);
   const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
 
+  // Author photo "zoom from icon" reveal — see openAuthorPhoto/closeAuthorPhoto below.
+  const authorIconRef = useRef<HTMLButtonElement>(null);
+  const [authorPhase, setAuthorPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
+  const [authorTransform, setAuthorTransform] = useState('scale(0.05)');
+  const [authorFinalSize, setAuthorFinalSize] = useState(360);
+  const authorClosedTransformRef = useRef('scale(0.05)');
+
+  // Computes the transform that overlaps the full-size photo exactly onto the
+  // small icon's screen rect, so the grow/shrink animation appears to
+  // originate from the icon itself rather than just zooming from center.
+  const openAuthorPhoto = useCallback(() => {
+    const finalSize = Math.min(window.innerWidth * 0.82, 420);
+    setAuthorFinalSize(finalSize);
+
+    const rect = authorIconRef.current?.getBoundingClientRect();
+    if (rect) {
+      const iconCenterX = rect.left + rect.width / 2;
+      const iconCenterY = rect.top + rect.height / 2;
+      const dx = iconCenterX - window.innerWidth / 2;
+      const dy = iconCenterY - window.innerHeight / 2;
+      const scale = rect.width / finalSize;
+      authorClosedTransformRef.current = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    } else {
+      authorClosedTransformRef.current = 'scale(0.05)';
+    }
+    setAuthorTransform(authorClosedTransformRef.current);
+    setAuthorPhase('opening');
+  }, []);
+
+  const closeAuthorPhoto = useCallback(() => {
+    setAuthorTransform(authorClosedTransformRef.current);
+    setAuthorPhase('closing');
+  }, []);
+
+  useEffect(() => {
+    if (authorPhase === 'opening') {
+      const id = requestAnimationFrame(() => {
+        setAuthorTransform('translate(0px, 0px) scale(1)');
+        setAuthorPhase('open');
+      });
+      return () => cancelAnimationFrame(id);
+    }
+    if (authorPhase === 'closing') {
+      const id = setTimeout(() => setAuthorPhase('closed'), 450);
+      return () => clearTimeout(id);
+    }
+  }, [authorPhase]);
+
   // Clock tick
   useEffect(() => {
     const update = () => {
@@ -1985,11 +2033,18 @@ export default function Home() {
             </div>
 
             <div className="flex items-center justify-center gap-2.5 text-base text-gray-400 mb-8 pb-safe">
-              <img
-                src="/personal-icons/JASON_LOGO_512.png"
-                alt="Jason Zhong logo"
-                className="w-9 h-9 rounded-full"
-              />
+              <button
+                ref={authorIconRef}
+                onClick={openAuthorPhoto}
+                aria-label="Show author photo"
+                className="rounded-full focus:outline-none"
+              >
+                <img
+                  src="/personal-icons/JASON_LOGO_512.png"
+                  alt="Jason Zhong logo"
+                  className="w-9 h-9 rounded-full"
+                />
+              </button>
               <span>{t('authorBy')}</span>
               <a
                 href="mailto:jasonzzx@gmail.com"
@@ -2002,6 +2057,28 @@ export default function Home() {
                 </svg>
               </a>
             </div>
+
+            {authorPhase !== 'closed' && (
+              <div
+                className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/85 transition-opacity duration-[450ms] ease-out ${
+                  authorPhase === 'open' ? 'opacity-100' : 'opacity-0'
+                }`}
+                onClick={closeAuthorPhoto}
+              >
+                <img
+                  src="/personal-icons/JASON_LOGO_HQ.jpg"
+                  alt="Jason Zhong"
+                  style={{
+                    width: authorFinalSize,
+                    height: authorFinalSize,
+                    transform: authorTransform,
+                  }}
+                  className={`rounded-2xl shadow-2xl object-cover transition-[transform,opacity,filter] duration-[450ms] ease-out ${
+                    authorPhase === 'open' ? 'opacity-100 blur-none' : 'opacity-0 blur-lg'
+                  }`}
+                />
+              </div>
+            )}
           </>
         )}
       </main>
