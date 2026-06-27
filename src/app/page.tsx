@@ -1528,7 +1528,10 @@ export default function Home() {
     }
   }, [authorPhase]);
 
-  // Clock tick
+  // Clock tick. Browsers throttle (or fully pause) setInterval in background
+  // tabs, so a card's NEXT->NOW switch can lag well behind the real
+  // departure time if the user looks away and back. Re-sync immediately on
+  // tab focus/visibility return instead of waiting for the next tick.
   useEffect(() => {
     const update = () => {
       const now = new Date();
@@ -1537,7 +1540,16 @@ export default function Home() {
     };
     update();
     const id = setInterval(update, 60_000);
-    return () => clearInterval(id);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') update();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', update);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', update);
+    };
   }, []);
 
   // Fetch tracker (platform + expected) every 30 seconds
