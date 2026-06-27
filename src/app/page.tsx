@@ -292,6 +292,11 @@ function getTrackerInfo(
   return outbound.get(trip.departure) ?? null;
 }
 
+/** "7 & 8" / "7,8" / "7/8" → "7 | 8" — Metrolinx's own separator is "&" (see types.ts). */
+function formatPlatformLabel(platform: string): string {
+  return platform.split(/[,/&]/).map((p) => p.trim()).filter(Boolean).join(' | ');
+}
+
 // ──────────────────────────────────────────────────────────
 // Icons
 // ──────────────────────────────────────────────────────────
@@ -467,10 +472,10 @@ function PlatformMapSheet({
         <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center font-extrabold text-white shrink-0 bg-yellow-600/80 text-lg">
-              {platform}
+              {formatPlatformLabel(platform)}
             </div>
             <div>
-              <div className="font-bold text-base leading-tight">{t('platformMapTitle', { platform })}</div>
+              <div className="font-bold text-base leading-tight">{t('platformMapTitle', { platform: formatPlatformLabel(platform) })}</div>
               <div className="text-white/60 text-xs">{t('platformMapSubtitle')}</div>
             </div>
             <button
@@ -938,7 +943,7 @@ function TrackerRow({
       <span className={`text-3xl font-black leading-none mt-0.5 ${
         isNext ? 'text-yellow-100' : isPast ? 'text-yellow-700/50' : 'text-yellow-800'
       }`}>
-        {tracker.platform.split(/[,/]/).map((p) => p.trim()).filter(Boolean).join(' ')}
+        {formatPlatformLabel(tracker.platform)}
       </span>
     </div>
   ) : null;
