@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
-import { getLine } from '@/lib/lines';
+import { getLine, type LineInfo } from '@/lib/lines';
+import { metrolinxEnabled } from '@/lib/metrolinx/client';
+import { getServiceAlertsForLine } from '@/lib/metrolinx/alerts';
 
 export const revalidate = 60; // cache for 60 seconds at the edge
 
@@ -116,6 +118,24 @@ export async function GET(request: NextRequest) {
   const codeParam = request.nextUrl.searchParams.get('code')?.toUpperCase() ?? '';
   const line = getLine(codeParam);
 
+  // Official Metrolinx API first (when enabled + verified); fall back to the
+  // legacy scrapers on any error so behaviour can never regress.
+  if (metrolinxEnabled()) {
+    try {
+      const alerts = await getServiceAlertsForLine(line.id);
+      return NextResponse.json(
+        { alerts, available: true, lastUpdated: new Date().toISOString() },
+        { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } }
+      );
+    } catch (err) {
+      console.warn('Metrolinx alerts failed, falling back to scraper:', err);
+    }
+  }
+
+  return scrapedAlertsResponse(line);
+}
+
+async function scrapedAlertsResponse(line: LineInfo) {
   try {
     // Try official Go Transit website first
     try {
