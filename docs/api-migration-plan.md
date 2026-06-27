@@ -1,15 +1,17 @@
 # Migration Plan: railsix/scraping → official Metrolinx Open API
 
-> **Status:** Code IMPLEMENTED but UNVERIFIED. The `src/lib/metrolinx/` client +
-> wrappers and the official paths in `/api/tracker` and `/api/alerts` are written
-> and build/typecheck clean, but the field mapping has **never been validated
-> against a live payload** — every sandbox session so far (incl. this one) is
-> denied egress to `api.openmetrolinx.com` (403 at the proxy). The official path
-> is therefore gated behind a default-off flag with the legacy scrapers as
-> fallback, so nothing regresses. See **Implementation status** below.
+> **Status:** Code IMPLEMENTED and **VERIFIED against live payloads** (2026-06,
+> from a network-enabled session with egress to `api.openmetrolinx.com`). The
+> field mapping in `src/lib/metrolinx/` was corrected against real JSON, and both
+> official paths were exercised end-to-end via `npm run dev` (tracker: live
+> delays + cancellations + Union platforms join correctly by trip number; alerts:
+> line-filtered service disruptions). The official path is still gated behind the
+> default-off `METROLINX_API_ENABLED` flag with the legacy scrapers as fallback,
+> so nothing regresses until the flag is turned on in deployment.
 >
 > **API key:** `30028586` (issued by Metrolinx to jasonzzx@gmail.com).
-> Store it as an env var (`METROLINX_API_KEY`), never hardcode.
+> Store it as an env var (`METROLINX_API_KEY`), never hardcode. Node's fetch needs
+> the proxy CA: set `NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt` in sandboxes.
 
 ## Implementation status (what's done)
 
@@ -17,31 +19,50 @@ New module `src/lib/metrolinx/`:
 - `client.ts` — base fetch w/ `?key=` injection from `METROLINX_API_KEY`, a
   `metrolinxEnabled()` flag (`METROLINX_API_ENABLED` = `1`/`true` **and** a key
   set), a 300/sec token-bucket rate limiter, a short-TTL in-memory cache +
-  in-flight de-dupe, and `toArray`/`listFrom` helpers for the
-  `{Plural:{Singular:[...]}}` envelope.
-- `types.ts` — raw PascalCase wire shapes (field names from the
-  `go_transit_ruby` wrapper, **not** a live payload).
+  in-flight de-dupe, `toArray`/`listFrom` envelope helpers, and
+  `metrolinxLineCode()` (app id → API LineCode; maps **KI → GT**).
+- `types.ts` — raw PascalCase wire shapes, **validated against live JSON**
+  (some fields are JSON numbers/booleans, not strings — e.g. `DelaySeconds`).
 - `trains.ts` — `ServiceataGlance/Trains/All`, `ServiceUpdate/UnionDepartures/All`,
   `ServiceUpdate/Exceptions/Train`, merged into `tripNumber → LiveTrainStatus`.
-- `alerts.ts` — `ServiceUpdate/ServiceAlert/All`, filtered by `Message.Lines[].Code`.
+- `alerts.ts` — `ServiceUpdate/ServiceAlert/All`, filtered by `Message.Lines[].Code`
+  (skips `Category: Amenity` elevator/escalator notices).
 
 Routes (`src/app/api/{tracker,alerts}/route.ts`): when `metrolinxEnabled()`, try
 the official path first; on **error** fall back to the existing scrapers. The
-scraping code is intentionally KEPT (not removed as originally planned) until the
-official path is verified. `page.tsx` now passes `&code={lineId}` to `/api/tracker`
-so the official path can scope to the line.
+scraping code is intentionally KEPT as the fallback. `page.tsx` passes
+`&code={lineId}` to `/api/tracker` so the official path can scope to the line.
 
-### Enabling + verifying (do this in a network-enabled session)
-1. Run the connectivity check below; it must return data (not 403).
-2. Set env: `METROLINX_API_KEY=30028586` and `METROLINX_API_ENABLED=1`.
-3. `curl` each endpoint, save sample JSON, and **confirm the exact JSON key
-   casing + envelope nesting** against `src/lib/metrolinx/types.ts` and the
-   `listFrom(...,'Trips','Trip')` / `'Messages','Message'` calls — adjust if wrong.
-4. Confirm Metrolinx `LineCode` values match our line ids (ST/LW/LE/BR/RH/KI/MI).
-5. `npm run dev`, diff `/api/tracker?home=…&code=ST` and `/api/alerts?code=ST`
-   against the scraper output (flag off) for parity.
+### Corrections made during live verification (2026-06)
+The original mapping (derived from the `go_transit_ruby` wrapper) was wrong in
+several places; fixed against real payloads:
+- **UnionDepartures envelope** is `{ AllDepartures: { Trip: [...] } }`, not the
+  usual `{ Trips: { Trip } }`.
+- **Exceptions envelope** puts `Trip` at the **top level**: `{ Metadata, Trip: [...] }`.
+- **ServiceAlert `Lines`** is a **direct array** `[{ Code }]`, not `{ Line: [...] }`.
+  Filtering on the wrapped path matched nothing — every alert was dropped.
+- **Kitchener uses LineCode `GT`** in the live feed (and in our own GTFS trip ids
+  `…-GT-####`), not `KI`. Added `metrolinxLineCode()` so the tracker filter and
+  alert filter map `KI → GT`. Without it, Kitchener showed zero live data.
+- **Value types:** `DelaySeconds` is a JSON number (e.g. `1765`), `IsInMotion`
+  boolean, lat/long numbers; `Cars`/`TripNumber`/`IsCancelled` are strings.
+- **Amenity alerts** (`Category: Amenity`, elevator/escalator) are filtered out —
+  the legacy scraper never surfaced them and they were noisy (several identical
+  "Elevator out of service" per line).
 
-### Known gaps vs. the railsix scraper (resolve during verification)
+### Already enabled + verified
+1. Connectivity confirmed (egress to `api.openmetrolinx.com` works in this session).
+2. Ran `npm run dev` with `METROLINX_API_KEY=30028586 METROLINX_API_ENABLED=1`
+   (+ `NODE_EXTRA_CA_CERTS`); confirmed `/api/tracker?home=…&code=ST|KI` joins
+   live status by trip number and `/api/alerts?code=ST|LW|MI|LE` line-filters.
+
+### To finish the rollout (deployment)
+1. Set `METROLINX_API_KEY=30028586` and `METROLINX_API_ENABLED=1` in the Vercel
+   project env (Production + Preview), then redeploy.
+2. Smoke-test the live site against the scraper output for a delayed/cancelled
+   trip, then optionally remove the legacy scraper code once confident.
+
+### Known gaps vs. the railsix scraper (still open)
 - **Inbound platform:** railsix gave a boarding platform for both directions;
   the official path only has platform for **Union departures** (outbound/NB).
   Inbound (SB, home→Union) platform is `""` unless we add per-trip

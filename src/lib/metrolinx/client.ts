@@ -36,6 +36,18 @@ function apiKey(): string {
   return key;
 }
 
+// ── Line-code mapping ──────────────────────────────────────────────────────
+// Our app line ids match the API's LineCode except Kitchener: the official feed
+// (and our own GTFS trip ids, "…-GT-3706") use the historical "GT" (Georgetown)
+// code. Verified against ServiceataGlance live data — KI trains report LineCode
+// "GT". Map our id → the API code before filtering live trains / alerts.
+const APP_TO_API_LINE_CODE: Record<string, string> = { KI: 'GT' };
+
+/** Translate an app line id (e.g. "KI") to the API's LineCode (e.g. "GT"). */
+export function metrolinxLineCode(appLineId: string): string {
+  return APP_TO_API_LINE_CODE[appLineId] ?? appLineId;
+}
+
 // ── Token-bucket rate limiter (per server instance) ────────────────────────
 
 let tokens = RATE_LIMIT_PER_SEC;
