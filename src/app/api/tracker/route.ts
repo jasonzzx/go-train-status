@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
+import { getLine } from '@/lib/lines';
+import { getScheduleForStation, getServiceType, type ServiceType } from '@/lib/schedule-data';
+import { metrolinxEnabled } from '@/lib/metrolinx/client';
+import { getLiveStatusByTripNumber, tripNumberFromId } from '@/lib/metrolinx/trains';
 
 // Railsix URL pattern: railsix.com/routes/{home-slug}-to-union (SB) / union-to-{home-slug} (NB)
 function buildRailsixUrls(homeSlug: string) {
@@ -118,14 +122,97 @@ async function fetchPage(url: string): Promise<string> {
 
 export const dynamic = 'force-dynamic'; // prevent Vercel from caching this route at the edge
 
+// No CDN/browser caching — the client polls every 30s itself
+const cacheHeaders = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate',
+};
+
 export async function GET(request: NextRequest): Promise<NextResponse<TrackerResponse>> {
   const homeSlug = request.nextUrl.searchParams.get('home') ?? 'unionville';
-  const { sb: RAILSIX_SB, nb: RAILSIX_NB } = buildRailsixUrls(homeSlug);
+  const lineId = request.nextUrl.searchParams.get('code')?.toUpperCase() ?? '';
 
-  // No CDN/browser caching — the client polls every 30s itself
-  const cacheHeaders = {
-    'Cache-Control': 'no-store, no-cache, must-revalidate',
-  };
+  // Official Metrolinx API first (when enabled + verified); fall back to the
+  // legacy railsix scraper on any error so behaviour can never regress.
+  if (lineId && metrolinxEnabled()) {
+    try {
+      const trips = await buildOfficialTracker(lineId, homeSlug);
+      return NextResponse.json(
+        { trips, available: true, lastUpdated: new Date().toISOString() },
+        { headers: cacheHeaders }
+      );
+    } catch (err) {
+      console.warn('Metrolinx tracker failed, falling back to railsix:', err);
+    }
+  }
+
+  return scrapedTrackerResponse(homeSlug);
+}
+
+// ── Official Metrolinx tracker ─────────────────────────────────────────────
+// Joins live status (by trip number) onto our GTFS schedule for today.
+
+/** Today's GO service type, evaluated in the America/Toronto timezone. */
+function torontoServiceType(): ServiceType {
+  const weekday = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Toronto',
+    weekday: 'long',
+  }).format(new Date());
+  if (weekday === 'Sunday') return 'sunday';
+  if (weekday === 'Saturday') return 'saturday';
+  return 'weekday';
+}
+
+async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<TrackerTrip[]> {
+  const line = getLine(lineId);
+  const homeCode = line.homeStations.find((s) => s.railsixSlug === homeSlug)?.code;
+  if (!homeCode) throw new Error(`Unknown home station "${homeSlug}" on line ${lineId}`);
+
+  const serviceType = torontoServiceType();
+  const liveStatus = await getLiveStatusByTripNumber(line.id);
+
+  const trips: TrackerTrip[] = [];
+
+  // direction → directionCd; scheduledTime is the origin departure that
+  // getScheduleForStation already resolves (home for SB, Union for NB).
+  const directions = [
+    { direction: 'homeToOffice' as const, directionCd: 'Inbound' as const },
+    { direction: 'officeToHome' as const, directionCd: 'Outbound' as const },
+  ];
+
+  for (const { direction, directionCd } of directions) {
+    const schedule = getScheduleForStation(line.id, direction, serviceType, homeCode);
+    for (const trip of schedule) {
+      const tripNumber = tripNumberFromId(trip.tripId);
+      const status = liveStatus.get(tripNumber);
+      if (!status || !status.hasLive) continue; // no live signal → plain schedule row
+
+      let expected = 'On Time';
+      if (status.cancelled) expected = 'Cancelled';
+      else if (status.delayMin > 0) expected = `+${status.delayMin} min`;
+
+      trips.push({
+        scheduledTime: trip.departure,
+        directionCd,
+        platform: status.platform, // Union departures only; "" for inbound
+        expected,
+        delay: status.delayMin,
+        cancelled: status.cancelled,
+        tripNumber,
+        arrivalTime: trip.arrival,
+        cars: status.cars,
+        arriveIn: '',
+        stops: [],
+      });
+    }
+  }
+
+  return trips;
+}
+
+// ── Legacy railsix scraper (fallback) ──────────────────────────────────────
+
+async function scrapedTrackerResponse(homeSlug: string): Promise<NextResponse<TrackerResponse>> {
+  const { sb: RAILSIX_SB, nb: RAILSIX_NB } = buildRailsixUrls(homeSlug);
 
   try {
     const [sbHtml, nbHtml] = await Promise.all([

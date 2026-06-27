@@ -1481,7 +1481,7 @@ export default function Home() {
   // Fetch tracker (platform + expected) every 30 seconds
   const fetchTracker = useCallback(async () => {
     try {
-      const res = await fetch(`/api/tracker?home=${homeStation.railsixSlug}`);
+      const res = await fetch(`/api/tracker?home=${homeStation.railsixSlug}&code=${lineId}`);
       if (!res.ok) return;
       const data = await res.json();
       setTrackerTrips(data.trips ?? []);
@@ -1490,7 +1490,7 @@ export default function Home() {
     } catch {
       // non-critical
     }
-  }, [homeStation.railsixSlug]);
+  }, [homeStation.railsixSlug, lineId]);
 
   useEffect(() => {
     fetchTracker();
