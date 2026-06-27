@@ -1906,43 +1906,45 @@ export default function Home() {
             })}
 
             {/* Live data status footer */}
-            <div className="relative mt-4 mb-2 mx-1 rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setShowDataSourceInfo((v) => !v)}
-                  className="flex items-center gap-2 focus:outline-none"
-                  aria-label="Show data source info"
-                >
-                  {isRefreshing ? (
-                    <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <div className="relative mt-4 mb-2 mx-1">
+              <button
+                onClick={() => setShowDataSourceInfo((v) => !v)}
+                aria-label="Show data source info"
+                className="block w-full text-left rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3 hover:bg-gray-50 active:bg-gray-100 transition-colors focus:outline-none"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {isRefreshing ? (
+                      <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ) : (
+                      <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
+                    )}
+                    <span className="text-xs font-medium text-gray-700">
+                      {isRefreshing ? t('refreshing') : t('liveData')}
+                    </span>
+                    <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                     </svg>
-                  ) : (
-                    <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
-                  )}
-                  <span className="text-xs font-medium text-gray-700">
-                    {isRefreshing ? t('refreshing') : t('liveData')}
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
                   </span>
-                  <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                  </svg>
-                </button>
-                <span className="text-xs text-gray-400">
-                  {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
-                </span>
-              </div>
-              {lastRefreshed && (
-                <p className="text-[11px] text-gray-400 mt-1.5">
-                  {t('lastUpdated', {
-                    time: lastRefreshed.toLocaleTimeString('en-CA', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: true,
-                    }),
-                  })}
-                </p>
-              )}
+                </div>
+                {lastRefreshed && (
+                  <p className="text-[11px] text-gray-400 mt-1.5">
+                    {t('lastUpdated', {
+                      time: lastRefreshed.toLocaleTimeString('en-CA', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true,
+                      }),
+                    })}
+                  </p>
+                )}
+              </button>
               {showDataSourceInfo && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowDataSourceInfo(false)} />
