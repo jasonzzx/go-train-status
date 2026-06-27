@@ -1906,9 +1906,13 @@ export default function Home() {
             })}
 
             {/* Live data status footer */}
-            <div className="mt-4 mb-2 mx-1 rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3">
+            <div className="relative mt-4 mb-2 mx-1 rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowDataSourceInfo((v) => !v)}
+                  className="flex items-center gap-2 focus:outline-none"
+                  aria-label="Show data source info"
+                >
                   {isRefreshing ? (
                     <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1919,7 +1923,10 @@ export default function Home() {
                   <span className="text-xs font-medium text-gray-700">
                     {isRefreshing ? t('refreshing') : t('liveData')}
                   </span>
-                </div>
+                  <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                  </svg>
+                </button>
                 <span className="text-xs text-gray-400">
                   {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
                 </span>
@@ -1935,6 +1942,27 @@ export default function Home() {
                     }),
                   })}
                 </p>
+              )}
+              {showDataSourceInfo && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowDataSourceInfo(false)} />
+                  <div className="absolute top-full mt-2 left-4 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg whitespace-nowrap z-50">
+                    <div className="absolute -top-1 left-4 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800" />
+                    <div className="font-semibold mb-1 text-gray-300">Data Sources</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-400">Tracker:</span>
+                      <span className={trackerSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
+                        {trackerSource === 'metrolinx' ? 'Metrolinx API' : trackerSource === 'railsix' ? 'railsix.com' : '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-400">Alerts:</span>
+                      <span className={alertsSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
+                        {alertsSource === 'metrolinx' ? 'Metrolinx API' : alertsSource === 'gotransit' ? 'gotransit.com' : alertsSource === 'railsix' ? 'railsix.com' : '—'}
+                      </span>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
 
@@ -1954,19 +1982,13 @@ export default function Home() {
               </a>
             </div>
 
-            <div className="relative flex items-center justify-center gap-2.5 text-base text-gray-400 mb-8 pb-safe">
-              <button
-                onClick={() => setShowDataSourceInfo((v) => !v)}
-                className="flex items-center gap-2.5 focus:outline-none"
-                aria-label="Show data source info"
-              >
-                <img
-                  src="/personal-icons/JASON_LOGO_512.png"
-                  alt="Jason Zhong logo"
-                  className="w-9 h-9 rounded-full"
-                />
-                <span>{t('authorBy')}</span>
-              </button>
+            <div className="flex items-center justify-center gap-2.5 text-base text-gray-400 mb-8 pb-safe">
+              <img
+                src="/personal-icons/JASON_LOGO_512.png"
+                alt="Jason Zhong logo"
+                className="w-9 h-9 rounded-full"
+              />
+              <span>{t('authorBy')}</span>
               <a
                 href="mailto:jasonzzx@gmail.com"
                 title="Email Jason Zhong"
@@ -1977,27 +1999,6 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </a>
-              {showDataSourceInfo && (
-                <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowDataSourceInfo(false)} />
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg whitespace-nowrap z-50">
-                  <div className="font-semibold mb-1 text-gray-300">Data Sources</div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-gray-400">Tracker:</span>
-                    <span className={trackerSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
-                      {trackerSource === 'metrolinx' ? 'Metrolinx API' : trackerSource === 'railsix' ? 'railsix.com' : '—'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-gray-400">Alerts:</span>
-                    <span className={alertsSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
-                      {alertsSource === 'metrolinx' ? 'Metrolinx API' : alertsSource === 'gotransit' ? 'gotransit.com' : alertsSource === 'railsix' ? 'railsix.com' : '—'}
-                    </span>
-                  </div>
-                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800" />
-                </div>
-                </>
-              )}
             </div>
           </>
         )}
