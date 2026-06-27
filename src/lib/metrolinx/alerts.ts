@@ -1,10 +1,9 @@
 // ── Service alert wrapper (ServiceUpdate/ServiceAlert) ─────────────────────
 // Returns alerts for a given line, mapped to the app's ParsedAlert contract.
 //
-// UNVERIFIED mapping — field names come from the go_transit_ruby wrapper, not a
-// live payload. See docs/api-migration-plan.md.
+// Mapping VERIFIED against live payloads (2026-06). See docs/api-migration-plan.md.
 
-import { fetchJson, listFrom, toArray } from './client';
+import { fetchJson, listFrom, toArray, metrolinxLineCode } from './client';
 import type { RawAlertMessage, RawAlertLine } from './types';
 
 // Alerts change slowly; the client polls every 5 min.
@@ -17,7 +16,8 @@ export async function getServiceAlerts(): Promise<RawAlertMessage[]> {
 }
 
 function lineCodesOf(msg: RawAlertMessage): string[] {
-  return toArray<RawAlertLine>((msg.Lines as Record<string, unknown> | undefined)?.['Line'])
+  // Lines is a direct array of { Code } (e.g. [{ Code: "LW" }]).
+  return toArray<RawAlertLine>(msg.Lines)
     .map((l) => l.Code)
     .filter((c): c is string => Boolean(c));
 }
@@ -38,11 +38,19 @@ export interface OfficialAlert {
 /** Fetch service alerts and return only those affecting `lineCode`. */
 export async function getServiceAlertsForLine(lineCode: string): Promise<OfficialAlert[]> {
   const messages = await getServiceAlerts();
+  // Accept either our app id or the API's code (e.g. KI alerts may key on "GT").
+  const wanted = new Set([lineCode, metrolinxLineCode(lineCode)]);
   const alerts: OfficialAlert[] = [];
 
   for (const msg of messages) {
     const codes = lineCodesOf(msg);
-    if (!codes.includes(lineCode)) continue;
+    if (!codes.some((c) => wanted.has(c))) continue;
+
+    // Skip station-amenity notices (elevator/escalator) — they don't affect
+    // train service and the legacy scraper never surfaced them, so including
+    // them (often several identical "Elevator out of service" per line) would
+    // be a regression. Keep service-impacting categories (e.g. Service Disruption).
+    if ((msg.Category ?? '').toLowerCase() === 'amenity') continue;
 
     const title = (msg.SubjectEnglish ?? '').trim();
     const reason = (msg.BodyEnglish ?? '').trim();

@@ -3,10 +3,9 @@
 // against our GTFS schedule. Cached briefly so the 30s client poll and
 // concurrent users collapse onto one upstream call.
 //
-// UNVERIFIED mapping — field names come from the go_transit_ruby wrapper, not a
-// live payload. See docs/api-migration-plan.md.
+// Mapping VERIFIED against live payloads (2026-06). See docs/api-migration-plan.md.
 
-import { fetchJson, listFrom } from './client';
+import { fetchJson, listFrom, toArray, metrolinxLineCode } from './client';
 import type { RawLiveTrain, RawUnionDeparture, RawExceptionTrain } from './types';
 
 // ServiceataGlance covers currently-live trips and refreshes ~every minute;
@@ -23,13 +22,15 @@ export async function getLiveTrains(): Promise<RawLiveTrain[]> {
 /** Upcoming Union departures (platform is only populated ~10–15 min ahead). */
 export async function getUnionDepartures(): Promise<RawUnionDeparture[]> {
   const data = await fetchJson<unknown>('ServiceUpdate/UnionDepartures/All', LIVE_TTL_MS);
-  return listFrom<RawUnionDeparture>(data, 'Trips', 'Trip');
+  // Envelope is { AllDepartures: { Trip: [...] } } (not the usual Trips wrapper).
+  return listFrom<RawUnionDeparture>(data, 'AllDepartures', 'Trip');
 }
 
 /** Cancelled / modified train trips. */
 export async function getTrainExceptions(): Promise<RawExceptionTrain[]> {
   const data = await fetchJson<unknown>('ServiceUpdate/Exceptions/Train', EXCEPTIONS_TTL_MS);
-  return listFrom<RawExceptionTrain>(data, 'Trips', 'Trip');
+  // Envelope puts Trip at the top level: { Metadata, Trip: [...] }.
+  return toArray<RawExceptionTrain>((data as Record<string, unknown> | null)?.Trip);
 }
 
 // ── Derived, normalized live status keyed by trip number ───────────────────
@@ -51,8 +52,8 @@ function tripNumberFromId(tripId: string): string {
   return tripId.split('-').pop() ?? '';
 }
 
-function toInt(value: string | undefined): number {
-  const n = parseInt(value ?? '', 10);
+function toInt(value: string | number | undefined): number {
+  const n = typeof value === 'number' ? value : parseInt(value ?? '', 10);
   return Number.isFinite(n) ? n : 0;
 }
 
@@ -70,6 +71,7 @@ export async function getLiveStatusByTripNumber(
     getTrainExceptions(),
   ]);
 
+  const apiCode = metrolinxLineCode(lineCode);
   const map = new Map<string, LiveTrainStatus>();
   const ensure = (tripNumber: string): LiveTrainStatus => {
     let s = map.get(tripNumber);
@@ -81,7 +83,7 @@ export async function getLiveStatusByTripNumber(
   };
 
   for (const t of live) {
-    if (t.LineCode !== lineCode) continue;
+    if (t.LineCode !== apiCode) continue;
     const num = t.TripNumber;
     if (!num) continue;
     const s = ensure(num);
