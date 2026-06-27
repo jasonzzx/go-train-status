@@ -4,6 +4,7 @@ import { getLine } from '@/lib/lines';
 import { getScheduleForStation, getServiceType, type ServiceType } from '@/lib/schedule-data';
 import { metrolinxEnabled } from '@/lib/metrolinx/client';
 import { getLiveStatusByTripNumber, tripNumberFromId } from '@/lib/metrolinx/trains';
+import { getStoredPlatforms, torontoDateStr } from '@/lib/platform-store';
 
 // Railsix URL pattern: railsix.com/routes/{home-slug}-to-union (SB) / union-to-{home-slug} (NB)
 function buildRailsixUrls(homeSlug: string) {
@@ -169,7 +170,13 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
   if (!homeCode) throw new Error(`Unknown home station "${homeSlug}" on line ${lineId}`);
 
   const serviceType = torontoServiceType();
-  const liveStatus = await getLiveStatusByTripNumber(line.id);
+  // Live status (incl. platform for trains still at Union) joined with platforms
+  // captured earlier today, so a train that has already departed — and thus lost
+  // its platform from every live endpoint — still carries the one we saved.
+  const [liveStatus, storedPlatforms] = await Promise.all([
+    getLiveStatusByTripNumber(line.id),
+    getStoredPlatforms(torontoDateStr()),
+  ]);
 
   const trips: TrackerTrip[] = [];
 
@@ -194,7 +201,8 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
       trips.push({
         scheduledTime: trip.departure,
         directionCd,
-        platform: status.platform, // Union departures only; "" for inbound
+        // Live platform while at Union; else the one we captured before it left.
+        platform: status.platform || storedPlatforms[tripNumber] || '',
         expected,
         delay: status.delayMin,
         cancelled: status.cancelled,
