@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     try {
       const alerts = await getServiceAlertsForLine(line.id);
       return NextResponse.json(
-        { alerts, available: true, lastUpdated: new Date().toISOString() },
+        { alerts, available: true, lastUpdated: new Date().toISOString(), source: 'metrolinx' as const },
         { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } }
       );
     } catch (err) {
@@ -155,6 +155,7 @@ async function scrapedAlertsResponse(line: LineInfo) {
               alerts,
               available: true,
               lastUpdated: new Date().toISOString(),
+              source: 'gotransit' as const,
             },
             { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } }
           );
@@ -186,6 +187,7 @@ async function scrapedAlertsResponse(line: LineInfo) {
         alerts,
         available: true,
         lastUpdated: new Date().toISOString(),
+        source: 'railsix' as const,
       },
       { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } }
     );

@@ -1465,6 +1465,9 @@ export default function Home() {
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [expandedDep, setExpandedDep] = useState<string | null>(null);
   const [onBoardDep, setOnBoardDep] = useState<string | null>(null);
+  const [trackerSource, setTrackerSource] = useState<string | null>(null);
+  const [alertsSource, setAlertsSource] = useState<string | null>(null);
+  const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
 
   // Clock tick
   useEffect(() => {
@@ -1485,6 +1488,7 @@ export default function Home() {
       if (!res.ok) return;
       const data = await res.json();
       setTrackerTrips(data.trips ?? []);
+      setTrackerSource(data.source ?? null);
       setLastRefreshed(new Date());
       setRefreshCountdown(30);
     } catch {
@@ -1506,6 +1510,7 @@ export default function Home() {
       const data = await res.json();
       setAlerts(data.alerts ?? []);
       setAlertsAvailable(data.available ?? false);
+      setAlertsSource(data.source ?? null);
       if (data.lastUpdated) setAlertsLastUpdated(data.lastUpdated);
     } catch {
       setAlertsAvailable(false);
@@ -1946,13 +1951,19 @@ export default function Home() {
               </a>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-8 pb-safe">
-              <img
-                src="/personal-icons/JASON_LOGO_512.png"
-                alt="Jason Zhong logo"
-                className="w-5 h-5 rounded-full"
-              />
-              <span>{t('authorBy')}</span>
+            <div className="relative flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-8 pb-safe">
+              <button
+                onClick={() => setShowDataSourceInfo((v) => !v)}
+                className="flex items-center gap-1.5 focus:outline-none"
+                aria-label="Show data source info"
+              >
+                <img
+                  src="/personal-icons/JASON_LOGO_512.png"
+                  alt="Jason Zhong logo"
+                  className="w-5 h-5 rounded-full"
+                />
+                <span>{t('authorBy')}</span>
+              </button>
               <a
                 href="mailto:jasonzzx@gmail.com"
                 title="Email Jason Zhong"
@@ -1963,6 +1974,27 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </a>
+              {showDataSourceInfo && (
+                <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowDataSourceInfo(false)} />
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg whitespace-nowrap z-50">
+                  <div className="font-semibold mb-1 text-gray-300">Data Sources</div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gray-400">Tracker:</span>
+                    <span className={trackerSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
+                      {trackerSource === 'metrolinx' ? 'Metrolinx API' : trackerSource === 'railsix' ? 'railsix.com' : '—'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-gray-400">Alerts:</span>
+                    <span className={alertsSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
+                      {alertsSource === 'metrolinx' ? 'Metrolinx API' : alertsSource === 'gotransit' ? 'gotransit.com' : alertsSource === 'railsix' ? 'railsix.com' : '—'}
+                    </span>
+                  </div>
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-800" />
+                </div>
+                </>
+              )}
             </div>
           </>
         )}

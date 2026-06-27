@@ -49,6 +49,7 @@ export interface TrackerResponse {
   trips: TrackerTrip[];
   available: boolean;
   lastUpdated: string | null;
+  source?: 'metrolinx' | 'railsix';
   error?: string;
 }
 
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<TrackerRes
     try {
       const trips = await buildOfficialTracker(lineId, homeSlug);
       return NextResponse.json(
-        { trips, available: true, lastUpdated: new Date().toISOString() },
+        { trips, available: true, lastUpdated: new Date().toISOString(), source: 'metrolinx' as const },
         { headers: cacheHeaders }
       );
     } catch (err) {
@@ -229,7 +230,7 @@ async function scrapedTrackerResponse(homeSlug: string): Promise<NextResponse<Tr
     ];
 
     return NextResponse.json(
-      { trips, available: true, lastUpdated: new Date().toISOString() },
+      { trips, available: true, lastUpdated: new Date().toISOString(), source: 'railsix' as const },
       { headers: cacheHeaders }
     );
   } catch (err) {
