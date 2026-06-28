@@ -115,4 +115,49 @@ export async function getLiveStatusByTripNumber(
   return map;
 }
 
+// ── Per-trip scheduled platform (Schedule/Trip) ──────────────────────────
+
+interface ScheduleTripStop {
+  Code?: string;
+  Track?: { Scheduled?: string; Actual?: string | null };
+}
+
+const SCHEDULE_TRIP_TTL_MS = 120_000;
+
+function torontoDateCompact(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date()).replace(/-/g, '');
+}
+
+/**
+ * Look up the scheduled platform for a specific stop on a trip via
+ * Schedule/Trip/{date}/{tripNumber}. Returns "" on any failure or if
+ * the stop/platform isn't found. Results are cached for 2 min since
+ * scheduled platforms rarely change intraday.
+ */
+export async function getScheduledPlatform(
+  tripNumber: string,
+  stopCode: string,
+): Promise<string> {
+  try {
+    const data = await fetchJson<Record<string, unknown>>(
+      `Schedule/Trip/${torontoDateCompact()}/${tripNumber}`,
+      SCHEDULE_TRIP_TTL_MS,
+    );
+    const trips = toArray<{ Stops?: unknown }>(data?.Trips);
+    if (!trips.length) return '';
+    const stops = toArray<ScheduleTripStop>(trips[0].Stops);
+    const stop = stops.find((s) => s.Code === stopCode);
+    if (!stop?.Track) return '';
+    const actual = stop.Track.Actual;
+    return (actual != null ? actual : '') || stop.Track.Scheduled || '';
+  } catch {
+    return '';
+  }
+}
+
 export { tripNumberFromId };

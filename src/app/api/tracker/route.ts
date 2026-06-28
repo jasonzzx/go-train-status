@@ -3,7 +3,7 @@ import { type NextRequest } from 'next/server';
 import { getLine } from '@/lib/lines';
 import { getScheduleForStation, getServiceType, type ServiceType } from '@/lib/schedule-data';
 import { metrolinxEnabled } from '@/lib/metrolinx/client';
-import { getLiveStatusByTripNumber, tripNumberFromId } from '@/lib/metrolinx/trains';
+import { getLiveStatusByTripNumber, tripNumberFromId, getScheduledPlatform } from '@/lib/metrolinx/trains';
 import { getStoredPlatforms, torontoDateStr } from '@/lib/platform-store';
 
 // Railsix URL pattern: railsix.com/routes/{home-slug}-to-union (SB) / union-to-{home-slug} (NB)
@@ -170,39 +170,57 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
   if (!homeCode) throw new Error(`Unknown home station "${homeSlug}" on line ${lineId}`);
 
   const serviceType = torontoServiceType();
-  // Live status (incl. platform for trains still at Union) joined with platforms
-  // captured earlier today, so a train that has already departed — and thus lost
-  // its platform from every live endpoint — still carries the one we saved.
   const [liveStatus, storedPlatforms] = await Promise.all([
     getLiveStatusByTripNumber(line.id),
     getStoredPlatforms(torontoDateStr()),
   ]);
 
-  const trips: TrackerTrip[] = [];
-
-  // direction → directionCd; scheduledTime is the origin departure that
-  // getScheduleForStation already resolves (home for SB, Union for NB).
+  // Collect live trip numbers so we can batch-fetch home-station platforms
+  // from Schedule/Trip in parallel (each call is cached 2 min).
   const directions = [
     { direction: 'homeToOffice' as const, directionCd: 'Inbound' as const },
     { direction: 'officeToHome' as const, directionCd: 'Outbound' as const },
   ];
+
+  const liveTripNumbers = new Set<string>();
+  for (const { direction } of directions) {
+    for (const trip of getScheduleForStation(line.id, direction, serviceType, homeCode)) {
+      const tn = tripNumberFromId(trip.tripId);
+      if (liveStatus.has(tn)) liveTripNumbers.add(tn);
+    }
+  }
+
+  // Fetch scheduled platform at the home station for every live trip.
+  // Outbound: this is the arrival platform (fallback when Union platform is gone).
+  // Inbound: this is the boarding platform (primary source).
+  const homePlatforms = new Map<string, string>();
+  const results = await Promise.all(
+    Array.from(liveTripNumbers).map(async (tn) => [tn, await getScheduledPlatform(tn, homeCode)] as const),
+  );
+  for (const [tn, plat] of results) {
+    if (plat) homePlatforms.set(tn, plat);
+  }
+
+  const trips: TrackerTrip[] = [];
 
   for (const { direction, directionCd } of directions) {
     const schedule = getScheduleForStation(line.id, direction, serviceType, homeCode);
     for (const trip of schedule) {
       const tripNumber = tripNumberFromId(trip.tripId);
       const status = liveStatus.get(tripNumber);
-      if (!status || !status.hasLive) continue; // no live signal → plain schedule row
+      if (!status || !status.hasLive) continue;
 
       let expected = 'On Time';
       if (status.cancelled) expected = 'Cancelled';
       else if (status.delayMin > 0) expected = `+${status.delayMin} min`;
 
+      // Union platform (live or cron-captured), then home-station scheduled platform.
+      const platform = status.platform || storedPlatforms[tripNumber] || homePlatforms.get(tripNumber) || '';
+
       trips.push({
         scheduledTime: trip.departure,
         directionCd,
-        // Live platform while at Union; else the one we captured before it left.
-        platform: status.platform || storedPlatforms[tripNumber] || '',
+        platform,
         expected,
         delay: status.delayMin,
         cancelled: status.cancelled,
