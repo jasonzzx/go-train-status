@@ -22,6 +22,7 @@ import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
 import { getMappedPlatforms, getPlatformLabelKey, isPlatformMapped } from '@/lib/union-platform-map';
+import { loadPlatformCache, savePlatformCache } from '@/lib/platform-cache';
 import UnionPlatformMap, { MAP_VIEWBOX_WIDTH, MAP_VIEWBOX_HEIGHT } from '@/components/UnionPlatformMap';
 
 // Temporarily disabled — the platform map schematic needs a better source
@@ -292,6 +293,11 @@ function getTrackerInfo(
   return outbound.get(trip.departure) ?? null;
 }
 
+/** "7 & 8" / "7,8" / "7/8" → "7 | 8" — Metrolinx's own separator is "&" (see types.ts). */
+function formatPlatformLabel(platform: string): string {
+  return platform.split(/[,/&]/).map((p) => p.trim()).filter(Boolean).join(' | ');
+}
+
 // ──────────────────────────────────────────────────────────
 // Icons
 // ──────────────────────────────────────────────────────────
@@ -467,10 +473,10 @@ function PlatformMapSheet({
         <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl flex items-center justify-center font-extrabold text-white shrink-0 bg-yellow-600/80 text-lg">
-              {platform}
+              {formatPlatformLabel(platform)}
             </div>
             <div>
-              <div className="font-bold text-base leading-tight">{t('platformMapTitle', { platform })}</div>
+              <div className="font-bold text-base leading-tight">{t('platformMapTitle', { platform: formatPlatformLabel(platform) })}</div>
               <div className="text-white/60 text-xs">{t('platformMapSubtitle')}</div>
             </div>
             <button
@@ -938,7 +944,7 @@ function TrackerRow({
       <span className={`text-3xl font-black leading-none mt-0.5 ${
         isNext ? 'text-yellow-100' : isPast ? 'text-yellow-700/50' : 'text-yellow-800'
       }`}>
-        {tracker.platform.split(/[,/]/).map((p) => p.trim()).filter(Boolean).join(' ')}
+        {formatPlatformLabel(tracker.platform)}
       </span>
     </div>
   ) : null;
@@ -1465,8 +1471,68 @@ export default function Home() {
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [expandedDep, setExpandedDep] = useState<string | null>(null);
   const [onBoardDep, setOnBoardDep] = useState<string | null>(null);
+  const [trackerSource, setTrackerSource] = useState<string | null>(null);
+  const [alertsSource, setAlertsSource] = useState<string | null>(null);
+  const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
 
-  // Clock tick
+  // Last-known platform per train ("direction:departure" → platform), remembered
+  // in this browser's localStorage for the current service day. The live feed
+  // drops a platform the moment its train departs, so we fall back to this so
+  // the badge survives the NEXT → NOW flip and page reloads. See platform-cache.
+  const [platformCache, setPlatformCache] = useState<Record<string, string>>({});
+
+  // Author photo "zoom from icon" reveal — see openAuthorPhoto/closeAuthorPhoto below.
+  const authorIconRef = useRef<HTMLButtonElement>(null);
+  const [authorPhase, setAuthorPhase] = useState<'closed' | 'opening' | 'open' | 'closing'>('closed');
+  const [authorTransform, setAuthorTransform] = useState('scale(0.05)');
+  const [authorFinalSize, setAuthorFinalSize] = useState(360);
+  const authorClosedTransformRef = useRef('scale(0.05)');
+
+  // Computes the transform that overlaps the full-size photo exactly onto the
+  // small icon's screen rect, so the grow/shrink animation appears to
+  // originate from the icon itself rather than just zooming from center.
+  const openAuthorPhoto = useCallback(() => {
+    const finalSize = Math.min(window.innerWidth * 0.82, 420);
+    setAuthorFinalSize(finalSize);
+
+    const rect = authorIconRef.current?.getBoundingClientRect();
+    if (rect) {
+      const iconCenterX = rect.left + rect.width / 2;
+      const iconCenterY = rect.top + rect.height / 2;
+      const dx = iconCenterX - window.innerWidth / 2;
+      const dy = iconCenterY - window.innerHeight / 2;
+      const scale = rect.width / finalSize;
+      authorClosedTransformRef.current = `translate(${dx}px, ${dy}px) scale(${scale})`;
+    } else {
+      authorClosedTransformRef.current = 'scale(0.05)';
+    }
+    setAuthorTransform(authorClosedTransformRef.current);
+    setAuthorPhase('opening');
+  }, []);
+
+  const closeAuthorPhoto = useCallback(() => {
+    setAuthorTransform(authorClosedTransformRef.current);
+    setAuthorPhase('closing');
+  }, []);
+
+  useEffect(() => {
+    if (authorPhase === 'opening') {
+      const id = requestAnimationFrame(() => {
+        setAuthorTransform('translate(0px, 0px) scale(1)');
+        setAuthorPhase('open');
+      });
+      return () => cancelAnimationFrame(id);
+    }
+    if (authorPhase === 'closing') {
+      const id = setTimeout(() => setAuthorPhase('closed'), 450);
+      return () => clearTimeout(id);
+    }
+  }, [authorPhase]);
+
+  // Clock tick. Browsers throttle (or fully pause) setInterval in background
+  // tabs, so a card's NEXT->NOW switch can lag well behind the real
+  // departure time if the user looks away and back. Re-sync immediately on
+  // tab focus/visibility return instead of waiting for the next tick.
   useEffect(() => {
     const update = () => {
       const now = new Date();
@@ -1475,22 +1541,32 @@ export default function Home() {
     };
     update();
     const id = setInterval(update, 60_000);
-    return () => clearInterval(id);
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') update();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', update);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', update);
+    };
   }, []);
 
   // Fetch tracker (platform + expected) every 30 seconds
   const fetchTracker = useCallback(async () => {
     try {
-      const res = await fetch(`/api/tracker?home=${homeStation.railsixSlug}`);
+      const res = await fetch(`/api/tracker?home=${homeStation.railsixSlug}&code=${lineId}`);
       if (!res.ok) return;
       const data = await res.json();
       setTrackerTrips(data.trips ?? []);
+      setTrackerSource(data.source ?? null);
       setLastRefreshed(new Date());
       setRefreshCountdown(30);
     } catch {
       // non-critical
     }
-  }, [homeStation.railsixSlug]);
+  }, [homeStation.railsixSlug, lineId]);
 
   useEffect(() => {
     fetchTracker();
@@ -1506,6 +1582,7 @@ export default function Home() {
       const data = await res.json();
       setAlerts(data.alerts ?? []);
       setAlertsAvailable(data.available ?? false);
+      setAlertsSource(data.source ?? null);
       if (data.lastUpdated) setAlertsLastUpdated(data.lastUpdated);
     } catch {
       setAlertsAvailable(false);
@@ -1566,6 +1643,59 @@ export default function Home() {
     () => buildTrackerMaps(trackerTrips),
     [trackerTrips]
   );
+
+  // Load this browser's remembered platforms for the current service day.
+  useEffect(() => {
+    if (todayStr) setPlatformCache(loadPlatformCache(todayStr));
+  }, [todayStr]);
+
+  // Record every platform the live feed publishes, so we can keep showing it
+  // after the feed drops it at departure. Only the viewed direction carries a
+  // platform (Union departures), which is exactly what's in scope here.
+  useEffect(() => {
+    if (!isToday || !todayStr) return;
+    setPlatformCache((prev) => {
+      const next = { ...prev };
+      let changed = false;
+      for (const trip of trips) {
+        const live = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform;
+        const key = `${direction}:${trip.departure}`;
+        if (live && next[key] !== live) {
+          next[key] = live;
+          changed = true;
+        }
+      }
+      if (!changed) return prev;
+      savePlatformCache(todayStr, next);
+      return next;
+    });
+  }, [trips, direction, isToday, todayStr, trackerInbound, trackerOutbound]);
+
+  // Platform to show for a trip: the live value, or the last one we cached for
+  // it earlier today (survives the feed dropping it after departure / reload).
+  const platformFor = useCallback(
+    (trip: { departure: string; arrival: string }): string => {
+      const live = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform;
+      return live || platformCache[`${direction}:${trip.departure}`] || '';
+    },
+    [direction, trackerInbound, trackerOutbound, platformCache]
+  );
+
+  // The single card that shows the platform badge: the soonest upcoming train
+  // once its platform is known; otherwise a train that's already left but is
+  // still en route (NOW), so the badge doesn't vanish at departure before the
+  // next platform is posted. Exactly one card, never two.
+  const platformCardIndex = useMemo(() => {
+    if (!isToday || nowMinutes === null) return -1;
+    if (nextIndex >= 0 && platformFor(trips[nextIndex])) return nextIndex;
+    for (let i = (nextIndex === -1 ? trips.length : nextIndex) - 1; i >= 0; i--) {
+      const t = trips[i];
+      const arrMins = parseTime(t.departure) + parseInt(t.tripTime, 10);
+      if (nowMinutes > arrMins) break; // already arrived → older trains are too
+      if (platformFor(t)) return i;
+    }
+    return -1;
+  }, [isToday, nowMinutes, nextIndex, trips, platformFor]);
 
   // Live stop names from tracker: "directionCd:scheduledTime" → stops[]
   const trackerStopsMap = useMemo(() => {
@@ -1711,6 +1841,21 @@ export default function Home() {
               </svg>
             </button>
 
+            <div className="w-px h-4 bg-white/20" />
+
+            <a
+              href={
+                direction === 'homeToOffice'
+                  ? `https://www.gotransit.com/en/see-schedules?departure=${homeStation.code}&destination=UN&transfers=true`
+                  : `https://www.gotransit.com/en/see-schedules?departure=UN&destination=${homeStation.code}&transfers=true`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 text-xs hover:text-white/90 transition-colors"
+            >
+              {t('official')}
+            </a>
+
             {!installPrompt.isStandalone && (
               <>
                 <div className="w-px h-4 bg-white/20" />
@@ -1855,7 +2000,15 @@ export default function Home() {
               const isPast = isToday && nowMinutes !== null && parseTime(trip.departure) < nowMinutes;
               const isNext = i === nextIndex;
               const tripAlerts = alertMap.get(trip.departure) ?? [];
-              const tracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
+              const rawTracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
+              // Show the platform on exactly one card (platformCardIndex), backed
+              // by the localStorage cache so it survives the feed dropping it.
+              const showPlatform = isToday && i === platformCardIndex ? platformFor(trip) : '';
+              const tracker: TrackerInfo | null = rawTracker
+                ? { ...rawTracker, platform: showPlatform }
+                : showPlatform
+                ? { platform: showPlatform, expected: '', delay: 0, cancelled: false, arriveIn: '' }
+                : null;
               const isExpanded = expandedDep === trip.departure;
               const isOnBoard = onBoardDep === trip.departure;
               const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
@@ -1886,35 +2039,65 @@ export default function Home() {
             })}
 
             {/* Live data status footer */}
-            <div className="mt-4 mb-2 mx-1 rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {isRefreshing ? (
-                    <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <div className="relative mt-4 mb-2 mx-1">
+              <button
+                onClick={() => setShowDataSourceInfo((v) => !v)}
+                aria-label="Show data source info"
+                className="block w-full text-left rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3 hover:bg-gray-50 active:bg-gray-100 transition-colors focus:outline-none"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {isRefreshing ? (
+                      <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    ) : (
+                      <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
+                    )}
+                    <span className="text-xs font-medium text-gray-700">
+                      {isRefreshing ? t('refreshing') : t('liveData')}
+                    </span>
+                    <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                     </svg>
-                  ) : (
-                    <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
-                  )}
-                  <span className="text-xs font-medium text-gray-700">
-                    {isRefreshing ? t('refreshing') : t('liveData')}
+                  </div>
+                  <span className="text-xs text-gray-400">
+                    {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
                   </span>
                 </div>
-                <span className="text-xs text-gray-400">
-                  {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
-                </span>
-              </div>
-              {lastRefreshed && (
-                <p className="text-[11px] text-gray-400 mt-1.5">
-                  {t('lastUpdated', {
-                    time: lastRefreshed.toLocaleTimeString('en-CA', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      second: '2-digit',
-                      hour12: true,
-                    }),
-                  })}
-                </p>
+                {lastRefreshed && (
+                  <p className="text-[11px] text-gray-400 mt-1.5">
+                    {t('lastUpdated', {
+                      time: lastRefreshed.toLocaleTimeString('en-CA', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true,
+                      }),
+                    })}
+                  </p>
+                )}
+              </button>
+              {showDataSourceInfo && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowDataSourceInfo(false)} />
+                  <div className="absolute top-full mt-2 left-4 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg whitespace-nowrap z-50">
+                    <div className="absolute -top-1 left-4 w-0 h-0 border-l-4 border-r-4 border-b-4 border-l-transparent border-r-transparent border-b-gray-800" />
+                    <div className="font-semibold mb-1 text-gray-300">Data Sources</div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-400">Tracker:</span>
+                      <span className={trackerSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
+                        {trackerSource === 'metrolinx' ? 'Metrolinx API' : trackerSource === 'railsix' ? 'railsix.com' : '—'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-400">Alerts:</span>
+                      <span className={alertsSource === 'metrolinx' ? 'text-green-400' : 'text-yellow-400'}>
+                        {alertsSource === 'metrolinx' ? 'Metrolinx API' : alertsSource === 'gotransit' ? 'gotransit.com' : alertsSource === 'railsix' ? 'railsix.com' : '—'}
+                      </span>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
 
@@ -1925,30 +2108,62 @@ export default function Home() {
                 href="https://github.com/jasonzzx/go-train-status/issues"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline mt-1 inline-block"
+                className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full border border-gray-200 text-gray-500 hover:border-go-green hover:text-go-green transition-colors"
               >
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+                </svg>
                 {t('reportIssues')}
               </a>
             </div>
 
-            <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-8 pb-safe">
-              <img
-                src="/personal-icons/JASON_LOGO_512.png"
-                alt="Jason Zhong logo"
-                className="w-5 h-5 rounded-full"
-              />
+            <div className="flex items-center justify-center gap-2.5 text-base text-gray-400 mb-8 pb-safe">
+              <button
+                ref={authorIconRef}
+                onClick={openAuthorPhoto}
+                aria-label="Show author photo"
+                className="inline-flex w-12 h-12 rounded-full shadow-md shadow-go-green/30 transition-all duration-200 hover:scale-110 hover:shadow-lg hover:shadow-go-green/40 active:scale-95 focus:outline-none"
+              >
+                <img
+                  src="/personal-icons/JASON_LOGO_512.png"
+                  alt="Jason Zhong logo"
+                  className="w-12 h-12 rounded-full"
+                />
+              </button>
               <span>{t('authorBy')}</span>
               <a
                 href="mailto:jasonzzx@gmail.com"
                 title="Email Jason Zhong"
                 aria-label="Email Jason Zhong"
-                className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-500 hover:bg-go-light hover:text-go-green transition-colors"
+                className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-go-green to-go-dark text-white shadow-md shadow-go-green/30 transition-all duration-200 hover:scale-110 hover:shadow-lg hover:shadow-go-green/40 active:scale-95"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </a>
             </div>
+
+            {authorPhase !== 'closed' && (
+              <div
+                className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/85 transition-opacity duration-[450ms] ease-out ${
+                  authorPhase === 'open' ? 'opacity-100' : 'opacity-0'
+                }`}
+                onClick={closeAuthorPhoto}
+              >
+                <img
+                  src="/personal-icons/JASON_LOGO_HQ.jpg"
+                  alt="Jason Zhong"
+                  style={{
+                    width: authorFinalSize,
+                    height: authorFinalSize,
+                    transform: authorTransform,
+                  }}
+                  className={`rounded-2xl shadow-2xl object-cover transition-[transform,opacity,filter] duration-[450ms] ease-out ${
+                    authorPhase === 'open' ? 'opacity-100 blur-none' : 'opacity-0 blur-lg'
+                  }`}
+                />
+              </div>
+            )}
           </>
         )}
       </main>

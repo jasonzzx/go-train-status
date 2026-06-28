@@ -3,6 +3,7 @@
   "lineLabel": "线路",
   "homeLabel": "住所",
   "lineOption": "{name}线",
+  "official": "官方 ↗",
   "serviceUpdates": "{name}线服务更新",
   "refreshLiveData": "刷新实时数据",
   "homeToUnion": "→ 联合中央车站",

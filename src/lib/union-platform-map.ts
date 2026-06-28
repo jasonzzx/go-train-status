@@ -21,7 +21,7 @@ const WEST_WALKWAY_PLATFORMS = new Set([4, 5, 6, 7, 10, 11]);
 
 export function parsePlatformNumbers(platform: string): number[] {
   return platform
-    .split(/[,/]/)
+    .split(/[,/&]/)
     .map((p) => parseInt(p.trim(), 10))
     .filter((n) => !Number.isNaN(n));
 }

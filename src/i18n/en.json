@@ -3,6 +3,7 @@
   "lineLabel": "Line",
   "homeLabel": "Home",
   "lineOption": "{name} Line",
+  "official": "Official ↗",
   "serviceUpdates": "{name} service updates",
   "refreshLiveData": "Refresh live data",
   "homeToUnion": "→ Union",
