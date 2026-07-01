@@ -208,25 +208,39 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
     for (const trip of schedule) {
       const tripNumber = tripNumberFromId(trip.tripId);
       const status = liveStatus.get(tripNumber);
-      if (!status || !status.hasLive) continue;
+      const hasLive = Boolean(status?.hasLive);
 
-      let expected = 'On Time';
-      if (status.cancelled) expected = 'Cancelled';
-      else if (status.delayMin > 0) expected = `+${status.delayMin} min`;
+      // Platform: live Union value, else the one the cron captured earlier today
+      // (Redis), else the home-station scheduled platform. This resolves even for
+      // a train that has already departed and lost its platform from every live
+      // endpoint — which is the whole point of the store.
+      const platform =
+        status?.platform || storedPlatforms[tripNumber] || homePlatforms.get(tripNumber) || '';
 
-      // Union platform (live or cron-captured), then home-station scheduled platform.
-      const platform = status.platform || storedPlatforms[tripNumber] || homePlatforms.get(tripNumber) || '';
+      // Emit a row when there's a live signal OR a platform to carry. A departed
+      // train that dropped out of the live feed but has a stored platform still
+      // gets a row (platform only), so a cold open / other device can show it.
+      if (!hasLive && !platform) continue;
+
+      // Only assert on-time/delay when we actually have a live signal; a
+      // platform-only row leaves `expected` empty (unknown status).
+      let expected = '';
+      if (hasLive) {
+        expected = 'On Time';
+        if (status!.cancelled) expected = 'Cancelled';
+        else if (status!.delayMin > 0) expected = `+${status!.delayMin} min`;
+      }
 
       trips.push({
         scheduledTime: trip.departure,
         directionCd,
         platform,
         expected,
-        delay: status.delayMin,
-        cancelled: status.cancelled,
+        delay: status?.delayMin ?? 0,
+        cancelled: status?.cancelled ?? false,
         tripNumber,
         arrivalTime: trip.arrival,
-        cars: status.cars,
+        cars: status?.cars ?? '',
         arriveIn: '',
         stops: [],
       });

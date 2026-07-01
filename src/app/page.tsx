@@ -1681,22 +1681,6 @@ export default function Home() {
     [direction, trackerInbound, trackerOutbound, platformCache]
   );
 
-  // The single card that shows the platform badge: the soonest upcoming train
-  // once its platform is known; otherwise a train that's already left but is
-  // still en route (NOW), so the badge doesn't vanish at departure before the
-  // next platform is posted. Exactly one card, never two.
-  const platformCardIndex = useMemo(() => {
-    if (!isToday || nowMinutes === null) return -1;
-    if (nextIndex >= 0 && platformFor(trips[nextIndex])) return nextIndex;
-    for (let i = (nextIndex === -1 ? trips.length : nextIndex) - 1; i >= 0; i--) {
-      const t = trips[i];
-      const arrMins = parseTime(t.departure) + parseInt(t.tripTime, 10);
-      if (nowMinutes > arrMins) break; // already arrived → older trains are too
-      if (platformFor(t)) return i;
-    }
-    return -1;
-  }, [isToday, nowMinutes, nextIndex, trips, platformFor]);
-
   // Live stop names from tracker: "directionCd:scheduledTime" → stops[]
   const trackerStopsMap = useMemo(() => {
     const m = new Map<string, string[]>();
@@ -1989,9 +1973,11 @@ export default function Home() {
               const isNext = i === nextIndex;
               const tripAlerts = alertMap.get(trip.departure) ?? [];
               const rawTracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
-              // Show the platform on exactly one card (platformCardIndex), backed
-              // by the localStorage cache so it survives the feed dropping it.
-              const showPlatform = isToday && i === platformCardIndex ? platformFor(trip) : '';
+              // Every card carries its own platform (live value, or the one we
+              // remembered in localStorage / got back-filled from the store), so a
+              // past card keeps showing its platform — dimmed with the card — and
+              // both NOW and NEXT can show one at once. Persists until the day rolls.
+              const showPlatform = isToday ? platformFor(trip) : '';
               const tracker: TrackerInfo | null = rawTracker
                 ? { ...rawTracker, platform: showPlatform }
                 : showPlatform
