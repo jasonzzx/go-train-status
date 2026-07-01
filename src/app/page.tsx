@@ -1844,14 +1844,13 @@ export default function Home() {
             {/* Share button — native OS share sheet (includes Add to Home Screen on mobile) */}
             <button
               onClick={() => {
+                const shareUrl = `${window.location.origin}/${lang}`;
+                const shareTitle = lang === 'zh' ? 'GO 列车状态' : 'GO Train Status';
+                const shareText  = lang === 'zh' ? 'GO 列车状态实时追踪' : 'GO Train Status Live Tracker';
                 if (navigator.share) {
-                  navigator.share({
-                    title: 'GO Train Status',
-                    text: `GO Transit ${line.name} live status`,
-                    url: window.location.href,
-                  }).catch(() => {});
+                  navigator.share({ title: shareTitle, text: shareText, url: shareUrl }).catch(() => {});
                 } else {
-                  navigator.clipboard?.writeText(window.location.href).catch(() => {});
+                  navigator.clipboard?.writeText(shareUrl).catch(() => {});
                 }
               }}
               className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
