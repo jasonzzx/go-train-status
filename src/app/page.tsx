@@ -921,6 +921,28 @@ function formatCountdown(totalSeconds: number): string {
   return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
 }
 
+// Countdown urgency rule — adjust the cutoffs here:
+//   remaining >  COUNTDOWN_WARN_MINUTES   → 'calm'   (green, the default look)
+//   COUNTDOWN_URGENT_MINUTES … WARN       → 'warn'   (yellow — get moving)
+//   remaining <  COUNTDOWN_URGENT_MINUTES → 'urgent' (red — doors close ~1 min early)
+const COUNTDOWN_WARN_MINUTES = 10;
+const COUNTDOWN_URGENT_MINUTES = 3;
+
+type CountdownTone = 'calm' | 'warn' | 'urgent';
+
+function countdownTone(secondsLeft: number): CountdownTone {
+  if (secondsLeft < COUNTDOWN_URGENT_MINUTES * 60) return 'urgent';
+  if (secondsLeft <= COUNTDOWN_WARN_MINUTES * 60) return 'warn';
+  return 'calm';
+}
+
+// Chip colours per tone, tuned for the NEXT card's solid green background.
+const COUNTDOWN_TONE_STYLES: Record<CountdownTone, { chip: string; label: string; value: string }> = {
+  calm:   { chip: 'border-white/70 bg-white/10',      label: 'text-white/80',   value: 'text-white' },
+  warn:   { chip: 'border-yellow-300 bg-yellow-300/15', label: 'text-yellow-200', value: 'text-yellow-100' },
+  urgent: { chip: 'border-red-400 bg-red-500/25',     label: 'text-red-200',    value: 'text-red-50' },
+};
+
 // Live min:sec countdown to the expected departure — same chip shape as the
 // platform badge. Self-contained 1s tick so only the chip re-renders; each
 // tick recomputes from the wall clock, so a throttled background tab snaps
@@ -937,12 +959,13 @@ function CountdownChip({ departure, delayMin }: { departure: string; delayMin: n
   }, [departure, delayMin]);
 
   const label = formatCountdown(secondsLeft);
+  const tone = COUNTDOWN_TONE_STYLES[countdownTone(secondsLeft)];
   return (
-    <div className="flex flex-col items-center leading-none px-3 py-1 rounded-lg border-[3px] border-white/70 bg-white/10">
-      <span className="text-[9px] font-bold uppercase tracking-wider text-white/80">
+    <div className={`flex flex-col items-center leading-none px-3 py-1 rounded-lg border-[3px] transition-colors ${tone.chip}`}>
+      <span className={`text-[9px] font-bold uppercase tracking-wider ${tone.label}`}>
         {t('departsIn')}
       </span>
-      <span className={`font-black leading-none mt-0.5 text-white tabular-nums ${label.length > 5 ? 'text-2xl' : 'text-3xl'}`}>
+      <span className={`font-black leading-none mt-0.5 tabular-nums ${tone.value} ${label.length > 5 ? 'text-2xl' : 'text-3xl'}`}>
         {label}
       </span>
     </div>
