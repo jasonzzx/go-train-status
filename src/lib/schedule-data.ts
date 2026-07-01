@@ -64,19 +64,14 @@ function getLookups(lineId: string): LineLookups {
 // ── Schedule lookup ───────────────────────────────────────
 
 /**
- * Returns all trips for a station/direction/service type on a line, from the
- * GTFS schedule. Every station is treated equally — no hardcoded data.
+ * Project a day's trip list (from the static GTFS schedule OR the live
+ * Schedule/Line feed) onto one station/direction, as displayable trips.
  */
-export function getScheduleForStation(
-  lineId: string,
+export function tripsForStation(
+  dayTrips: GtfsTrip[],
   direction: Direction,
-  serviceType: ServiceType,
   stationCode: string,
 ): Trip[] {
-  const sched = getLineSchedule(lineId);
-  const dayTrips: GtfsTrip[] =
-    direction === 'homeToOffice' ? sched[serviceType].toUnion : sched[serviceType].fromUnion;
-
   return dayTrips
     .filter((t) => stationCode in t.stopTimes && UNION_CODE in t.stopTimes)
     .map((t) => {
@@ -98,6 +93,22 @@ export function getScheduleForStation(
     // necessarily this station's time (e.g. short-turn trips starting
     // partway down the line) — re-sort by this station's actual departure.
     .sort((a, b) => timeToMinutes(a.departure) - timeToMinutes(b.departure));
+}
+
+/**
+ * Returns all trips for a station/direction/service type on a line, from the
+ * static GTFS schedule. Every station is treated equally — no hardcoded data.
+ */
+export function getScheduleForStation(
+  lineId: string,
+  direction: Direction,
+  serviceType: ServiceType,
+  stationCode: string,
+): Trip[] {
+  const sched = getLineSchedule(lineId);
+  const dayTrips: GtfsTrip[] =
+    direction === 'homeToOffice' ? sched[serviceType].toUnion : sched[serviceType].fromUnion;
+  return tripsForStation(dayTrips, direction, stationCode);
 }
 
 // ── Stop sequence ─────────────────────────────────────────

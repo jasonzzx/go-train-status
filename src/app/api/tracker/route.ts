@@ -1,10 +1,23 @@
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 import { getLine } from '@/lib/lines';
-import { getScheduleForStation, getServiceType, type ServiceType } from '@/lib/schedule-data';
+import {
+  getScheduleForStation,
+  tripsForStation,
+  timeToMinutes,
+  getServiceType,
+  type ServiceType,
+  type Trip,
+} from '@/lib/schedule-data';
 import { metrolinxEnabled } from '@/lib/metrolinx/client';
-import { getLiveStatusByTripNumber, tripNumberFromId, getScheduledPlatform } from '@/lib/metrolinx/trains';
-import { getStoredPlatforms, torontoDateStr } from '@/lib/platform-store';
+import {
+  getLiveStatusByTripNumber,
+  tripNumberFromId,
+  getScheduledPlatform,
+  torontoMinutesNow,
+} from '@/lib/metrolinx/trains';
+import { getLiveDaySchedule } from '@/lib/metrolinx/schedule';
+import { getStoredPlatforms, savePlatforms, torontoDateStr } from '@/lib/platform-store';
 
 // Railsix URL pattern: railsix.com/routes/{home-slug}-to-union (SB) / union-to-{home-slug} (NB)
 function buildRailsixUrls(homeSlug: string) {
@@ -170,52 +183,91 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
   if (!homeCode) throw new Error(`Unknown home station "${homeSlug}" on line ${lineId}`);
 
   const serviceType = torontoServiceType();
-  const [liveStatus, storedPlatforms] = await Promise.all([
+  const dateCompact = torontoDateStr().replace(/-/g, '');
+  const [liveStatus, storedPlatforms, liveDay] = await Promise.all([
     getLiveStatusByTripNumber(line.id),
     getStoredPlatforms(torontoDateStr()),
+    getLiveDaySchedule(line.id, dateCompact),
   ]);
 
-  // Collect live trip numbers so we can batch-fetch home-station platforms
-  // from Schedule/Trip in parallel (each call is cached 2 min).
   const directions = [
     { direction: 'homeToOffice' as const, directionCd: 'Inbound' as const },
     { direction: 'officeToHome' as const, directionCd: 'Outbound' as const },
   ];
 
-  const liveTripNumbers = new Set<string>();
+  // Today's schedule: live Schedule/Line first (holiday-aware, so trip numbers
+  // actually match the live feed on e.g. Canada Day), static GTFS as fallback.
+  const scheduleByDirection = new Map<string, Trip[]>(
+    directions.map(({ direction }) => [
+      direction,
+      liveDay
+        ? tripsForStation(
+            direction === 'homeToOffice' ? liveDay.toUnion : liveDay.fromUnion,
+            direction,
+            homeCode,
+          )
+        : getScheduleForStation(line.id, direction, serviceType, homeCode),
+    ]),
+  );
+
+  // Batch-fetch the scheduled home-station platform (Schedule/Trip, cached
+  // 2 min) for every live trip AND every train departing soon: Schedule/Trip
+  // knows the home platform all day, so the "now"/"next" cards get a platform
+  // even before the train enters service.
+  // Outbound: it's the arrival platform (fallback once the Union one is gone).
+  // Inbound: it's the boarding platform (primary source).
+  const nowMin = torontoMinutesNow();
+  const platformCandidates = new Set<string>();
   for (const { direction } of directions) {
-    for (const trip of getScheduleForStation(line.id, direction, serviceType, homeCode)) {
+    for (const trip of scheduleByDirection.get(direction)!) {
+      if (trip.vehicleType === 'bus') continue; // street stops have no platform
       const tn = tripNumberFromId(trip.tripId);
-      if (liveStatus.has(tn)) liveTripNumbers.add(tn);
+      const dep = timeToMinutes(trip.departure);
+      if (liveStatus.has(tn) || (dep >= nowMin - 30 && dep <= nowMin + 120)) {
+        platformCandidates.add(tn);
+      }
     }
   }
 
-  // Fetch scheduled platform at the home station for every live trip.
-  // Outbound: this is the arrival platform (fallback when Union platform is gone).
-  // Inbound: this is the boarding platform (primary source).
   const homePlatforms = new Map<string, string>();
   const results = await Promise.all(
-    Array.from(liveTripNumbers).map(async (tn) => [tn, await getScheduledPlatform(tn, homeCode)] as const),
+    Array.from(platformCandidates).map(
+      async (tn) => [tn, await getScheduledPlatform(tn, homeCode)] as const,
+    ),
   );
   for (const [tn, plat] of results) {
     if (plat) homePlatforms.set(tn, plat);
   }
 
   const trips: TrackerTrip[] = [];
+  // Platforms observed on this request that Redis doesn't have yet, persisted
+  // below. The APIs wipe a platform the moment the train passes the stop
+  // (Union departures AND Schedule/Trip Track — both verified live), so every
+  // sighting must be remembered or the "now" card loses its platform mid-ride.
+  const toPersist: Record<string, string> = {};
 
   for (const { direction, directionCd } of directions) {
-    const schedule = getScheduleForStation(line.id, direction, serviceType, homeCode);
+    const schedule = scheduleByDirection.get(direction)!;
     for (const trip of schedule) {
       const tripNumber = tripNumberFromId(trip.tripId);
       const status = liveStatus.get(tripNumber);
       const hasLive = Boolean(status?.hasLive);
 
-      // Platform: live Union value, else the one the cron captured earlier today
-      // (Redis), else the home-station scheduled platform. This resolves even for
-      // a train that has already departed and lost its platform from every live
-      // endpoint — which is the whole point of the store.
+      // Platform: live Union value, else the one the cron/tracker captured
+      // earlier today (Redis), else the home-station scheduled platform (live,
+      // then its stored copy — Redis fields are `${trip}:${station}` since the
+      // home platform is station-specific, unlike the Union `${trip}` fields).
+      const homeKey = `${tripNumber}:${homeCode}`;
+      const homePlat = homePlatforms.get(tripNumber) || '';
       const platform =
-        status?.platform || storedPlatforms[tripNumber] || homePlatforms.get(tripNumber) || '';
+        status?.platform || storedPlatforms[tripNumber] || homePlat || storedPlatforms[homeKey] || '';
+
+      if (status?.platform && storedPlatforms[tripNumber] !== status.platform) {
+        toPersist[tripNumber] = status.platform;
+      }
+      if (homePlat && storedPlatforms[homeKey] !== homePlat) {
+        toPersist[homeKey] = homePlat;
+      }
 
       // Emit a row when there's a live signal OR a platform to carry. A departed
       // train that dropped out of the live feed but has a stored platform still
@@ -244,6 +296,14 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
         arriveIn: '',
         stops: [],
       });
+    }
+  }
+
+  if (Object.keys(toPersist).length > 0) {
+    try {
+      await savePlatforms(torontoDateStr(), toPersist);
+    } catch {
+      // best-effort: the response still carries the fresh values
     }
   }
 

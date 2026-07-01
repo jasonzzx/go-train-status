@@ -1,6 +1,6 @@
 {
   "id": "BR",
-  "effectiveDate": "2026-06-15",
+  "effectiveDate": "2026-06-29",
   "stations": [
     {
       "code": "AD",
@@ -72,7 +72,7 @@
   "weekday": {
     "toUnion": [
       {
-        "tripId": "20260616-BR-6606",
+        "tripId": "20260904-BR-6606",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "06:59",
@@ -89,7 +89,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6504",
+        "tripId": "20260904-BR-6504",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "06:29",
@@ -104,7 +104,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6806",
+        "tripId": "20260904-BR-6806",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:29",
@@ -121,7 +121,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6608",
+        "tripId": "20260904-BR-6608",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:59",
@@ -138,7 +138,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6808",
+        "tripId": "20260904-BR-6808",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:39",
@@ -155,7 +155,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6908",
+        "tripId": "20260904-BR-6908",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:54",
@@ -172,7 +172,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6108",
+        "tripId": "20260904-BR-6108",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:19",
@@ -184,7 +184,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6910",
+        "tripId": "20260904-BR-6910",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:48",
@@ -201,7 +201,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6912",
+        "tripId": "20260904-BR-6912",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:49",
@@ -218,7 +218,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6314",
+        "tripId": "20260904-BR-6314",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:47",
@@ -230,7 +230,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6316",
+        "tripId": "20260904-BR-6316",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:46",
@@ -242,7 +242,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6318",
+        "tripId": "20260904-BR-6318",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:46",
@@ -254,7 +254,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6920",
+        "tripId": "20260904-BR-6920",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:52",
@@ -271,7 +271,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6322",
+        "tripId": "20260904-BR-6322",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:54",
@@ -283,7 +283,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6332",
+        "tripId": "20260904-BR-6332",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:46",
@@ -295,7 +295,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6334",
+        "tripId": "20260904-BR-6334",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:46",
@@ -307,7 +307,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6936",
+        "tripId": "20260904-BR-6936",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:52",
@@ -322,27 +322,11 @@
           "BA": "21:18",
           "AD": "21:10"
         }
-      },
-      {
-        "tripId": "20260616-BR-X6038",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "23:55",
-          "DW": "23:35"
-        }
-      },
-      {
-        "tripId": "20260616-BR-X6040",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "24:10",
-          "DW": "23:50"
-        }
       }
     ],
     "fromUnion": [
       {
-        "tripId": "20260616-BR-6911",
+        "tripId": "20260904-BR-6911",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "11:37",
@@ -359,7 +343,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6313",
+        "tripId": "20260904-BR-6313",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "11:45",
@@ -371,7 +355,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6315",
+        "tripId": "20260904-BR-6315",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "12:44",
@@ -383,7 +367,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6317",
+        "tripId": "20260904-BR-6317",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "13:44",
@@ -395,7 +379,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6919",
+        "tripId": "20260904-BR-6919",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "15:44",
@@ -412,7 +396,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6521",
+        "tripId": "20260904-BR-6521",
         "vehicleType": "train",
         "stopTimes": {
           "BD": "16:17",
@@ -427,7 +411,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6923",
+        "tripId": "20260904-BR-6923",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "17:41",
@@ -444,7 +428,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6825",
+        "tripId": "20260904-BR-6825",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "18:26",
@@ -461,7 +445,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6325",
+        "tripId": "20260904-BR-6325",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "17:46",
@@ -473,7 +457,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6627",
+        "tripId": "20260904-BR-6627",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "18:56",
@@ -490,7 +474,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6727",
+        "tripId": "20260904-BR-6727",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "19:11",
@@ -507,7 +491,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6927",
+        "tripId": "20260904-BR-6927",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "19:41",
@@ -524,7 +508,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6329",
+        "tripId": "20260904-BR-6329",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "19:44",
@@ -536,7 +520,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6331",
+        "tripId": "20260904-BR-6331",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "20:44",
@@ -548,7 +532,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6333",
+        "tripId": "20260904-BR-6333",
         "vehicleType": "train",
         "stopTimes": {
           "AU": "21:44",
@@ -560,7 +544,7 @@
         }
       },
       {
-        "tripId": "20260616-BR-6935",
+        "tripId": "20260904-BR-6935",
         "vehicleType": "train",
         "stopTimes": {
           "AD": "23:44",
@@ -577,20 +561,20 @@
         }
       },
       {
-        "tripId": "20260616-BR-X6937",
+        "tripId": "20260904-BR-6937",
         "vehicleType": "train",
         "stopTimes": {
-          "AD": "24:45",
-          "BA": "24:36",
-          "BD": "24:15",
-          "EA": "24:05",
-          "NE": "24:01",
-          "AU": "23:52",
-          "KC": "23:42",
-          "MP": "23:34",
-          "RU": "23:30",
-          "DW": "23:20",
-          "UN": "22:59"
+          "AD": "24:37",
+          "BA": "24:28",
+          "BD": "24:07",
+          "EA": "23:57",
+          "NE": "23:53",
+          "AU": "23:45",
+          "KC": "23:35",
+          "MP": "23:27",
+          "RU": "23:23",
+          "DW": "23:13",
+          "UN": "22:54"
         }
       }
     ]

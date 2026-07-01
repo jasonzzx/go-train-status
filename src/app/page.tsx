@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   getScheduleForStation,
+  tripsForStation,
   getServiceType,
   getStops,
   timeToMinutes,
@@ -15,6 +16,7 @@ import {
   getLine,
   getStation,
   DEFAULT_LINE_ID,
+  type GtfsTrip,
   type LineInfo,
   type StationInfo,
 } from '@/lib/lines';
@@ -1457,6 +1459,28 @@ export default function Home() {
     setLastRefreshed(null);
   }, [lineId, homeStationCode]);
 
+  // The selected date's actual schedule from the official API (holiday-aware,
+  // unlike the bundled static GTFS which bakes one representative day per
+  // service type). Static renders instantly; this swaps in when it arrives.
+  const [liveDay, setLiveDay] = useState<{ toUnion: GtfsTrip[]; fromUnion: GtfsTrip[] } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    setLiveDay(null);
+    (async () => {
+      try {
+        const res = await fetch(`/api/schedule?code=${lineId}&date=${selectedDate}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && data.available) {
+          setLiveDay({ toUnion: data.toUnion ?? [], fromUnion: data.fromUnion ?? [] });
+        }
+      } catch {
+        // keep the static schedule
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [lineId, selectedDate]);
+
   // Alerts state
   const [alerts, setAlerts] = useState<ParsedAlert[]>([]);
   const [alertsLoading, setAlertsLoading] = useState(true);
@@ -1621,10 +1645,18 @@ export default function Home() {
     return getServiceType(new Date(y, m - 1, d));
   }, [selectedDate]);
 
-  const trips: Trip[] = useMemo(
-    () => getScheduleForStation(lineId, direction, serviceType, homeStationCode),
-    [lineId, direction, serviceType, homeStationCode]
-  );
+  const trips: Trip[] = useMemo(() => {
+    const base = liveDay
+      ? tripsForStation(
+          direction === 'homeToOffice' ? liveDay.toUnion : liveDay.fromUnion,
+          direction,
+          homeStationCode,
+        )
+      : getScheduleForStation(lineId, direction, serviceType, homeStationCode);
+    // Trips departing at 24:xx+ belong to the next calendar morning — showing
+    // them as "24:10" cards on this date's panel is just confusing, so hide them.
+    return base.filter((t) => parseTime(t.departure) < 1440);
+  }, [liveDay, lineId, direction, serviceType, homeStationCode]);
 
   const isToday = selectedDate === todayStr;
 

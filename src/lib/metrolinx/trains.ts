@@ -58,7 +58,7 @@ function toInt(value: string | number | undefined): number {
 }
 
 /** Minutes-since-midnight, America/Toronto (0–1439). */
-function torontoMinutesNow(): number {
+export function torontoMinutesNow(): number {
   const parts = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'America/Toronto',
     hour: '2-digit',

@@ -1,6 +1,6 @@
 {
   "id": "LW",
-  "effectiveDate": "2026-06-15",
+  "effectiveDate": "2026-06-29",
   "stations": [
     {
       "code": "NI",
@@ -102,7 +102,7 @@
   "weekday": {
     "toUnion": [
       {
-        "tripId": "20260626-LW-1004",
+        "tripId": "20260702-LW-1004",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "06:00",
@@ -119,7 +119,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1604",
+        "tripId": "20260702-LW-1604",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "06:30",
@@ -137,7 +137,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1854",
+        "tripId": "20260702-LW-1854",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:02",
@@ -151,7 +151,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1756",
+        "tripId": "20260702-LW-1756",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:17",
@@ -166,7 +166,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1006",
+        "tripId": "20260702-LW-1006",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:00",
@@ -183,7 +183,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1856",
+        "tripId": "20260702-LW-1856",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:32",
@@ -197,7 +197,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1306",
+        "tripId": "20260702-LW-1306",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:34",
@@ -212,7 +212,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1960",
+        "tripId": "20260702-LW-1960",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:04",
@@ -229,7 +229,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1858",
+        "tripId": "20260702-LW-1858",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:02",
@@ -243,7 +243,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1256",
+        "tripId": "20260702-LW-1256",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "07:47",
@@ -256,7 +256,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1758",
+        "tripId": "20260702-LW-1758",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:18",
@@ -271,7 +271,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1108",
+        "tripId": "20260702-LW-1108",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:04",
@@ -286,7 +286,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1860",
+        "tripId": "20260702-LW-1860",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:32",
@@ -300,7 +300,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1308",
+        "tripId": "20260702-LW-1308",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:34",
@@ -315,7 +315,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1258",
+        "tripId": "20260702-LW-1258",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:47",
@@ -328,7 +328,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1110",
+        "tripId": "20260702-LW-1110",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:04",
@@ -343,7 +343,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1610",
+        "tripId": "20260702-LW-1610",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:45",
@@ -361,7 +361,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1310",
+        "tripId": "20260702-LW-1310",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:20",
@@ -376,7 +376,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1012",
+        "tripId": "20260702-LW-1012",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:15",
@@ -393,7 +393,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1112",
+        "tripId": "20260702-LW-1112",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:00",
@@ -406,7 +406,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1612",
+        "tripId": "20260702-LW-1612",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:45",
@@ -424,7 +424,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1312",
+        "tripId": "20260702-LW-1312",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:30",
@@ -437,7 +437,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1014",
+        "tripId": "20260702-LW-1014",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:15",
@@ -454,7 +454,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1114",
+        "tripId": "20260702-LW-1114",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:00",
@@ -467,7 +467,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1614",
+        "tripId": "20260702-LW-1614",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:45",
@@ -485,7 +485,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1314",
+        "tripId": "20260702-LW-1314",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:30",
@@ -498,7 +498,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1016",
+        "tripId": "20260702-LW-1016",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:15",
@@ -515,7 +515,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1716",
+        "tripId": "20260702-LW-1716",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:45",
@@ -534,7 +534,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1116",
+        "tripId": "20260702-LW-1116",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:00",
@@ -547,7 +547,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1316",
+        "tripId": "20260702-LW-1316",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:30",
@@ -560,7 +560,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1018",
+        "tripId": "20260702-LW-1018",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:15",
@@ -577,7 +577,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1118",
+        "tripId": "20260702-LW-1118",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:00",
@@ -590,23 +590,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1970",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "14:38",
-          "EX": "14:29",
-          "PO": "14:13",
-          "OA": "14:02",
-          "BU": "13:48",
-          "AL": "13:41",
-          "WR": "13:29",
-          "CF": "13:14",
-          "SCTH": "12:43",
-          "NI": "12:18"
-        }
-      },
-      {
-        "tripId": "20260626-LW-1618",
+        "tripId": "20260702-LW-1618",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:45",
@@ -624,7 +608,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1318",
+        "tripId": "20260702-LW-1318",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:30",
@@ -637,7 +621,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1020",
+        "tripId": "20260702-LW-1020",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:15",
@@ -654,7 +638,23 @@
         }
       },
       {
-        "tripId": "20260626-LW-1120",
+        "tripId": "20260702-LW-1972",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "15:27",
+          "EX": "15:18",
+          "PO": "15:02",
+          "OA": "14:51",
+          "BU": "14:37",
+          "AL": "14:30",
+          "WR": "14:18",
+          "CF": "14:03",
+          "SCTH": "13:32",
+          "NI": "13:07"
+        }
+      },
+      {
+        "tripId": "20260702-LW-1120",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:00",
@@ -667,7 +667,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1620",
+        "tripId": "20260702-LW-1620",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:45",
@@ -685,7 +685,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1320",
+        "tripId": "20260702-LW-1320",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:30",
@@ -698,7 +698,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1022",
+        "tripId": "20260702-LW-1022",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:15",
@@ -715,7 +715,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1122",
+        "tripId": "20260702-LW-1122",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:00",
@@ -728,7 +728,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1622",
+        "tripId": "20260702-LW-1622",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:45",
@@ -746,7 +746,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1024",
+        "tripId": "20260702-LW-1024",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:15",
@@ -763,7 +763,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1124",
+        "tripId": "20260702-LW-1124",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:58",
@@ -776,7 +776,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1624",
+        "tripId": "20260702-LW-1624",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:45",
@@ -794,7 +794,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1324",
+        "tripId": "20260702-LW-1324",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:28",
@@ -807,7 +807,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1026",
+        "tripId": "20260702-LW-1026",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:15",
@@ -824,7 +824,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1126",
+        "tripId": "20260702-LW-1126",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:58",
@@ -837,7 +837,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1626",
+        "tripId": "20260702-LW-1626",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:45",
@@ -855,20 +855,20 @@
         }
       },
       {
-        "tripId": "20260626-LW-1326",
+        "tripId": "20260702-LW-1326",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "17:27",
-          "EX": "17:16",
-          "MI": "17:08",
-          "LO": "17:00",
-          "PO": "16:53",
-          "CL": "16:47",
-          "OA": "16:40"
+          "UN": "17:30",
+          "EX": "17:21",
+          "MI": "17:13",
+          "LO": "17:05",
+          "PO": "16:58",
+          "CL": "16:52",
+          "OA": "16:45"
         }
       },
       {
-        "tripId": "20260626-LW-1028",
+        "tripId": "20260702-LW-1028",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:15",
@@ -885,20 +885,20 @@
         }
       },
       {
-        "tripId": "20260626-LW-1128",
+        "tripId": "20260702-LW-1128",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "18:05",
-          "EX": "17:56",
-          "MI": "17:48",
-          "LO": "17:40",
-          "PO": "17:33",
-          "CL": "17:27",
-          "OA": "17:20"
+          "UN": "18:00",
+          "EX": "17:51",
+          "MI": "17:43",
+          "LO": "17:35",
+          "PO": "17:28",
+          "CL": "17:22",
+          "OA": "17:15"
         }
       },
       {
-        "tripId": "20260626-LW-1628",
+        "tripId": "20260702-LW-1628",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:45",
@@ -916,87 +916,94 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1426",
+        "tripId": "20260702-LW-1328",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "17:35",
-          "EX": "17:26"
+          "UN": "18:30",
+          "EX": "18:21",
+          "MI": "18:13",
+          "LO": "18:05",
+          "PO": "17:58",
+          "CL": "17:52",
+          "OA": "17:45"
         }
       },
       {
-        "tripId": "20260626-LW-X1526",
+        "tripId": "20260702-LW-1030",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "17:55",
-          "EX": "17:46"
+          "UN": "19:15",
+          "EX": "19:06",
+          "MI": "18:58",
+          "LO": "18:50",
+          "PO": "18:43",
+          "CL": "18:37",
+          "OA": "18:30",
+          "BO": "18:23",
+          "AP": "18:17",
+          "BU": "18:11",
+          "AL": "18:03"
         }
       },
       {
-        "tripId": "20260626-LW-1328",
+        "tripId": "20260702-LW-1130",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "18:35",
-          "EX": "18:26",
-          "MI": "18:18",
-          "LO": "18:10",
-          "PO": "18:03",
-          "CL": "17:57",
-          "OA": "17:50"
+          "UN": "19:00",
+          "EX": "18:51",
+          "MI": "18:43",
+          "LO": "18:36",
+          "PO": "18:29",
+          "CL": "18:23",
+          "OA": "18:16"
         }
       },
       {
-        "tripId": "20260626-LW-1030",
+        "tripId": "20260702-LW-1630",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "19:18",
-          "EX": "19:09",
-          "MI": "19:01",
-          "LO": "18:54",
-          "PO": "18:47",
-          "CL": "18:41",
-          "OA": "18:34",
-          "BO": "18:28",
-          "AP": "18:22",
-          "BU": "18:16",
-          "AL": "18:09"
+          "UN": "19:45",
+          "EX": "19:36",
+          "MI": "19:28",
+          "LO": "19:21",
+          "PO": "19:14",
+          "CL": "19:08",
+          "OA": "19:01",
+          "BO": "18:55",
+          "AP": "18:49",
+          "BU": "18:43",
+          "AL": "18:37",
+          "WR": "18:25"
         }
       },
       {
-        "tripId": "20260626-LW-X1428",
+        "tripId": "20260702-LW-X1380",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "18:25",
-          "EX": "18:16"
+          "UN": "19:30",
+          "EX": "19:21",
+          "OA": "18:56"
         }
       },
       {
-        "tripId": "20260626-LW-1630",
+        "tripId": "20260702-LW-1032",
         "vehicleType": "train",
         "stopTimes": {
-          "UN": "19:48",
-          "EX": "19:39",
-          "MI": "19:31",
-          "LO": "19:24",
-          "PO": "19:17",
-          "CL": "19:11",
-          "OA": "19:04",
-          "BO": "18:58",
-          "AP": "18:52",
-          "BU": "18:46",
-          "AL": "18:40",
-          "WR": "18:28"
+          "UN": "20:15",
+          "EX": "20:06",
+          "MI": "19:58",
+          "LO": "19:50",
+          "PO": "19:43",
+          "CL": "19:36",
+          "OA": "19:29",
+          "BO": "19:22",
+          "AP": "19:16",
+          "BU": "19:10",
+          "AL": "19:02"
         }
       },
       {
-        "tripId": "20260626-LW-X1430",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "19:03",
-          "EX": "18:54"
-        }
-      },
-      {
-        "tripId": "20260626-LW-1732",
+        "tripId": "20260702-LW-1732",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:45",
@@ -1015,32 +1022,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1032",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "20:18",
-          "EX": "20:09",
-          "MI": "20:01",
-          "LO": "19:54",
-          "PO": "19:47",
-          "CL": "19:41",
-          "OA": "19:34",
-          "BO": "19:28",
-          "AP": "19:22",
-          "BU": "19:16",
-          "AL": "19:09"
-        }
-      },
-      {
-        "tripId": "20260626-LW-X1530",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "19:33",
-          "EX": "19:24"
-        }
-      },
-      {
-        "tripId": "20260626-LW-X1182",
+        "tripId": "20260702-LW-X1182",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:00",
@@ -1049,7 +1031,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1382",
+        "tripId": "20260702-LW-X1382",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:30",
@@ -1058,7 +1040,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1034",
+        "tripId": "20260702-LW-1034",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:15",
@@ -1075,7 +1057,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1988",
+        "tripId": "20260702-LW-1988",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:40",
@@ -1091,7 +1073,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1634",
+        "tripId": "20260702-LW-1634",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:45",
@@ -1109,7 +1091,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1184",
+        "tripId": "20260702-LW-X1184",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:00",
@@ -1118,7 +1100,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1384",
+        "tripId": "20260702-LW-X1384",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:30",
@@ -1127,7 +1109,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1036",
+        "tripId": "20260702-LW-1036",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:15",
@@ -1144,7 +1126,15 @@
         }
       },
       {
-        "tripId": "20260626-LW-1636",
+        "tripId": "20260702-LW-X1434",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "21:22",
+          "EX": "21:13"
+        }
+      },
+      {
+        "tripId": "20260702-LW-1636",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:45",
@@ -1162,7 +1152,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1186",
+        "tripId": "20260702-LW-X1186",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:00",
@@ -1171,7 +1161,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1386",
+        "tripId": "20260702-LW-X1386",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:30",
@@ -1180,7 +1170,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1038",
+        "tripId": "20260702-LW-1038",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:15",
@@ -1197,7 +1187,15 @@
         }
       },
       {
-        "tripId": "20260626-LW-1638",
+        "tripId": "20260702-LW-X1436",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "22:22",
+          "EX": "22:13"
+        }
+      },
+      {
+        "tripId": "20260702-LW-1638",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:45",
@@ -1215,7 +1213,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1188",
+        "tripId": "20260702-LW-X1188",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:00",
@@ -1224,7 +1222,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1388",
+        "tripId": "20260702-LW-X1388",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:30",
@@ -1233,7 +1231,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1040",
+        "tripId": "20260702-LW-1040",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:15",
@@ -1250,7 +1248,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1640",
+        "tripId": "20260702-LW-1640",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:45",
@@ -1268,7 +1266,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1190",
+        "tripId": "20260702-LW-X1190",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:01",
@@ -1277,7 +1275,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1390",
+        "tripId": "20260702-LW-X1390",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:30",
@@ -1288,7 +1286,7 @@
     ],
     "fromUnion": [
       {
-        "tripId": "20260626-LW-1005",
+        "tripId": "20260702-LW-1005",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "07:18",
@@ -1305,7 +1303,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1605",
+        "tripId": "20260702-LW-1605",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "08:01",
@@ -1323,7 +1321,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1007",
+        "tripId": "20260702-LW-1007",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "08:26",
@@ -1340,7 +1338,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1607",
+        "tripId": "20260702-LW-1607",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "09:09",
@@ -1358,7 +1356,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1009",
+        "tripId": "20260702-LW-1009",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "09:26",
@@ -1375,7 +1373,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1609",
+        "tripId": "20260702-LW-1609",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "10:10",
@@ -1393,7 +1391,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1961",
+        "tripId": "20260702-LW-1961",
         "vehicleType": "train",
         "stopTimes": {
           "NI": "11:30",
@@ -1409,7 +1407,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1011",
+        "tripId": "20260702-LW-1011",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "10:27",
@@ -1426,7 +1424,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1311",
+        "tripId": "20260702-LW-1311",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "10:15",
@@ -1439,7 +1437,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1611",
+        "tripId": "20260702-LW-1611",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "11:10",
@@ -1457,7 +1455,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1113",
+        "tripId": "20260702-LW-1113",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "10:47",
@@ -1470,7 +1468,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1013",
+        "tripId": "20260702-LW-1013",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "11:27",
@@ -1487,7 +1485,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1313",
+        "tripId": "20260702-LW-1313",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "11:15",
@@ -1500,7 +1498,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1613",
+        "tripId": "20260702-LW-1613",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "12:10",
@@ -1518,7 +1516,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1115",
+        "tripId": "20260702-LW-1115",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "11:47",
@@ -1531,7 +1529,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1015",
+        "tripId": "20260702-LW-1015",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "12:27",
@@ -1548,7 +1546,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1315",
+        "tripId": "20260702-LW-1315",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "12:15",
@@ -1561,10 +1559,11 @@
         }
       },
       {
-        "tripId": "20260626-LW-1615",
+        "tripId": "20260702-LW-1715",
         "vehicleType": "train",
         "stopTimes": {
-          "WR": "13:10",
+          "CF": "13:25",
+          "WR": "13:09",
           "AL": "12:56",
           "BU": "12:49",
           "AP": "12:42",
@@ -1579,7 +1578,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1117",
+        "tripId": "20260702-LW-1117",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "12:47",
@@ -1592,7 +1591,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1017",
+        "tripId": "20260702-LW-1017",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "13:27",
@@ -1609,7 +1608,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1317",
+        "tripId": "20260702-LW-1317",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "13:15",
@@ -1622,7 +1621,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1617",
+        "tripId": "20260702-LW-1617",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "14:10",
@@ -1640,7 +1639,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1119",
+        "tripId": "20260702-LW-1119",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "13:47",
@@ -1653,7 +1652,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1019",
+        "tripId": "20260702-LW-1019",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "14:27",
@@ -1670,7 +1669,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1319",
+        "tripId": "20260702-LW-1319",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "14:15",
@@ -1683,7 +1682,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1619",
+        "tripId": "20260702-LW-1619",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "15:10",
@@ -1701,7 +1700,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1121",
+        "tripId": "20260702-LW-1121",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "14:47",
@@ -1714,7 +1713,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1021",
+        "tripId": "20260702-LW-1021",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "15:27",
@@ -1731,7 +1730,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1321",
+        "tripId": "20260702-LW-1321",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "15:17",
@@ -1744,7 +1743,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1621",
+        "tripId": "20260702-LW-1621",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "16:10",
@@ -1762,7 +1761,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1123",
+        "tripId": "20260702-LW-1123",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "15:45",
@@ -1775,7 +1774,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1023",
+        "tripId": "20260702-LW-1023",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "16:27",
@@ -1792,7 +1791,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1323",
+        "tripId": "20260702-LW-1323",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "16:17",
@@ -1805,7 +1804,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1873",
+        "tripId": "20260702-LW-1873",
         "vehicleType": "train",
         "stopTimes": {
           "HA": "17:06",
@@ -1815,39 +1814,41 @@
           "BO": "16:29",
           "OA": "16:22",
           "CL": "16:15",
-          "UN": "15:50"
+          "EX": "15:55",
+          "UN": "15:47"
         }
       },
       {
-        "tripId": "20260626-LW-1775",
+        "tripId": "20260702-LW-1775",
         "vehicleType": "train",
         "stopTimes": {
-          "CF": "17:26",
-          "WR": "17:11",
-          "AL": "16:58",
-          "BU": "16:51",
-          "AP": "16:44",
-          "BO": "16:38",
-          "OA": "16:31",
-          "CL": "16:24",
-          "UN": "15:59"
+          "CF": "17:28",
+          "WR": "17:13",
+          "AL": "17:00",
+          "BU": "16:53",
+          "AP": "16:46",
+          "BO": "16:40",
+          "OA": "16:33",
+          "CL": "16:26",
+          "EX": "16:05",
+          "UN": "15:57"
         }
       },
       {
-        "tripId": "20260626-LW-1125",
+        "tripId": "20260702-LW-1125",
         "vehicleType": "train",
         "stopTimes": {
-          "OA": "16:50",
-          "CL": "16:41",
-          "PO": "16:34",
-          "LO": "16:27",
-          "MI": "16:20",
-          "EX": "16:12",
-          "UN": "16:05"
+          "OA": "16:53",
+          "CL": "16:44",
+          "PO": "16:37",
+          "LO": "16:30",
+          "MI": "16:23",
+          "EX": "16:15",
+          "UN": "16:07"
         }
       },
       {
-        "tripId": "20260626-LW-1675",
+        "tripId": "20260702-LW-1675",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "17:33",
@@ -1857,37 +1858,39 @@
           "BO": "16:59",
           "OA": "16:52",
           "CL": "16:45",
-          "UN": "16:20"
+          "EX": "16:25",
+          "UN": "16:17"
         }
       },
       {
-        "tripId": "20260626-LW-1075",
+        "tripId": "20260702-LW-1075",
         "vehicleType": "train",
         "stopTimes": {
-          "AL": "17:30",
-          "BU": "17:22",
-          "AP": "17:15",
-          "BO": "17:09",
-          "OA": "17:02",
-          "CL": "16:54",
-          "UN": "16:29"
+          "AL": "17:31",
+          "BU": "17:23",
+          "AP": "17:16",
+          "BO": "17:10",
+          "OA": "17:03",
+          "CL": "16:55",
+          "EX": "16:35",
+          "UN": "16:27"
         }
       },
       {
-        "tripId": "20260626-LW-1325",
+        "tripId": "20260702-LW-1325",
         "vehicleType": "train",
         "stopTimes": {
-          "OA": "17:18",
-          "CL": "17:11",
-          "PO": "17:04",
-          "LO": "16:57",
-          "MI": "16:50",
-          "EX": "16:42",
-          "UN": "16:35"
+          "OA": "17:21",
+          "CL": "17:14",
+          "PO": "17:07",
+          "LO": "17:00",
+          "MI": "16:53",
+          "EX": "16:45",
+          "UN": "16:37"
         }
       },
       {
-        "tripId": "20260626-LW-1875",
+        "tripId": "20260702-LW-1875",
         "vehicleType": "train",
         "stopTimes": {
           "HA": "18:06",
@@ -1897,135 +1900,120 @@
           "BO": "17:29",
           "OA": "17:22",
           "CL": "17:15",
-          "UN": "16:50"
+          "EX": "16:55",
+          "UN": "16:47"
         }
       },
       {
-        "tripId": "20260626-LW-1927",
+        "tripId": "20260702-LW-1977",
         "vehicleType": "train",
         "stopTimes": {
-          "NI": "19:37",
-          "SCTH": "19:09",
-          "CF": "18:36",
-          "WR": "18:20",
-          "AL": "18:07",
-          "BU": "18:00",
-          "AP": "17:53",
-          "BO": "17:47",
-          "OA": "17:40",
-          "CL": "17:33",
-          "PO": "17:26",
-          "LO": "17:19",
-          "MI": "17:13",
+          "NI": "19:30",
+          "SCTH": "19:02",
+          "CF": "18:29",
+          "WR": "18:13",
+          "AL": "18:00",
+          "BU": "17:53",
+          "AP": "17:46",
+          "BO": "17:40",
+          "OA": "17:33",
+          "CL": "17:26",
           "EX": "17:05",
           "UN": "16:57"
         }
       },
       {
-        "tripId": "20260626-LW-1427",
+        "tripId": "20260702-LW-1127",
         "vehicleType": "train",
         "stopTimes": {
-          "BU": "18:10",
-          "AP": "18:03",
-          "BO": "17:57",
-          "OA": "17:50",
-          "CL": "17:43",
-          "PO": "17:36",
-          "LO": "17:29",
+          "OA": "17:53",
+          "CL": "17:44",
+          "PO": "17:37",
+          "LO": "17:30",
           "MI": "17:23",
           "EX": "17:15",
           "UN": "17:07"
         }
       },
       {
-        "tripId": "20260626-LW-1827",
+        "tripId": "20260702-LW-1877",
         "vehicleType": "train",
         "stopTimes": {
-          "HA": "18:44",
-          "AL": "18:27",
-          "BU": "18:20",
-          "AP": "18:13",
-          "BO": "18:07",
-          "OA": "18:00",
-          "CL": "17:53",
-          "PO": "17:46",
-          "LO": "17:39",
-          "MI": "17:33",
+          "HA": "18:36",
+          "AL": "18:19",
+          "BU": "18:12",
+          "AP": "18:05",
+          "BO": "17:59",
+          "OA": "17:52",
+          "CL": "17:45",
           "EX": "17:25",
           "UN": "17:17"
         }
       },
       {
-        "tripId": "20260626-LW-1027",
+        "tripId": "20260702-LW-1077",
         "vehicleType": "train",
         "stopTimes": {
-          "AL": "18:38",
-          "BU": "18:30",
-          "AP": "18:23",
-          "BO": "18:17",
-          "OA": "18:10",
-          "CL": "18:03",
-          "PO": "17:56",
-          "LO": "17:49",
-          "MI": "17:43",
+          "AL": "18:31",
+          "BU": "18:23",
+          "AP": "18:16",
+          "BO": "18:10",
+          "OA": "18:03",
+          "CL": "17:55",
           "EX": "17:35",
           "UN": "17:27"
         }
       },
       {
-        "tripId": "20260626-LW-1527",
+        "tripId": "20260702-LW-1327",
         "vehicleType": "train",
         "stopTimes": {
-          "BU": "18:40",
-          "AP": "18:33",
+          "AP": "18:32",
           "BO": "18:27",
-          "OA": "18:20",
-          "CL": "18:13",
-          "PO": "18:06",
-          "LO": "17:59",
+          "OA": "18:21",
+          "CL": "18:14",
+          "PO": "18:07",
+          "LO": "18:00",
           "MI": "17:53",
           "EX": "17:45",
           "UN": "17:37"
         }
       },
       {
-        "tripId": "20260626-LW-1829",
+        "tripId": "20260702-LW-1879",
         "vehicleType": "train",
         "stopTimes": {
-          "HA": "19:14",
-          "AL": "18:57",
-          "BU": "18:50",
-          "AP": "18:43",
-          "BO": "18:37",
-          "OA": "18:30",
-          "CL": "18:23",
-          "PO": "18:16",
-          "LO": "18:09",
-          "MI": "18:03",
+          "HA": "19:06",
+          "AL": "18:49",
+          "BU": "18:42",
+          "AP": "18:35",
+          "BO": "18:29",
+          "OA": "18:22",
+          "CL": "18:15",
           "EX": "17:55",
           "UN": "17:47"
         }
       },
       {
-        "tripId": "20260626-LW-1627",
+        "tripId": "20260702-LW-1627",
         "vehicleType": "train",
         "stopTimes": {
-          "WR": "19:21",
-          "AL": "19:07",
-          "BU": "19:00",
-          "AP": "18:53",
-          "BO": "18:47",
-          "OA": "18:40",
-          "CL": "18:33",
-          "PO": "18:26",
-          "LO": "18:19",
-          "MI": "18:13",
-          "EX": "18:05",
-          "UN": "17:57"
+          "WR": "19:29",
+          "AL": "19:15",
+          "BU": "19:08",
+          "AP": "19:00",
+          "BO": "18:54",
+          "OA": "18:48",
+          "CL": "18:40",
+          "PO": "18:33",
+          "LO": "18:25",
+          "MI": "18:19",
+          "EX": "18:10",
+          "UN": "18:02"
         }
       },
       {
-        "tripId": "20260626-LW-1029",
+        "tripId": "20260702-LW-1029",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "19:27",
@@ -2042,7 +2030,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1329",
+        "tripId": "20260702-LW-X1329",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "19:15",
@@ -2055,7 +2043,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1729",
+        "tripId": "20260702-LW-1729",
         "vehicleType": "train",
         "stopTimes": {
           "CF": "20:24",
@@ -2074,7 +2062,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1131",
+        "tripId": "20260702-LW-X1131",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "19:45",
@@ -2087,7 +2075,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1031",
+        "tripId": "20260702-LW-1031",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "20:27",
@@ -2104,7 +2092,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1331",
+        "tripId": "20260702-LW-X1331",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "20:15",
@@ -2117,7 +2105,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1631",
+        "tripId": "20260702-LW-1631",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "21:10",
@@ -2135,7 +2123,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1133",
+        "tripId": "20260702-LW-X1133",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "20:45",
@@ -2148,7 +2136,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1033",
+        "tripId": "20260702-LW-1033",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "21:27",
@@ -2165,7 +2153,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1333",
+        "tripId": "20260702-LW-X1333",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "21:15",
@@ -2178,7 +2166,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1633",
+        "tripId": "20260702-LW-1633",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "22:10",
@@ -2196,7 +2184,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1135",
+        "tripId": "20260702-LW-X1135",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "21:45",
@@ -2209,7 +2197,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1035",
+        "tripId": "20260702-LW-1035",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "22:27",
@@ -2226,7 +2214,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1335",
+        "tripId": "20260702-LW-X1335",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "22:15",
@@ -2239,7 +2227,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1635",
+        "tripId": "20260702-LW-1635",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "23:10",
@@ -2257,7 +2245,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1137",
+        "tripId": "20260702-LW-X1137",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "22:45",
@@ -2270,7 +2258,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1037",
+        "tripId": "20260702-LW-1037",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "23:27",
@@ -2287,7 +2275,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1987",
+        "tripId": "20260702-LW-X1987",
         "vehicleType": "train",
         "stopTimes": {
           "NI": "24:47",
@@ -2303,7 +2291,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1337",
+        "tripId": "20260702-LW-X1337",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "23:15",
@@ -2316,7 +2304,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1637",
+        "tripId": "20260702-LW-1637",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "24:10",
@@ -2334,7 +2322,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1139",
+        "tripId": "20260702-LW-X1139",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "23:45",
@@ -2347,7 +2335,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1039",
+        "tripId": "20260702-LW-1039",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "24:27",
@@ -2364,7 +2352,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1339",
+        "tripId": "20260702-LW-X1339",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "24:15",
@@ -2377,7 +2365,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1639",
+        "tripId": "20260702-LW-1639",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "25:10",
@@ -2395,7 +2383,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1141",
+        "tripId": "20260702-LW-X1141",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "24:45",
@@ -2408,7 +2396,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1041",
+        "tripId": "20260702-LW-1041",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "25:27",
@@ -2425,7 +2413,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-X1341",
+        "tripId": "20260702-LW-X1341",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "25:15",
@@ -2438,7 +2426,7 @@
         }
       },
       {
-        "tripId": "20260626-LW-1641",
+        "tripId": "20260702-LW-1641",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "26:10",
@@ -2460,7 +2448,7 @@
   "saturday": {
     "toUnion": [
       {
-        "tripId": "20260620-LW-1708",
+        "tripId": "20260829-LW-1708",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:45",
@@ -2479,7 +2467,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1010",
+        "tripId": "20260829-LW-1010",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:15",
@@ -2496,7 +2484,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1710",
+        "tripId": "20260829-LW-1710",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:45",
@@ -2515,7 +2503,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1012",
+        "tripId": "20260829-LW-1012",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:15",
@@ -2532,7 +2520,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1712",
+        "tripId": "20260829-LW-1712",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:45",
@@ -2551,7 +2539,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1014",
+        "tripId": "20260829-LW-1014",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:15",
@@ -2568,7 +2556,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1614",
+        "tripId": "20260829-LW-1614",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:45",
@@ -2586,7 +2574,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1016",
+        "tripId": "20260829-LW-1016",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:15",
@@ -2603,7 +2591,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1716",
+        "tripId": "20260829-LW-1716",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:45",
@@ -2622,23 +2610,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1516",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "13:00",
-          "EX": "12:51",
-          "MI": "12:43",
-          "LO": "12:36",
-          "PO": "12:29",
-          "CL": "12:23",
-          "OA": "12:16",
-          "BO": "12:09",
-          "AP": "12:03",
-          "BU": "11:54"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1970",
+        "tripId": "20260829-LW-1970",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:25",
@@ -2649,12 +2621,12 @@
           "AL": "13:27",
           "WR": "13:14",
           "CF": "12:58",
-          "SCTH": "12:24",
-          "NI": "12:00"
+          "SCTH": "12:21",
+          "NI": "11:55"
         }
       },
       {
-        "tripId": "20260620-LW-1018",
+        "tripId": "20260829-LW-1018",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:15",
@@ -2671,7 +2643,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1618",
+        "tripId": "20260829-LW-1618",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:45",
@@ -2689,23 +2661,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1518",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "13:30",
-          "EX": "13:21",
-          "MI": "13:13",
-          "LO": "13:06",
-          "PO": "12:59",
-          "CL": "12:53",
-          "OA": "12:46",
-          "BO": "12:39",
-          "AP": "12:33",
-          "BU": "12:27"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1020",
+        "tripId": "20260829-LW-1020",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:15",
@@ -2722,7 +2678,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1620",
+        "tripId": "20260829-LW-1620",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:45",
@@ -2740,7 +2696,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1022",
+        "tripId": "20260829-LW-1022",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:15",
@@ -2757,20 +2713,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1122",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "15:00",
-          "EX": "14:51",
-          "MI": "14:43",
-          "LO": "14:36",
-          "PO": "14:29",
-          "CL": "14:23",
-          "OA": "14:16"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1622",
+        "tripId": "20260829-LW-1622",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:45",
@@ -2788,7 +2731,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1322",
+        "tripId": "20260829-LW-1322",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:30",
@@ -2801,7 +2744,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1024",
+        "tripId": "20260829-LW-1024",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:15",
@@ -2818,7 +2761,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1124",
+        "tripId": "20260829-LW-1124",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:00",
@@ -2831,7 +2774,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1624",
+        "tripId": "20260829-LW-1624",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:45",
@@ -2849,7 +2792,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1324",
+        "tripId": "20260829-LW-1324",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:30",
@@ -2862,7 +2805,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1978",
+        "tripId": "20260829-LW-1978",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:24",
@@ -2873,12 +2816,12 @@
           "AL": "17:28",
           "WR": "17:16",
           "CF": "17:00",
-          "SCTH": "16:26",
-          "NI": "16:02"
+          "SCTH": "16:23",
+          "NI": "15:57"
         }
       },
       {
-        "tripId": "20260620-LW-1026",
+        "tripId": "20260829-LW-1026",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:15",
@@ -2895,7 +2838,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1126",
+        "tripId": "20260829-LW-1126",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:00",
@@ -2908,7 +2851,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1626",
+        "tripId": "20260829-LW-1626",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:45",
@@ -2926,7 +2869,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1326",
+        "tripId": "20260829-LW-1326",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:30",
@@ -2939,7 +2882,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1028",
+        "tripId": "20260829-LW-1028",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:15",
@@ -2956,7 +2899,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1128",
+        "tripId": "20260829-LW-1128",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:00",
@@ -2969,7 +2912,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1628",
+        "tripId": "20260829-LW-1628",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:45",
@@ -2987,7 +2930,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1328",
+        "tripId": "20260829-LW-1328",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:30",
@@ -3000,7 +2943,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1030",
+        "tripId": "20260829-LW-1030",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:15",
@@ -3017,7 +2960,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1130",
+        "tripId": "20260829-LW-1130",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:00",
@@ -3030,7 +2973,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1630",
+        "tripId": "20260829-LW-1630",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:45",
@@ -3048,15 +2991,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1428",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "18:37",
-          "EX": "18:28"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1330",
+        "tripId": "20260829-LW-1330",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:30",
@@ -3069,7 +3004,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1032",
+        "tripId": "20260829-LW-1032",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:15",
@@ -3086,7 +3021,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1732",
+        "tripId": "20260829-LW-1732",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:45",
@@ -3105,15 +3040,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1430",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "19:22",
-          "EX": "19:13"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1132",
+        "tripId": "20260829-LW-1132",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:00",
@@ -3126,7 +3053,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1332",
+        "tripId": "20260829-LW-1332",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:30",
@@ -3139,7 +3066,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1986",
+        "tripId": "20260829-LW-1986",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:23",
@@ -3150,12 +3077,12 @@
           "AL": "21:27",
           "WR": "21:15",
           "CF": "20:58",
-          "SCTH": "20:24",
-          "NI": "20:00"
+          "SCTH": "20:21",
+          "NI": "19:55"
         }
       },
       {
-        "tripId": "20260620-LW-1034",
+        "tripId": "20260829-LW-1034",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:15",
@@ -3172,7 +3099,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1134",
+        "tripId": "20260829-LW-1134",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:00",
@@ -3185,7 +3112,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1634",
+        "tripId": "20260829-LW-1634",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:45",
@@ -3203,7 +3130,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1334",
+        "tripId": "20260829-LW-1334",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:30",
@@ -3216,7 +3143,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1036",
+        "tripId": "20260829-LW-1036",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:15",
@@ -3233,7 +3160,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1136",
+        "tripId": "20260829-LW-1136",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:00",
@@ -3246,7 +3173,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1636",
+        "tripId": "20260829-LW-1636",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:45",
@@ -3264,7 +3191,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1336",
+        "tripId": "20260829-LW-1336",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:30",
@@ -3277,23 +3204,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1990",
-        "vehicleType": "train",
-        "stopTimes": {
-          "UN": "24:25",
-          "EX": "24:16",
-          "PO": "23:59",
-          "OA": "23:48",
-          "BU": "23:35",
-          "AL": "23:28",
-          "WR": "23:16",
-          "CF": "23:00",
-          "SCTH": "22:26",
-          "NI": "22:02"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1038",
+        "tripId": "20260829-LW-1038",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:15",
@@ -3310,7 +3221,23 @@
         }
       },
       {
-        "tripId": "20260620-LW-1138",
+        "tripId": "20260829-LW-1990",
+        "vehicleType": "train",
+        "stopTimes": {
+          "UN": "24:38",
+          "EX": "24:29",
+          "PO": "24:12",
+          "OA": "24:01",
+          "BU": "23:48",
+          "AL": "23:41",
+          "WR": "23:29",
+          "CF": "23:13",
+          "SCTH": "22:36",
+          "NI": "22:10"
+        }
+      },
+      {
+        "tripId": "20260829-LW-1138",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:00",
@@ -3323,7 +3250,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1638",
+        "tripId": "20260829-LW-1638",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:45",
@@ -3341,7 +3268,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1338",
+        "tripId": "20260829-LW-1338",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:30",
@@ -3354,7 +3281,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1040",
+        "tripId": "20260829-LW-1040",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:15",
@@ -3371,7 +3298,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1640",
+        "tripId": "20260829-LW-1640",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:45",
@@ -3391,7 +3318,7 @@
     ],
     "fromUnion": [
       {
-        "tripId": "20260620-LW-1609",
+        "tripId": "20260829-LW-1609",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "10:09",
@@ -3409,11 +3336,11 @@
         }
       },
       {
-        "tripId": "20260620-LW-1961",
+        "tripId": "20260829-LW-1961",
         "vehicleType": "train",
         "stopTimes": {
-          "NI": "11:30",
-          "SCTH": "11:02",
+          "NI": "11:35",
+          "SCTH": "11:05",
           "CF": "10:30",
           "WR": "10:16",
           "AL": "10:02",
@@ -3425,7 +3352,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1011",
+        "tripId": "20260829-LW-1011",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "10:26",
@@ -3442,7 +3369,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1611",
+        "tripId": "20260829-LW-1611",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "11:09",
@@ -3460,7 +3387,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1013",
+        "tripId": "20260829-LW-1013",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "11:26",
@@ -3477,7 +3404,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1613",
+        "tripId": "20260829-LW-1613",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "12:09",
@@ -3495,11 +3422,11 @@
         }
       },
       {
-        "tripId": "20260620-LW-1965",
+        "tripId": "20260829-LW-1965",
         "vehicleType": "train",
         "stopTimes": {
-          "NI": "13:35",
-          "SCTH": "13:07",
+          "NI": "13:40",
+          "SCTH": "13:10",
           "CF": "12:35",
           "WR": "12:20",
           "AL": "12:06",
@@ -3511,7 +3438,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1015",
+        "tripId": "20260829-LW-1015",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "12:26",
@@ -3528,7 +3455,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1615",
+        "tripId": "20260829-LW-1615",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "13:09",
@@ -3546,7 +3473,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1017",
+        "tripId": "20260829-LW-1017",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "13:26",
@@ -3563,7 +3490,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1617",
+        "tripId": "20260829-LW-1617",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "14:09",
@@ -3581,15 +3508,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1417",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "13:05",
-          "UN": "12:56"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1019",
+        "tripId": "20260829-LW-1019",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "14:26",
@@ -3606,15 +3525,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1419",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "13:41",
-          "UN": "13:32"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1619",
+        "tripId": "20260829-LW-1619",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "15:09",
@@ -3632,23 +3543,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1519",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "14:06",
-          "UN": "13:57"
-        }
-      },
-      {
-        "tripId": "20260620-LW-X1221",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "14:16",
-          "UN": "14:07"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1021",
+        "tripId": "20260829-LW-1021",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "15:26",
@@ -3665,15 +3560,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1421",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "14:43",
-          "UN": "14:35"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1721",
+        "tripId": "20260829-LW-1721",
         "vehicleType": "train",
         "stopTimes": {
           "CF": "16:23",
@@ -3692,23 +3579,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-X1521",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "15:06",
-          "UN": "14:57"
-        }
-      },
-      {
-        "tripId": "20260620-LW-X1423",
-        "vehicleType": "train",
-        "stopTimes": {
-          "EX": "15:18",
-          "UN": "15:10"
-        }
-      },
-      {
-        "tripId": "20260620-LW-1023",
+        "tripId": "20260829-LW-1023",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "16:26",
@@ -3725,7 +3596,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1123",
+        "tripId": "20260829-LW-1123",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "16:16",
@@ -3738,7 +3609,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1623",
+        "tripId": "20260829-LW-1623",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "17:09",
@@ -3756,7 +3627,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1323",
+        "tripId": "20260829-LW-1323",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "16:44",
@@ -3769,7 +3640,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1025",
+        "tripId": "20260829-LW-1025",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "17:26",
@@ -3786,7 +3657,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1125",
+        "tripId": "20260829-LW-1125",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "17:16",
@@ -3799,7 +3670,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1625",
+        "tripId": "20260829-LW-1625",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "18:09",
@@ -3817,7 +3688,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1325",
+        "tripId": "20260829-LW-1325",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "17:44",
@@ -3830,11 +3701,11 @@
         }
       },
       {
-        "tripId": "20260620-LW-1977",
+        "tripId": "20260829-LW-1977",
         "vehicleType": "train",
         "stopTimes": {
-          "NI": "19:30",
-          "SCTH": "19:02",
+          "NI": "19:35",
+          "SCTH": "19:05",
           "CF": "18:30",
           "WR": "18:16",
           "AL": "18:03",
@@ -3846,7 +3717,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1027",
+        "tripId": "20260829-LW-1027",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "18:27",
@@ -3863,7 +3734,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1127",
+        "tripId": "20260829-LW-1127",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "18:16",
@@ -3876,7 +3747,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1627",
+        "tripId": "20260829-LW-1627",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "19:10",
@@ -3894,7 +3765,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1327",
+        "tripId": "20260829-LW-1327",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "18:44",
@@ -3907,7 +3778,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1029",
+        "tripId": "20260829-LW-1029",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "19:27",
@@ -3924,7 +3795,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1129",
+        "tripId": "20260829-LW-1129",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "19:16",
@@ -3937,7 +3808,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1629",
+        "tripId": "20260829-LW-1629",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "20:10",
@@ -3955,7 +3826,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1329",
+        "tripId": "20260829-LW-1329",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "19:44",
@@ -3968,7 +3839,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1031",
+        "tripId": "20260829-LW-1031",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "20:27",
@@ -3985,11 +3856,11 @@
         }
       },
       {
-        "tripId": "20260620-LW-1981",
+        "tripId": "20260829-LW-1981",
         "vehicleType": "train",
         "stopTimes": {
-          "NI": "21:45",
-          "SCTH": "21:17",
+          "NI": "21:50",
+          "SCTH": "21:20",
           "CF": "20:45",
           "WR": "20:31",
           "AL": "20:18",
@@ -4001,7 +3872,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1131",
+        "tripId": "20260829-LW-1131",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "20:16",
@@ -4014,7 +3885,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1631",
+        "tripId": "20260829-LW-1631",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "21:10",
@@ -4032,7 +3903,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1331",
+        "tripId": "20260829-LW-1331",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "20:44",
@@ -4045,7 +3916,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1033",
+        "tripId": "20260829-LW-1033",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "21:27",
@@ -4062,7 +3933,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1133",
+        "tripId": "20260829-LW-1133",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "21:16",
@@ -4075,7 +3946,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1733",
+        "tripId": "20260829-LW-1733",
         "vehicleType": "train",
         "stopTimes": {
           "CF": "22:24",
@@ -4094,7 +3965,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1333",
+        "tripId": "20260829-LW-1333",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "21:44",
@@ -4107,7 +3978,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1035",
+        "tripId": "20260829-LW-1035",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "22:27",
@@ -4124,7 +3995,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1135",
+        "tripId": "20260829-LW-1135",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "22:16",
@@ -4137,7 +4008,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1635",
+        "tripId": "20260829-LW-1635",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "23:10",
@@ -4155,7 +4026,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1335",
+        "tripId": "20260829-LW-1335",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "22:44",
@@ -4168,7 +4039,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1037",
+        "tripId": "20260829-LW-1037",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "23:27",
@@ -4185,7 +4056,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1137",
+        "tripId": "20260829-LW-1137",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "23:16",
@@ -4198,7 +4069,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1637",
+        "tripId": "20260829-LW-1637",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "24:10",
@@ -4216,7 +4087,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1337",
+        "tripId": "20260829-LW-1337",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "23:46",
@@ -4229,7 +4100,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1039",
+        "tripId": "20260829-LW-1039",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "24:28",
@@ -4246,7 +4117,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1639",
+        "tripId": "20260829-LW-1639",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "25:12",
@@ -4264,7 +4135,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1041",
+        "tripId": "20260829-LW-1041",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "25:29",
@@ -4281,7 +4152,7 @@
         }
       },
       {
-        "tripId": "20260620-LW-1641",
+        "tripId": "20260829-LW-1641",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "26:12",
@@ -4303,7 +4174,7 @@
   "sunday": {
     "toUnion": [
       {
-        "tripId": "20260830-LW-1708",
+        "tripId": "20260705-LW-1708",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "08:45",
@@ -4322,7 +4193,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1010",
+        "tripId": "20260705-LW-1010",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:15",
@@ -4339,7 +4210,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1710",
+        "tripId": "20260705-LW-1710",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "09:45",
@@ -4358,7 +4229,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1012",
+        "tripId": "20260705-LW-1012",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:15",
@@ -4375,7 +4246,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1712",
+        "tripId": "20260705-LW-1712",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "10:45",
@@ -4394,7 +4265,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1014",
+        "tripId": "20260705-LW-1014",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:15",
@@ -4411,7 +4282,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1614",
+        "tripId": "20260705-LW-1614",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "11:45",
@@ -4429,7 +4300,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1016",
+        "tripId": "20260705-LW-1016",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:15",
@@ -4446,7 +4317,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1716",
+        "tripId": "20260705-LW-1716",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "12:45",
@@ -4465,7 +4336,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1970",
+        "tripId": "20260705-LW-1970",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:25",
@@ -4481,7 +4352,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1018",
+        "tripId": "20260705-LW-1018",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:15",
@@ -4498,7 +4369,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1618",
+        "tripId": "20260705-LW-1618",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "13:45",
@@ -4516,7 +4387,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1020",
+        "tripId": "20260705-LW-1020",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:15",
@@ -4533,7 +4404,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1620",
+        "tripId": "20260705-LW-1620",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "14:45",
@@ -4551,7 +4422,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1022",
+        "tripId": "20260705-LW-1022",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:15",
@@ -4568,7 +4439,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1622",
+        "tripId": "20260705-LW-1622",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:45",
@@ -4586,7 +4457,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1322",
+        "tripId": "20260705-LW-1322",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "15:30",
@@ -4599,7 +4470,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1024",
+        "tripId": "20260705-LW-1024",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:15",
@@ -4616,7 +4487,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1124",
+        "tripId": "20260705-LW-1124",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:00",
@@ -4629,7 +4500,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1624",
+        "tripId": "20260705-LW-1624",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:45",
@@ -4647,7 +4518,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1324",
+        "tripId": "20260705-LW-1324",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "16:30",
@@ -4660,7 +4531,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1978",
+        "tripId": "20260705-LW-1978",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:24",
@@ -4676,7 +4547,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1026",
+        "tripId": "20260705-LW-1026",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:15",
@@ -4693,7 +4564,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1126",
+        "tripId": "20260705-LW-1126",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:00",
@@ -4706,7 +4577,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1626",
+        "tripId": "20260705-LW-1626",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:45",
@@ -4724,7 +4595,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1326",
+        "tripId": "20260705-LW-1326",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "17:30",
@@ -4737,7 +4608,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1028",
+        "tripId": "20260705-LW-1028",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:15",
@@ -4754,7 +4625,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1128",
+        "tripId": "20260705-LW-1128",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:00",
@@ -4767,7 +4638,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1628",
+        "tripId": "20260705-LW-1628",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:45",
@@ -4785,7 +4656,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1328",
+        "tripId": "20260705-LW-1328",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "18:30",
@@ -4798,7 +4669,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1030",
+        "tripId": "20260705-LW-1030",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:15",
@@ -4815,7 +4686,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1130",
+        "tripId": "20260705-LW-1130",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:00",
@@ -4828,7 +4699,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1630",
+        "tripId": "20260705-LW-1630",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:45",
@@ -4846,7 +4717,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1330",
+        "tripId": "20260705-LW-1330",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "19:30",
@@ -4859,7 +4730,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1032",
+        "tripId": "20260705-LW-1032",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:15",
@@ -4876,7 +4747,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1732",
+        "tripId": "20260705-LW-1732",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:45",
@@ -4895,7 +4766,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1132",
+        "tripId": "20260705-LW-1132",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:00",
@@ -4908,7 +4779,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1332",
+        "tripId": "20260705-LW-1332",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "20:30",
@@ -4921,7 +4792,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1986",
+        "tripId": "20260705-LW-1986",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:23",
@@ -4937,7 +4808,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1034",
+        "tripId": "20260705-LW-1034",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:15",
@@ -4954,7 +4825,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1134",
+        "tripId": "20260705-LW-1134",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:00",
@@ -4967,7 +4838,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1634",
+        "tripId": "20260705-LW-1634",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:45",
@@ -4985,7 +4856,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1334",
+        "tripId": "20260705-LW-1334",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "21:30",
@@ -4998,7 +4869,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1036",
+        "tripId": "20260705-LW-1036",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:15",
@@ -5015,7 +4886,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1136",
+        "tripId": "20260705-LW-1136",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:00",
@@ -5028,7 +4899,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1636",
+        "tripId": "20260705-LW-1636",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:45",
@@ -5046,7 +4917,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1336",
+        "tripId": "20260705-LW-1336",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "22:30",
@@ -5059,7 +4930,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1990",
+        "tripId": "20260705-LW-1990",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:25",
@@ -5075,7 +4946,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1038",
+        "tripId": "20260705-LW-1038",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:15",
@@ -5092,7 +4963,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1138",
+        "tripId": "20260705-LW-1138",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:00",
@@ -5105,7 +4976,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1638",
+        "tripId": "20260705-LW-1638",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:45",
@@ -5123,7 +4994,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1338",
+        "tripId": "20260705-LW-1338",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "23:30",
@@ -5136,7 +5007,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1040",
+        "tripId": "20260705-LW-1040",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:15",
@@ -5153,7 +5024,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1640",
+        "tripId": "20260705-LW-1640",
         "vehicleType": "train",
         "stopTimes": {
           "UN": "24:45",
@@ -5173,7 +5044,7 @@
     ],
     "fromUnion": [
       {
-        "tripId": "20260830-LW-1609",
+        "tripId": "20260705-LW-1609",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "10:09",
@@ -5191,7 +5062,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1961",
+        "tripId": "20260705-LW-1961",
         "vehicleType": "train",
         "stopTimes": {
           "NI": "11:30",
@@ -5207,7 +5078,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1011",
+        "tripId": "20260705-LW-1011",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "10:26",
@@ -5224,7 +5095,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1611",
+        "tripId": "20260705-LW-1611",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "11:09",
@@ -5242,7 +5113,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1013",
+        "tripId": "20260705-LW-1013",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "11:26",
@@ -5259,7 +5130,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1613",
+        "tripId": "20260705-LW-1613",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "12:09",
@@ -5277,7 +5148,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1965",
+        "tripId": "20260705-LW-1965",
         "vehicleType": "train",
         "stopTimes": {
           "NI": "13:35",
@@ -5293,7 +5164,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1015",
+        "tripId": "20260705-LW-1015",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "12:26",
@@ -5310,7 +5181,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1615",
+        "tripId": "20260705-LW-1615",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "13:09",
@@ -5328,7 +5199,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1017",
+        "tripId": "20260705-LW-1017",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "13:26",
@@ -5345,7 +5216,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1617",
+        "tripId": "20260705-LW-1617",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "14:09",
@@ -5363,7 +5234,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1019",
+        "tripId": "20260705-LW-1019",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "14:26",
@@ -5380,7 +5251,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1619",
+        "tripId": "20260705-LW-1619",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "15:09",
@@ -5398,7 +5269,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1021",
+        "tripId": "20260705-LW-1021",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "15:26",
@@ -5415,7 +5286,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1721",
+        "tripId": "20260705-LW-1721",
         "vehicleType": "train",
         "stopTimes": {
           "CF": "16:23",
@@ -5434,7 +5305,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1023",
+        "tripId": "20260705-LW-1023",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "16:26",
@@ -5451,7 +5322,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1123",
+        "tripId": "20260705-LW-1123",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "16:16",
@@ -5464,7 +5335,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1623",
+        "tripId": "20260705-LW-1623",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "17:09",
@@ -5482,7 +5353,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1323",
+        "tripId": "20260705-LW-1323",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "16:44",
@@ -5495,7 +5366,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1025",
+        "tripId": "20260705-LW-1025",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "17:26",
@@ -5512,7 +5383,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1125",
+        "tripId": "20260705-LW-1125",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "17:16",
@@ -5525,7 +5396,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1625",
+        "tripId": "20260705-LW-1625",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "18:09",
@@ -5543,7 +5414,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1325",
+        "tripId": "20260705-LW-1325",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "17:44",
@@ -5556,7 +5427,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1977",
+        "tripId": "20260705-LW-1977",
         "vehicleType": "train",
         "stopTimes": {
           "NI": "19:30",
@@ -5572,7 +5443,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1027",
+        "tripId": "20260705-LW-1027",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "18:27",
@@ -5589,7 +5460,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1127",
+        "tripId": "20260705-LW-1127",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "18:16",
@@ -5602,7 +5473,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1627",
+        "tripId": "20260705-LW-1627",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "19:10",
@@ -5620,7 +5491,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1327",
+        "tripId": "20260705-LW-1327",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "18:44",
@@ -5633,7 +5504,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1029",
+        "tripId": "20260705-LW-1029",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "19:27",
@@ -5650,7 +5521,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1129",
+        "tripId": "20260705-LW-1129",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "19:16",
@@ -5663,7 +5534,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1629",
+        "tripId": "20260705-LW-1629",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "20:10",
@@ -5681,7 +5552,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1329",
+        "tripId": "20260705-LW-1329",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "19:44",
@@ -5694,7 +5565,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1031",
+        "tripId": "20260705-LW-1031",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "20:27",
@@ -5711,7 +5582,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1981",
+        "tripId": "20260705-LW-1981",
         "vehicleType": "train",
         "stopTimes": {
           "NI": "21:45",
@@ -5727,7 +5598,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1131",
+        "tripId": "20260705-LW-1131",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "20:16",
@@ -5740,7 +5611,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1631",
+        "tripId": "20260705-LW-1631",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "21:10",
@@ -5758,7 +5629,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1331",
+        "tripId": "20260705-LW-1331",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "20:44",
@@ -5771,7 +5642,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1033",
+        "tripId": "20260705-LW-1033",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "21:27",
@@ -5788,7 +5659,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1133",
+        "tripId": "20260705-LW-1133",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "21:16",
@@ -5801,7 +5672,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1733",
+        "tripId": "20260705-LW-1733",
         "vehicleType": "train",
         "stopTimes": {
           "CF": "22:24",
@@ -5820,7 +5691,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1333",
+        "tripId": "20260705-LW-1333",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "21:44",
@@ -5833,7 +5704,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1035",
+        "tripId": "20260705-LW-1035",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "22:27",
@@ -5850,7 +5721,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1135",
+        "tripId": "20260705-LW-1135",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "22:16",
@@ -5863,7 +5734,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1635",
+        "tripId": "20260705-LW-1635",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "23:10",
@@ -5881,7 +5752,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1335",
+        "tripId": "20260705-LW-1335",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "22:44",
@@ -5894,7 +5765,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1037",
+        "tripId": "20260705-LW-1037",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "23:27",
@@ -5911,7 +5782,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1137",
+        "tripId": "20260705-LW-1137",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "23:16",
@@ -5924,7 +5795,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1637",
+        "tripId": "20260705-LW-1637",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "24:10",
@@ -5942,7 +5813,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1337",
+        "tripId": "20260705-LW-1337",
         "vehicleType": "train",
         "stopTimes": {
           "OA": "23:46",
@@ -5955,7 +5826,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1039",
+        "tripId": "20260705-LW-1039",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "24:28",
@@ -5972,7 +5843,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1639",
+        "tripId": "20260705-LW-1639",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "25:12",
@@ -5990,7 +5861,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1041",
+        "tripId": "20260705-LW-1041",
         "vehicleType": "train",
         "stopTimes": {
           "AL": "25:29",
@@ -6007,7 +5878,7 @@
         }
       },
       {
-        "tripId": "20260830-LW-1641",
+        "tripId": "20260705-LW-1641",
         "vehicleType": "train",
         "stopTimes": {
           "WR": "26:12",
