@@ -19,13 +19,13 @@
 const REST_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
 const REST_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
 
-// Self-housekeeping: each service day is one Redis key (`goplat:<date>`) and we
-// only ever need the CURRENT one — yesterday's platforms are worthless (they
-// change daily and the API keeps no history). Every write refreshes a 30h TTL,
-// so a day's key auto-deletes ~a day after its last write. At most ~2 tiny keys
-// (today + a briefly-overlapping yesterday) exist at once; nothing accumulates
-// and there's no cleanup job to run.
-const TTL_SECONDS = 30 * 60 * 60;
+// Self-housekeeping: each service day is one Redis key (`goplat:<date>`) and
+// the app only ever reads the CURRENT one. Past days are kept for a week so
+// display issues can be traced back to what the feed actually published (the
+// live API keeps no history). Every write refreshes the TTL, so a day's key
+// auto-deletes ~7 days after its last write. At most ~8 tiny keys (~5KB each)
+// exist at once; nothing accumulates and there's no cleanup job to run.
+const TTL_SECONDS = 7 * 24 * 60 * 60;
 
 // Short in-memory cache so the 30s client poll (and concurrent users) collapse
 // onto one DB read per window instead of hammering the store on every request.
