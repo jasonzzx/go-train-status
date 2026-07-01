@@ -908,12 +908,16 @@ function TrackerRow({
   tracker,
   isPast,
   isNext,
+  showPlatform,
   direction,
   onPlatformClick,
 }: {
   tracker: TrackerInfo;
   isPast: boolean;
   isNext: boolean;
+  /** Platform is prominent only on the NOW/NEXT cards; elsewhere it stays
+      hidden until the card is expanded (the data is still remembered). */
+  showPlatform: boolean;
   direction: Direction;
   onPlatformClick: (platform: string) => void;
 }) {
@@ -924,7 +928,7 @@ function TrackerRow({
   // PLATFORM_MAP_ENABLED is temporarily off — current schematic isn't good
   // enough yet; re-enable once a better source map is available.
   const isUnionPlatform = PLATFORM_MAP_ENABLED && direction === 'officeToHome' && isPlatformMapped(tracker.platform);
-  const platformBadge = tracker.platform ? (
+  const platformBadge = showPlatform && tracker.platform ? (
     <div
       onClick={isUnionPlatform ? (e) => { e.stopPropagation(); onPlatformClick(tracker.platform); } : undefined}
       role={isUnionPlatform ? 'button' : undefined}
@@ -1159,10 +1163,19 @@ function TrainCard({
         </svg>
       </button>
 
-      {/* Tracker row: platform + expected */}
+      {/* Tracker row: platform + expected. The platform chip is only prominent
+          on the NOW/NEXT cards; on every other card it appears when the card
+          is expanded via the chevron (alongside the station list). */}
       {tracker && (
         <div className="pb-3">
-          <TrackerRow tracker={tracker} isPast={effectiveIsPast} isNext={isNext} direction={direction} onPlatformClick={onPlatformClick} />
+          <TrackerRow
+            tracker={tracker}
+            isPast={effectiveIsPast}
+            isNext={isNext}
+            showPlatform={isNext || isNowRunning || isExpanded}
+            direction={direction}
+            onPlatformClick={onPlatformClick}
+          />
         </div>
       )}
 
