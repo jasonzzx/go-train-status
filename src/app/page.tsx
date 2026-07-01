@@ -961,11 +961,11 @@ function CountdownChip({ departure, delayMin }: { departure: string; delayMin: n
   const label = formatCountdown(secondsLeft);
   const tone = COUNTDOWN_TONE_STYLES[countdownTone(secondsLeft)];
   return (
-    <div className={`flex flex-col items-center leading-none px-3 py-1 rounded-lg border-[3px] transition-colors ${tone.chip}`}>
-      <span className={`text-[9px] font-bold uppercase tracking-wider ${tone.label}`}>
+    <div className={`flex flex-col items-center leading-none px-2 py-1 rounded-lg border-[3px] transition-colors ${tone.chip}`}>
+      <span className={`text-[8px] font-bold uppercase tracking-wide ${tone.label}`}>
         {t('departsIn')}
       </span>
-      <span className={`font-black leading-none mt-0.5 tabular-nums ${tone.value} ${label.length > 5 ? 'text-2xl' : 'text-3xl'}`}>
+      <span className={`font-black leading-none mt-0.5 tabular-nums ${tone.value} ${label.length > 5 ? 'text-lg' : 'text-2xl'}`}>
         {label}
       </span>
     </div>
@@ -984,7 +984,7 @@ function DoorCloseInfoButton() {
         type="button"
         aria-label={t('boardingInfoLabel')}
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
-        className="w-5 h-5 rounded-full border border-white/60 text-white/80 flex items-center justify-center text-[11px] font-bold font-serif italic leading-none hover:bg-white/15 active:bg-white/25 transition-colors"
+        className="w-4 h-4 rounded-full border border-white/60 text-white/80 flex items-center justify-center text-[10px] font-bold font-serif italic leading-none hover:bg-white/15 active:bg-white/25 transition-colors"
       >
         i
       </button>
@@ -1039,7 +1039,7 @@ function TrackerRow({
     <div
       onClick={isUnionPlatform ? (e) => { e.stopPropagation(); onPlatformClick(tracker.platform); } : undefined}
       role={isUnionPlatform ? 'button' : undefined}
-      className={`flex flex-col items-center leading-none px-3.5 py-1 rounded-lg border-[3px] ${
+      className={`flex flex-col items-center leading-none px-2.5 py-1 rounded-lg border-[3px] ${
         isUnionPlatform ? 'cursor-pointer active:scale-95 transition-transform' : ''
       } ${
         isNext
@@ -1049,12 +1049,12 @@ function TrackerRow({
           : 'border-yellow-500 bg-yellow-50'
       }`}
     >
-      <span className={`text-[9px] font-bold uppercase tracking-wider ${
+      <span className={`text-[8px] font-bold uppercase tracking-wide ${
         isNext ? 'text-yellow-200' : isPast ? 'text-yellow-600/50' : 'text-yellow-700'
       }`}>
         {t('platform')}{isUnionPlatform ? ' 🗺️' : ''}
       </span>
-      <span className={`text-3xl font-black leading-none mt-0.5 ${
+      <span className={`text-2xl font-black leading-none mt-0.5 ${
         isNext ? 'text-yellow-100' : isPast ? 'text-yellow-700/50' : 'text-yellow-800'
       }`}>
         {formatPlatformLabel(tracker.platform)}
@@ -1066,15 +1066,15 @@ function TrackerRow({
   const expectedBadge = !isPast && tracker?.expected ? (() => {
     if (tracker.cancelled) {
       return (
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
+        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
           isNext ? 'bg-red-500/25' : 'bg-red-100'
         }`}>
-          <span className="text-base leading-none">✕</span>
+          <span className="text-sm leading-none">✕</span>
           <div className="flex flex-col leading-none">
-            <span className={`text-[10px] font-semibold uppercase tracking-wider ${
+            <span className={`text-[8px] font-semibold uppercase tracking-wide ${
               isNext ? 'text-red-200' : 'text-red-500'
             }`}>{t('status')}</span>
-            <span className={`text-base font-extrabold leading-none mt-0.5 ${
+            <span className={`text-sm font-extrabold leading-none mt-0.5 ${
               isNext ? 'text-red-200' : 'text-red-600'
             }`}>{t('cancelled')}</span>
           </div>
@@ -1083,15 +1083,15 @@ function TrackerRow({
     }
     if (tracker.delay > 0) {
       return (
-        <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
+        <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
           isNext ? 'bg-orange-400/25' : 'bg-orange-100'
         }`}>
-          <span className="text-base leading-none">⚠</span>
+          <span className="text-sm leading-none">⚠</span>
           <div className="flex flex-col leading-none">
-            <span className={`text-[10px] font-semibold uppercase tracking-wider ${
+            <span className={`text-[8px] font-semibold uppercase tracking-wide ${
               isNext ? 'text-orange-200' : 'text-orange-600'
             }`}>{t('delayed')}</span>
-            <span className={`text-base font-extrabold leading-none mt-0.5 ${
+            <span className={`text-sm font-extrabold leading-none mt-0.5 ${
               isNext ? 'text-orange-200' : 'text-orange-700'
             }`}>{t('delayMin', { min: tracker.delay })}</span>
           </div>
@@ -1099,15 +1099,15 @@ function TrackerRow({
       );
     }
     return (
-      <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
+      <div className={`flex items-center gap-1 px-2 py-1 rounded-lg ${
         isNext ? 'bg-white/20' : 'bg-green-100'
       }`}>
-        <span className="text-base leading-none">✓</span>
+        <span className="text-sm leading-none">✓</span>
         <div className="flex flex-col leading-none">
-          <span className={`text-[10px] font-semibold uppercase tracking-wider ${
+          <span className={`text-[8px] font-semibold uppercase tracking-wide ${
             isNext ? 'text-white/70' : 'text-green-600'
           }`}>{t('expected')}</span>
-          <span className={`text-base font-extrabold leading-none mt-0.5 ${
+          <span className={`text-sm font-extrabold leading-none mt-0.5 ${
             isNext ? 'text-white/90' : 'text-green-700'
           }`}>{t('onTime')}</span>
         </div>
@@ -1118,7 +1118,7 @@ function TrackerRow({
   // Countdown to expected departure (scheduled + delay) with the door-close
   // "i" note — NEXT card only, right-aligned after platform/expected.
   const countdownCluster = showCountdown && !tracker?.cancelled ? (
-    <div className="ml-auto flex items-center gap-1.5">
+    <div className="ml-auto flex items-center gap-1 shrink-0">
       <CountdownChip departure={departure} delayMin={tracker?.delay ?? 0} />
       <DoorCloseInfoButton />
     </div>
@@ -1127,7 +1127,7 @@ function TrackerRow({
   if (!platformBadge && !expectedBadge && !countdownCluster) return null;
 
   return (
-    <div className={`flex items-center gap-2 mt-2 pt-2 ${
+    <div className={`flex items-center gap-1.5 mt-2 pt-2 ${
       isNext ? 'border-t border-white/20' : 'border-t border-gray-100'
     }`}>
       {platformBadge}
