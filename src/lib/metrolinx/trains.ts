@@ -57,6 +57,46 @@ function toInt(value: string | number | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Minutes-since-midnight, America/Toronto (0–1439). */
+function torontoMinutesNow(): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Toronto',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(new Date());
+  const h = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+  const m = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
+  return h * 60 + m;
+}
+
+function hhmmToMinutes(s: string | undefined): number | null {
+  if (!s || !s.includes(':')) return null;
+  const [h, m] = s.split(':');
+  const v = Number(h) * 60 + Number(m);
+  return Number.isFinite(v) ? v : null;
+}
+
+/**
+ * Has this trip actually entered service (left its origin)?
+ *
+ * The live feed lists a train BEFORE it departs (the trainset is pre-positioned
+ * at its origin). For such a train, ServiceataGlance's `DelaySeconds` is NOT a
+ * real deviation — it's `now − StartTime`, a countdown to departure that can be
+ * tens of minutes in magnitude (verified live: −54 min, −40 min, …). Treating it
+ * as a delay produces a bogus "+N min" once that countdown crosses zero. So we
+ * only trust `DelaySeconds` after the trip's scheduled start.
+ */
+function tripHasStarted(startTime: string | undefined): boolean {
+  const start = hhmmToMinutes(startTime);
+  if (start === null) return true; // no StartTime → don't suppress a real signal
+  const now = torontoMinutesNow();
+  if (now >= start) return true;
+  // Past-midnight wrap (e.g. start 23:50, now 00:10): still consider it started.
+  if (start - now > 720) return true;
+  return false;
+}
+
 /**
  * Fetch all live signals and build a `tripNumber → LiveTrainStatus` map for the
  * given line. Pulls ServiceataGlance (delays), UnionDepartures (outbound
@@ -87,8 +127,10 @@ export async function getLiveStatusByTripNumber(
     const num = t.TripNumber;
     if (!num) continue;
     const s = ensure(num);
+    // Only trust DelaySeconds once the trip has left its origin — before that
+    // it's a countdown to departure, not a delay (see tripHasStarted).
     const delaySec = toInt(t.DelaySeconds);
-    s.delayMin = delaySec > 0 ? Math.round(delaySec / 60) : 0;
+    s.delayMin = delaySec > 0 && tripHasStarted(t.StartTime) ? Math.round(delaySec / 60) : 0;
     s.cars = t.Cars ?? '';
     s.hasLive = true;
   }
