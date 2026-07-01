@@ -901,20 +901,104 @@ function VehicleBadge({
 }
 
 // ──────────────────────────────────────────────────────────
+// Departure countdown (NEXT card only)
+// ──────────────────────────────────────────────────────────
+
+/** Seconds from now until today's expected departure (scheduled + live delay). */
+function secondsUntilDeparture(departure: string, delayMin: number): number {
+  const now = new Date();
+  const target = new Date(now);
+  target.setHours(0, 0, 0, 0);
+  target.setMinutes(timeToMinutes(departure) + delayMin);
+  return Math.max(0, Math.round((target.getTime() - now.getTime()) / 1000));
+}
+
+function formatCountdown(totalSeconds: number): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const h = Math.floor(totalSeconds / 3600);
+  const m = Math.floor((totalSeconds % 3600) / 60);
+  const s = totalSeconds % 60;
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+}
+
+// Live min:sec countdown to the expected departure — same chip shape as the
+// platform badge. Self-contained 1s tick so only the chip re-renders; each
+// tick recomputes from the wall clock, so a throttled background tab snaps
+// back to the correct value on its first tick after resume.
+function CountdownChip({ departure, delayMin }: { departure: string; delayMin: number }) {
+  const { t } = useLanguage();
+  const [secondsLeft, setSecondsLeft] = useState(() => secondsUntilDeparture(departure, delayMin));
+
+  useEffect(() => {
+    const tick = () => setSecondsLeft(secondsUntilDeparture(departure, delayMin));
+    tick();
+    const id = setInterval(tick, 1_000);
+    return () => clearInterval(id);
+  }, [departure, delayMin]);
+
+  const label = formatCountdown(secondsLeft);
+  return (
+    <div className="flex flex-col items-center leading-none px-3 py-1 rounded-lg border-[3px] border-white/70 bg-white/10">
+      <span className="text-[9px] font-bold uppercase tracking-wider text-white/80">
+        {t('departsIn')}
+      </span>
+      <span className={`font-black leading-none mt-0.5 text-white tabular-nums ${label.length > 5 ? 'text-2xl' : 'text-3xl'}`}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+// Small "i" beside the countdown — explains that doors close ahead of the
+// departure time the countdown is running toward.
+function DoorCloseInfoButton() {
+  const { t } = useLanguage();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative shrink-0">
+      <button
+        type="button"
+        aria-label={t('boardingInfoLabel')}
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+        className="w-5 h-5 rounded-full border border-white/60 text-white/80 flex items-center justify-center text-[11px] font-bold font-serif italic leading-none hover:bg-white/15 active:bg-white/25 transition-colors"
+      >
+        i
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpen(false); }} />
+          <div className="absolute bottom-full right-0 mb-2 w-56 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg z-50 leading-relaxed">
+            {t('doorCloseInfo')}
+            <div className="absolute -bottom-1 right-1.5 w-2 h-2 bg-gray-800 rotate-45" />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────
 // Train card
 // ──────────────────────────────────────────────────────────
 
 function TrackerRow({
   tracker,
+  departure,
   isPast,
   isNext,
+  showCountdown,
   showPlatform,
   direction,
   onPlatformClick,
 }: {
-  tracker: TrackerInfo;
+  tracker: TrackerInfo | null;
+  /** Scheduled departure "HH:MM" — countdown target is this + live delay. */
+  departure: string;
   isPast: boolean;
   isNext: boolean;
+  /** Countdown runs only on today's NEXT card (and never for a cancelled trip). */
+  showCountdown: boolean;
   /** Platform is prominent only on the NOW/NEXT cards; elsewhere it stays
       hidden until the card is expanded (the data is still remembered). */
   showPlatform: boolean;
@@ -927,8 +1011,8 @@ function TrackerRow({
   // map; homeToOffice platform numbers belong to the home station instead.
   // PLATFORM_MAP_ENABLED is temporarily off — current schematic isn't good
   // enough yet; re-enable once a better source map is available.
-  const isUnionPlatform = PLATFORM_MAP_ENABLED && direction === 'officeToHome' && isPlatformMapped(tracker.platform);
-  const platformBadge = showPlatform && tracker.platform ? (
+  const isUnionPlatform = PLATFORM_MAP_ENABLED && direction === 'officeToHome' && tracker != null && isPlatformMapped(tracker.platform);
+  const platformBadge = showPlatform && tracker?.platform ? (
     <div
       onClick={isUnionPlatform ? (e) => { e.stopPropagation(); onPlatformClick(tracker.platform); } : undefined}
       role={isUnionPlatform ? 'button' : undefined}
@@ -956,7 +1040,7 @@ function TrackerRow({
   ) : null;
 
   // Expected badge — same height/padding as platform badge
-  const expectedBadge = !isPast && tracker.expected ? (() => {
+  const expectedBadge = !isPast && tracker?.expected ? (() => {
     if (tracker.cancelled) {
       return (
         <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${
@@ -1008,7 +1092,16 @@ function TrackerRow({
     );
   })() : null;
 
-  if (!platformBadge && !expectedBadge) return null;
+  // Countdown to expected departure (scheduled + delay) with the door-close
+  // "i" note — NEXT card only, right-aligned after platform/expected.
+  const countdownCluster = showCountdown && !tracker?.cancelled ? (
+    <div className="ml-auto flex items-center gap-1.5">
+      <CountdownChip departure={departure} delayMin={tracker?.delay ?? 0} />
+      <DoorCloseInfoButton />
+    </div>
+  ) : null;
+
+  if (!platformBadge && !expectedBadge && !countdownCluster) return null;
 
   return (
     <div className={`flex items-center gap-2 mt-2 pt-2 ${
@@ -1016,6 +1109,7 @@ function TrackerRow({
     }`}>
       {platformBadge}
       {expectedBadge}
+      {countdownCluster}
     </div>
   );
 }
@@ -1163,15 +1257,19 @@ function TrainCard({
         </svg>
       </button>
 
-      {/* Tracker row: platform + expected. The platform chip is only prominent
-          on the NOW/NEXT cards; on every other card it appears when the card
-          is expanded via the chevron (alongside the station list). */}
-      {tracker && (
+      {/* Tracker row: platform + expected + departure countdown. The platform
+          chip is only prominent on the NOW/NEXT cards; on every other card it
+          appears when the card is expanded via the chevron (alongside the
+          station list). Today's NEXT card always gets the row so the countdown
+          runs even before any live tracker data arrives. */}
+      {(tracker || (isNext && isToday)) && (
         <div className="pb-3">
           <TrackerRow
             tracker={tracker}
+            departure={trip.departure}
             isPast={effectiveIsPast}
             isNext={isNext}
+            showCountdown={isNext && isToday}
             showPlatform={isNext || isNowRunning || isExpanded}
             direction={direction}
             onPlatformClick={onPlatformClick}
