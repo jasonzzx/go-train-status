@@ -1805,9 +1805,9 @@ export default function Home() {
             title={t('serviceUpdates', { name: lineDisplayName(line, lang) })}
           >
             {alertsLoading ? (
-              <BellIcon className="w-6 h-6 text-white/70" />
+              <BellIcon className="w-7 h-7 text-white/70" />
             ) : (
-              <LineStatusIcon status={lineStatus} className="w-6 h-6" />
+              <LineStatusIcon status={lineStatus} className="w-7 h-7" />
             )}
           </button>
 
@@ -1841,37 +1841,26 @@ export default function Home() {
               </svg>
             </button>
 
-            <div className="w-px h-4 bg-white/20" />
-
-            <a
-              href={
-                direction === 'homeToOffice'
-                  ? `https://www.gotransit.com/en/see-schedules?departure=${homeStation.code}&destination=UN&transfers=true`
-                  : `https://www.gotransit.com/en/see-schedules?departure=UN&destination=${homeStation.code}&transfers=true`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/60 text-xs hover:text-white/90 transition-colors"
+            {/* Share button — native OS share sheet (includes Add to Home Screen on mobile) */}
+            <button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: 'GO Train Status',
+                    text: `GO Transit ${line.name} live status`,
+                    url: window.location.href,
+                  }).catch(() => {});
+                } else {
+                  navigator.clipboard?.writeText(window.location.href).catch(() => {});
+                }
+              }}
+              className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+              title="Share"
             >
-              {t('official')}
-            </a>
-
-            {!installPrompt.isStandalone && (
-              <>
-                <div className="w-px h-4 bg-white/20" />
-
-                {/* Install button */}
-                <button
-                  onClick={() => setShowInstallSheet(true)}
-                  className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                  title={t('install')}
-                >
-                  <svg className="w-5 h-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M5 17v2a2 2 0 002 2h10a2 2 0 002-2v-2" />
-                  </svg>
-                </button>
-              </>
-            )}
+              <svg className="w-5 h-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 3v13m0-13l-4 4m4-4l4 4" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -2040,44 +2029,59 @@ export default function Home() {
 
             {/* Live data status footer */}
             <div className="relative mt-4 mb-2 mx-1">
-              <button
-                onClick={() => setShowDataSourceInfo((v) => !v)}
-                aria-label="Show data source info"
-                className="block w-full text-left rounded-xl bg-white border border-gray-100 shadow-sm px-4 py-3 hover:bg-gray-50 active:bg-gray-100 transition-colors focus:outline-none"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {isRefreshing ? (
-                      <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              <div className="flex items-stretch rounded-xl bg-white border border-gray-100 shadow-sm overflow-hidden">
+                <button
+                  onClick={() => setShowDataSourceInfo((v) => !v)}
+                  aria-label="Show data source info"
+                  className="flex-1 text-left px-4 py-3 hover:bg-gray-50 active:bg-gray-100 transition-colors focus:outline-none"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      {isRefreshing ? (
+                        <svg className="w-3.5 h-3.5 text-go-green animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      ) : (
+                        <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
+                      )}
+                      <span className="text-xs font-medium text-gray-700">
+                        {isRefreshing ? t('refreshing') : t('liveData')}
+                      </span>
+                      <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                       </svg>
-                    ) : (
-                      <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
-                    )}
-                    <span className="text-xs font-medium text-gray-700">
-                      {isRefreshing ? t('refreshing') : t('liveData')}
+                    </div>
+                    <span className="text-xs text-gray-400">
+                      {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
                     </span>
-                    <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                    </svg>
                   </div>
-                  <span className="text-xs text-gray-400">
-                    {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
-                  </span>
-                </div>
-                {lastRefreshed && (
-                  <p className="text-[11px] text-gray-400 mt-1.5">
-                    {t('lastUpdated', {
-                      time: lastRefreshed.toLocaleTimeString('en-CA', {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: true,
-                      }),
-                    })}
-                  </p>
-                )}
-              </button>
+                  {lastRefreshed && (
+                    <p className="text-[11px] text-gray-400 mt-1.5">
+                      {t('lastUpdated', {
+                        time: lastRefreshed.toLocaleTimeString('en-CA', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                          second: '2-digit',
+                          hour12: true,
+                        }),
+                      })}
+                    </p>
+                  )}
+                </button>
+                <div className="w-px bg-gray-100 my-2" />
+                <a
+                  href={
+                    direction === 'homeToOffice'
+                      ? `https://www.gotransit.com/en/see-schedules?departure=${homeStation.code}&destination=UN&transfers=true`
+                      : `https://www.gotransit.com/en/see-schedules?departure=UN&destination=${homeStation.code}&transfers=true`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center px-3 text-xs font-medium text-gray-400 hover:text-go-green transition-colors shrink-0"
+                >
+                  {t('official')}
+                </a>
+              </div>
               {showDataSourceInfo && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowDataSourceInfo(false)} />
