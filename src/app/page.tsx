@@ -946,10 +946,12 @@ const COUNTDOWN_TONE_STYLES: Record<CountdownTone, { chip: string; label: string
 // Live min:sec countdown to the expected departure — same chip shape as the
 // platform badge. Self-contained 1s tick so only the chip re-renders; each
 // tick recomputes from the wall clock, so a throttled background tab snaps
-// back to the correct value on its first tick after resume.
+// back to the correct value on its first tick after resume. Tapping the chip
+// itself opens the door-close note (no separate "i" button).
 function CountdownChip({ departure, delayMin }: { departure: string; delayMin: number }) {
   const { t } = useLanguage();
   const [secondsLeft, setSecondsLeft] = useState(() => secondsUntilDeparture(departure, delayMin));
+  const [infoOpen, setInfoOpen] = useState(false);
 
   useEffect(() => {
     const tick = () => setSecondsLeft(secondsUntilDeparture(departure, delayMin));
@@ -961,36 +963,23 @@ function CountdownChip({ departure, delayMin }: { departure: string; delayMin: n
   const label = formatCountdown(secondsLeft);
   const tone = COUNTDOWN_TONE_STYLES[countdownTone(secondsLeft)];
   return (
-    <div className={`flex flex-col items-center leading-none px-2 py-1 rounded-lg border-[3px] transition-colors ${tone.chip}`}>
-      <span className={`text-[8px] font-bold uppercase tracking-wide ${tone.label}`}>
-        {t('departsIn')}
-      </span>
-      <span className={`font-black leading-none mt-0.5 tabular-nums ${tone.value} ${label.length > 5 ? 'text-lg' : 'text-2xl'}`}>
-        {label}
-      </span>
-    </div>
-  );
-}
-
-// Small "i" beside the countdown — explains that doors close ahead of the
-// departure time the countdown is running toward.
-function DoorCloseInfoButton() {
-  const { t } = useLanguage();
-  const [open, setOpen] = useState(false);
-
-  return (
     <div className="relative shrink-0">
       <button
         type="button"
         aria-label={t('boardingInfoLabel')}
-        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
-        className="w-4 h-4 rounded-full border border-white/60 text-white/80 flex items-center justify-center text-[10px] font-bold font-serif italic leading-none hover:bg-white/15 active:bg-white/25 transition-colors"
+        onClick={(e) => { e.stopPropagation(); setInfoOpen((o) => !o); }}
+        className={`flex flex-col items-center leading-none px-2 py-1 rounded-lg border-[3px] transition-colors ${tone.chip}`}
       >
-        i
+        <span className={`text-[8px] font-bold uppercase tracking-wide ${tone.label}`}>
+          {t('departsIn')}
+        </span>
+        <span className={`font-black leading-none mt-0.5 tabular-nums ${tone.value} ${label.length > 5 ? 'text-lg' : 'text-2xl'}`}>
+          {label}
+        </span>
       </button>
-      {open && (
+      {infoOpen && (
         <>
-          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setOpen(false); }} />
+          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setInfoOpen(false); }} />
           <div className="absolute bottom-full right-0 mb-2 w-56 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg z-50 leading-relaxed">
             {t('doorCloseInfo')}
             <div className="absolute -bottom-1 right-1.5 w-2 h-2 bg-gray-800 rotate-45" />
@@ -1115,16 +1104,16 @@ function TrackerRow({
     );
   })() : null;
 
-  // Countdown to expected departure (scheduled + delay) with the door-close
-  // "i" note — NEXT card only, right-aligned after platform/expected.
-  const countdownCluster = showCountdown && !tracker?.cancelled ? (
-    <div className="ml-auto flex items-center gap-1 shrink-0">
+  // Countdown to expected departure (scheduled + delay) — NEXT card only,
+  // right-aligned after platform/expected. Tapping it reveals the door-close
+  // note (see CountdownChip).
+  const countdownChip = showCountdown && !tracker?.cancelled ? (
+    <div className="ml-auto">
       <CountdownChip departure={departure} delayMin={tracker?.delay ?? 0} />
-      <DoorCloseInfoButton />
     </div>
   ) : null;
 
-  if (!platformBadge && !expectedBadge && !countdownCluster) return null;
+  if (!platformBadge && !expectedBadge && !countdownChip) return null;
 
   return (
     <div className={`flex items-center gap-1.5 mt-2 pt-2 ${
@@ -1132,7 +1121,7 @@ function TrackerRow({
     }`}>
       {platformBadge}
       {expectedBadge}
-      {countdownCluster}
+      {countdownChip}
     </div>
   );
 }
