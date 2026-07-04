@@ -23,14 +23,20 @@ import {
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
-import { getMappedPlatforms, getPlatformLabelKey, isPlatformMapped } from '@/lib/union-platform-map';
+import { getMappedPlatforms, isPlatformMapped } from '@/lib/union-platform-map';
+import {
+  buildGuidance,
+  computeLeaveByMinutes,
+  distanceToUnionMetres,
+  estimateWalkMinutes,
+} from '@/lib/union-map';
 import { loadPlatformCache, savePlatformCache } from '@/lib/platform-cache';
 import { torontoNow } from '@/lib/toronto-time';
 import UnionPlatformMap, { MAP_VIEWBOX_WIDTH, MAP_VIEWBOX_HEIGHT } from '@/components/UnionPlatformMap';
 
-// Temporarily disabled — the platform map schematic needs a better source
-// map before it's accurate enough to ship. Flip this back on once that's in.
-const PLATFORM_MAP_ENABLED = false;
+// The map is drawn from real OpenStreetMap survey geometry
+// (src/data/union-station-map.json, regenerate with npm run generate-union-map).
+const PLATFORM_MAP_ENABLED = true;
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -442,16 +448,81 @@ function AlertCard({ alert }: { alert: ParsedAlert }) {
 
 const PLATFORM_MAP_ASPECT = MAP_VIEWBOX_WIDTH / MAP_VIEWBOX_HEIGHT;
 
+interface PlatformSheetInfo {
+  platform: string;
+  /** Scheduled departure "HH:MM". */
+  departure: string;
+  /** Live delay minutes (0 when on time or unknown). */
+  delayMin: number;
+}
+
+type GeoState =
+  | { status: 'locating' | 'denied' | 'unavailable' }
+  | { status: 'ok'; lat: number; lon: number };
+
+const AT_STATION_METRES = 250;
+const MAX_WALK_METRES = 3000;
+
+function formatMinutesAsHHMM(min: number): string {
+  const m = ((min % 1440) + 1440) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+}
+
 function PlatformMapSheet({
   platform,
+  departure,
+  delayMin,
   onClose,
-}: {
-  platform: string;
+}: PlatformSheetInfo & {
   onClose: () => void;
 }) {
   const { t } = useLanguage();
   const mappedPlatforms = useMemo(() => getMappedPlatforms(platform), [platform]);
   const [zoomedIn, setZoomedIn] = useState(mappedPlatforms.length > 0);
+
+  // Opening the sheet is an explicit tap on the platform badge, so it's an
+  // acceptable moment to ask for location. watchPosition keeps the dot and
+  // the leave-by estimate live while the sheet stays open.
+  const [geo, setGeo] = useState<GeoState>({ status: 'locating' });
+  useEffect(() => {
+    if (!('geolocation' in navigator)) {
+      setGeo({ status: 'unavailable' });
+      return;
+    }
+    const id = navigator.geolocation.watchPosition(
+      (pos) => setGeo({ status: 'ok', lat: pos.coords.latitude, lon: pos.coords.longitude }),
+      (err) => setGeo({ status: err.code === err.PERMISSION_DENIED ? 'denied' : 'unavailable' }),
+      { enableHighAccuracy: true, maximumAge: 15000, timeout: 20000 }
+    );
+    return () => navigator.geolocation.clearWatch(id);
+  }, []);
+
+  // Re-render every 30s so "leave by" flips to "leave now" without a geo update.
+  const [, setClockTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setClockTick((n) => n + 1), 30_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const user = useMemo(
+    () => (geo.status === 'ok' ? { lat: geo.lat, lon: geo.lon } : null),
+    [geo]
+  );
+  const guidance = useMemo(
+    () => buildGuidance(user, mappedPlatforms),
+    [user, mappedPlatforms]
+  );
+
+  const walk = useMemo(() => {
+    if (!user) return null;
+    const distance = distanceToUnionMetres(user.lat, user.lon);
+    const walkMin = estimateWalkMinutes(distance);
+    const leaveBy = computeLeaveByMinutes(parseTime(departure) + delayMin, walkMin);
+    return { distance, walkMin, leaveBy };
+  }, [user, departure, delayMin]);
+
+  const nowMin = torontoNow().minutes;
+  const mustLeaveNow = walk != null && walk.distance > AT_STATION_METRES && nowMin >= walk.leaveBy;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
@@ -497,6 +568,7 @@ function PlatformMapSheet({
               <UnionPlatformMap
                 highlightPlatforms={mappedPlatforms}
                 zoomedIn={zoomedIn}
+                guidance={guidance}
                 className="w-full h-full"
               />
 
@@ -516,15 +588,71 @@ function PlatformMapSheet({
             </div>
           </div>
 
-          {mappedPlatforms.length > 0 ? (
+          {/* Location + leave-by panel */}
+          <div className="bg-white rounded-xl border border-gray-200 p-3 mb-3">
+            {geo.status === 'locating' && (
+              <div className="text-sm text-gray-500 flex items-center gap-2">
+                <span className="animate-pulse">📍</span>
+                {t('locating')}
+              </div>
+            )}
+            {geo.status === 'denied' && (
+              <div className="text-sm text-gray-500">{t('locationDenied')}</div>
+            )}
+            {geo.status === 'unavailable' && (
+              <div className="text-sm text-gray-500">{t('locationUnavailable')}</div>
+            )}
+            {walk && (
+              walk.distance <= AT_STATION_METRES ? (
+                <div className="text-sm font-semibold text-green-700 flex items-center gap-2">
+                  <span>✓</span>
+                  {t('atStation')}
+                </div>
+              ) : walk.distance <= MAX_WALK_METRES ? (
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-bold text-gray-800">
+                      🚶 {t('walkEstimate', { min: walk.walkMin })}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {t('distanceAway', { km: (walk.distance / 1000).toFixed(1) })}
+                    </div>
+                  </div>
+                  {mustLeaveNow ? (
+                    <div className="px-3 py-2 rounded-lg bg-red-100 text-red-700 text-sm font-extrabold animate-pulse">
+                      {t('leaveNow')}
+                    </div>
+                  ) : (
+                    <div className="text-right">
+                      <div className="text-[10px] font-bold uppercase tracking-wide text-blue-600">
+                        {t('leaveBy')}
+                      </div>
+                      <div className="text-2xl font-black text-blue-700 tabular-nums leading-none mt-0.5">
+                        {formatMinutesAsHHMM(walk.leaveBy)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-sm text-gray-600">
+                  {t('distanceAway', { km: (walk.distance / 1000).toFixed(1) })}
+                </div>
+              )
+            )}
+          </div>
+
+          {mappedPlatforms.length > 0 && guidance ? (
             <div className="bg-white rounded-xl border border-gray-200 p-3 mb-3 text-sm text-gray-700">
-              {t(getPlatformLabelKey(mappedPlatforms[0]))}
+              {t('platformAccessHint', {
+                platform: formatPlatformLabel(platform),
+                entrance: guidance.entrance.description || guidance.entrance.name,
+              })}
             </div>
-          ) : (
+          ) : mappedPlatforms.length === 0 ? (
             <div className="bg-white rounded-xl border border-gray-200 p-4 mb-3 text-center">
               <div className="text-sm text-gray-600">{t('platformMapUnavailable')}</div>
             </div>
-          )}
+          ) : null}
         </div>
 
         {/* Footer */}
@@ -1020,8 +1148,6 @@ function TrackerRow({
   // Platform badge — outlined chip, the sharpest element on the card.
   // Only platforms departing Union (officeToHome) are on the Union platform
   // map; homeToOffice platform numbers belong to the home station instead.
-  // PLATFORM_MAP_ENABLED is temporarily off — current schematic isn't good
-  // enough yet; re-enable once a better source map is available.
   const isUnionPlatform = PLATFORM_MAP_ENABLED && direction === 'officeToHome' && tracker != null && isPlatformMapped(tracker.platform);
   const platformBadge = showPlatform && tracker?.platform ? (
     <div
@@ -1478,7 +1604,7 @@ export default function Home() {
   const [alertsAvailable, setAlertsAvailable] = useState(false);
   const [alertsLastUpdated, setAlertsLastUpdated] = useState<string | null>(null);
   const [showAlertsSheet, setShowAlertsSheet] = useState(false);
-  const [platformSheet, setPlatformSheet] = useState<string | null>(null);
+  const [platformSheet, setPlatformSheet] = useState<PlatformSheetInfo | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
@@ -2045,7 +2171,13 @@ export default function Home() {
                     onToggleExpand={() => setExpandedDep(isExpanded ? null : trip.departure)}
                     onToggleOnBoard={() => setOnBoardDep(isOnBoard ? null : trip.departure)}
                     onAlertClick={() => setShowAlertsSheet(true)}
-                    onPlatformClick={(platform) => setPlatformSheet(platform)}
+                    onPlatformClick={(platform) =>
+                      setPlatformSheet({
+                        platform,
+                        departure: trip.departure,
+                        delayMin: tracker?.cancelled ? 0 : tracker?.delay ?? 0,
+                      })
+                    }
                   />
                 </div>
               );
@@ -2211,7 +2343,7 @@ export default function Home() {
 
       {/* Platform Map Sheet */}
       {platformSheet && (
-        <PlatformMapSheet platform={platformSheet} onClose={() => setPlatformSheet(null)} />
+        <PlatformMapSheet {...platformSheet} onClose={() => setPlatformSheet(null)} />
       )}
 
     </div>

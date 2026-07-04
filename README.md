@@ -34,10 +34,11 @@ src/
       alerts/route.ts            # GET /api/alerts  — service alerts, per line (Metrolinx API, gotransit/railsix fallback)
       cron/platforms/route.ts    # GET /api/cron/platforms — captures Union platforms into the server-side store
   components/
-    UnionPlatformMap.tsx   # SVG schematic of Union Station's platform concourse, with zoom-to-platform highlight
+    UnionPlatformMap.tsx   # SVG map of Union Station from OSM geometry — platform highlight, user dot, guidance path
   lib/
     lines.ts              # Line registry — display metadata (incl. Chinese names) + per-line station/schedule lookup
     schedule-data.ts      # Line-agnostic trip + stop-sequence logic, built on top of lines.ts
+    union-map.ts          # Union map data access: lat/lon→map projection, walk/leave-by estimates, guidance path
     union-platform-map.ts # Pure helpers for parsing/mapping platform numbers onto the Union map
     platform-cache.ts     # Client-side (localStorage) memory of today's observed platforms
     platform-store.ts     # Server-side (Vercel KV / Upstash Redis) memory of today's Union platforms
@@ -100,7 +101,14 @@ Both no-op safely if their respective env vars aren't set.
 ---
 
 ## Union Station Platform Map (`src/components/UnionPlatformMap.tsx`)
-An SVG schematic of Union's Lower Level / concourses (York/VIA Concourse Halls, York St. and Bay St. covered walkways), redrawn from the City of Toronto Union Station Map PDF. Each of platforms 3–13 is drawn as its own labelled, highlightable segment (`src/lib/union-platform-map.ts` parses multi-platform tracker strings like `"12, 13"` and maps them onto the diagram). When a trip's platform falls in that range, the schedule card shows the map with the relevant platform(s) pulsing and an optional zoomed-in view.
+An SVG schematic of Union Station drawn from **real OpenStreetMap survey geometry** (ODbL — the rendered map keeps the attribution line). `scripts/generate-union-map.mjs` pulls the platform centrelines (with official refs like `12;13`), the headhouse outline, station entrances, teamway corridors, and the concourse→platform stairs/escalators from the Overpass API, projects and rotates everything into one SVG frame, and writes `src/data/union-station-map.json` — regenerate with `npm run generate-union-map` when the station changes. Because the affine transform is stored in that JSON, a live geolocation fix projects onto the same frame as the drawn platforms.
+
+Tapping a Union platform badge opens the map sheet with:
+- the platform strip pulsing, plus a **guidance path**: nearest station entrance → concourse level → the actual stairs up to that platform (`buildGuidance` in `src/lib/union-map.ts`)
+- the user's live position (browser geolocation, only while the sheet is open) as a dot when near the station
+- a walking estimate to Union and a **"Leave by HH:MM"** time (departure + live delay − walk − platform buffer), which flips to "Leave now" when it's tight
+
+`src/lib/union-platform-map.ts` parses multi-platform tracker strings like `"12, 13"` and matches them against the surveyed refs.
 
 ---
 

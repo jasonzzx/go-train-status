@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "generate-schedule": "node scripts/generate-schedule.mjs",
-    "generate-icons": "node scripts/generate-icons.mjs"
+    "generate-icons": "node scripts/generate-icons.mjs",
+    "generate-union-map": "node scripts/generate-union-map.mjs"
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",

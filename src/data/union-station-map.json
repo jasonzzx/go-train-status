@@ -1,0 +1,1001 @@
+{
+ "attribution": "Map data © OpenStreetMap contributors (ODbL)",
+ "source": "https://www.openstreetmap.org/copyright",
+ "generatedAt": "2026-07-04",
+ "viewBox": {
+  "width": 1000,
+  "height": 231
+ },
+ "transform": {
+  "lat0": 43.6445150735849,
+  "lon0": -79.38023391698113,
+  "mPerDegLat": 110540,
+  "mPerDegLon": 80555.14322736835,
+  "rotRad": -0.2750169224448902,
+  "scale": 1.2732130029526953,
+  "offsetX": 410.1120712451822,
+  "offsetY": 106.55016090766121
+ },
+ "metresPerUnit": 0.7854145360445661,
+ "platforms": [
+  {
+   "refs": [
+    "12",
+    "13"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     968.2,
+     131.7
+    ],
+    [
+     884.2,
+     126.6
+    ],
+    [
+     852.3,
+     124.8
+    ],
+    [
+     834.8,
+     124.3
+    ],
+    [
+     794.2,
+     124.7
+    ],
+    [
+     252.9,
+     129.5
+    ],
+    [
+     33.3,
+     131.7
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "16",
+    "17"
+   ],
+   "construction": false,
+   "operator": "VIA Rail",
+   "points": [
+    [
+     31.8,
+     151.2
+    ],
+    [
+     252.6,
+     149
+    ],
+    [
+     794.6,
+     144.4
+    ],
+    [
+     831,
+     144.4
+    ],
+    [
+     857.8,
+     144.8
+    ],
+    [
+     964.9,
+     147.3
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "26",
+    "27"
+   ],
+   "construction": true,
+   "operator": "GO Transit",
+   "points": [
+    [
+     686.7,
+     186.3
+    ],
+    [
+     650.5,
+     189.5
+    ],
+    [
+     603.9,
+     193.6
+    ],
+    [
+     361.3,
+     198.7
+    ],
+    [
+     293.1,
+     197.5
+    ],
+    [
+     262.6,
+     195.9
+    ],
+    [
+     237.3,
+     192.5
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "24",
+    "25"
+   ],
+   "construction": true,
+   "operator": "GO Transit",
+   "points": [
+    [
+     665.6,
+     179.6
+    ],
+    [
+     601,
+     183.1
+    ],
+    [
+     597.2,
+     183.2
+    ],
+    [
+     550.1,
+     183.6
+    ],
+    [
+     446.6,
+     185.1
+    ],
+    [
+     288.2,
+     186.9
+    ],
+    [
+     244.3,
+     185.3
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "1A"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     152.6,
+     85.2
+    ],
+    [
+     214.1,
+     79.3
+    ],
+    [
+     259.2,
+     75
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "4",
+    "5"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     258.8,
+     90.5
+    ],
+    [
+     273.2,
+     89.4
+    ],
+    [
+     292.9,
+     89
+    ],
+    [
+     715.9,
+     84.4
+    ],
+    [
+     719.1,
+     84.5
+    ],
+    [
+     748.1,
+     84.9
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "6",
+    "7"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     748.3,
+     94.3
+    ],
+    [
+     719.1,
+     94.7
+    ],
+    [
+     259.6,
+     99.9
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "8",
+    "9"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     258.5,
+     109.5
+    ],
+    [
+     500.6,
+     106.6
+    ],
+    [
+     718.7,
+     104.8
+    ],
+    [
+     772.7,
+     103.7
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "10",
+    "11"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     258.8,
+     119.5
+    ],
+    [
+     793.6,
+     114.2
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "14",
+    "15"
+   ],
+   "construction": false,
+   "operator": "VIA Rail",
+   "points": [
+    [
+     259.1,
+     139.1
+    ],
+    [
+     794.4,
+     134.9
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "18",
+    "19"
+   ],
+   "construction": false,
+   "operator": "VIA Rail",
+   "points": [
+    [
+     795.4,
+     153.9
+    ],
+    [
+     259.5,
+     159.1
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "20",
+    "21"
+   ],
+   "construction": false,
+   "operator": "VIA Rail",
+   "points": [
+    [
+     260.4,
+     169.5
+    ],
+    [
+     794.9,
+     165.5
+    ]
+   ]
+  },
+  {
+   "refs": [
+    "3"
+   ],
+   "construction": false,
+   "operator": "GO Transit",
+   "points": [
+    [
+     287.5,
+     73.2
+    ],
+    [
+     718.4,
+     70
+    ]
+   ]
+  }
+ ],
+ "concourseBand": {
+  "x0": 282.4,
+  "x1": 734.5,
+  "y0": 60.2,
+  "y1": 186.7
+ },
+ "teamways": [
+  {
+   "name": "York East Teamway",
+   "x": 358.4,
+   "y0": 63.5,
+   "y1": 204
+  },
+  {
+   "name": "Bay West Teamway",
+   "x": 669.6,
+   "y0": -12.4,
+   "y1": 207.1
+  }
+ ],
+ "headhouse": [
+  [
+   364.7,
+   4.9
+  ],
+  [
+   364.6,
+   19.2
+  ],
+  [
+   364.7,
+   35
+  ],
+  [
+   364.4,
+   55.5
+  ],
+  [
+   319.3,
+   56.5
+  ],
+  [
+   319.1,
+   51.6
+  ],
+  [
+   286.8,
+   52.5
+  ],
+  [
+   289.6,
+   146.2
+  ],
+  [
+   290,
+   188.9
+  ],
+  [
+   598,
+   185.7
+  ],
+  [
+   597.8,
+   169.1
+  ],
+  [
+   741.2,
+   167.7
+  ],
+  [
+   741.1,
+   159.9
+  ],
+  [
+   741,
+   149.4
+  ],
+  [
+   741,
+   145.7
+  ],
+  [
+   740.9,
+   140.1
+  ],
+  [
+   740.6,
+   109.7
+  ],
+  [
+   740.5,
+   103.7
+  ],
+  [
+   740.5,
+   99.7
+  ],
+  [
+   740.4,
+   84.4
+  ],
+  [
+   729.6,
+   84.4
+  ],
+  [
+   729.6,
+   83.7
+  ],
+  [
+   720,
+   83.8
+  ],
+  [
+   719.9,
+   70.9
+  ],
+  [
+   719.9,
+   69.2
+  ],
+  [
+   714.3,
+   69.4
+  ],
+  [
+   706,
+   69.7
+  ],
+  [
+   654.9,
+   71.5
+  ],
+  [
+   654.4,
+   31.2
+  ],
+  [
+   654.3,
+   18.6
+  ],
+  [
+   655.3,
+   18.5
+  ],
+  [
+   655.1,
+   3.1
+  ],
+  [
+   645.7,
+   3.2
+  ],
+  [
+   636.1,
+   3.2
+  ],
+  [
+   635.9,
+   -9.8
+  ],
+  [
+   566.3,
+   -8.8
+  ],
+  [
+   566.1,
+   6.1
+  ],
+  [
+   563.4,
+   6.2
+  ],
+  [
+   563.4,
+   3.3
+  ],
+  [
+   562.5,
+   3.3
+  ],
+  [
+   562.4,
+   2.6
+  ],
+  [
+   562.4,
+   0.3
+  ],
+  [
+   544.4,
+   0.4
+  ],
+  [
+   544.4,
+   2.7
+  ],
+  [
+   544.4,
+   3.3
+  ],
+  [
+   543.3,
+   3.3
+  ],
+  [
+   543.3,
+   3.6
+  ],
+  [
+   481.1,
+   4.1
+  ],
+  [
+   481.1,
+   3.7
+  ],
+  [
+   480,
+   3.7
+  ],
+  [
+   480,
+   3.1
+  ],
+  [
+   480,
+   0.8
+  ],
+  [
+   461.9,
+   0.9
+  ],
+  [
+   461.9,
+   3.2
+  ],
+  [
+   461.9,
+   3.8
+  ],
+  [
+   460.6,
+   3.8
+  ],
+  [
+   460.7,
+   6.3
+  ],
+  [
+   455.5,
+   6.3
+  ],
+  [
+   455.2,
+   -9.3
+  ],
+  [
+   382,
+   -8.5
+  ],
+  [
+   382.1,
+   5.1
+  ],
+  [
+   373.8,
+   5
+  ],
+  [
+   364.7,
+   4.9
+  ]
+ ],
+ "platformAccess": [
+  {
+   "refs": [
+    "3"
+   ],
+   "x": 717.5,
+   "y": 69,
+   "escalator": false,
+   "flights": 2
+  },
+  {
+   "refs": [
+    "12",
+    "13"
+   ],
+   "x": 714.8,
+   "y": 123.3,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "8",
+    "9"
+   ],
+   "x": 721.9,
+   "y": 104.8,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "4",
+    "5"
+   ],
+   "x": 722.1,
+   "y": 84.4,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "6",
+    "7"
+   ],
+   "x": 722.5,
+   "y": 94.6,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "3"
+   ],
+   "x": 294.4,
+   "y": 66.2,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "8",
+    "9"
+   ],
+   "x": 364.1,
+   "y": 109.8,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "3"
+   ],
+   "x": 364.5,
+   "y": 80,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "12",
+    "13"
+   ],
+   "x": 364.4,
+   "y": 127.6,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "16",
+    "17"
+   ],
+   "x": 365.2,
+   "y": 147.7,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "20",
+    "21"
+   ],
+   "x": 575.3,
+   "y": 169,
+   "escalator": true,
+   "flights": 4
+  },
+  {
+   "refs": [
+    "3"
+   ],
+   "x": 659.8,
+   "y": 72.5,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "10",
+    "11"
+   ],
+   "x": 661.5,
+   "y": 119,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "14",
+    "15"
+   ],
+   "x": 660.6,
+   "y": 136.9,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "8",
+    "9"
+   ],
+   "x": 559.3,
+   "y": 110,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "24",
+    "25"
+   ],
+   "x": 565.5,
+   "y": 180.7,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "3"
+   ],
+   "x": 413.1,
+   "y": 71.1,
+   "escalator": true,
+   "flights": 4
+  },
+  {
+   "refs": [
+    "10",
+    "11"
+   ],
+   "x": 417.1,
+   "y": 121.8,
+   "escalator": true,
+   "flights": 2
+  },
+  {
+   "refs": [
+    "8",
+    "9"
+   ],
+   "x": 417.9,
+   "y": 109,
+   "escalator": true,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "3"
+   ],
+   "x": 512.6,
+   "y": 67.2,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "6",
+    "7"
+   ],
+   "x": 361.3,
+   "y": 100.8,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "20",
+    "21"
+   ],
+   "x": 643.8,
+   "y": 163.1,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "6",
+    "7"
+   ],
+   "x": 669.6,
+   "y": 98.2,
+   "escalator": false,
+   "flights": 1
+  },
+  {
+   "refs": [
+    "10",
+    "11"
+   ],
+   "x": 606,
+   "y": 117.3,
+   "escalator": true,
+   "flights": 3
+  },
+  {
+   "refs": [
+    "8",
+    "9"
+   ],
+   "x": 610.2,
+   "y": 103,
+   "escalator": true,
+   "flights": 1
+  }
+ ],
+ "entrances": [
+  {
+   "name": "Bay West Teamway Entrance",
+   "description": "",
+   "level": "-1",
+   "x": 662.1,
+   "y": -12.4,
+   "lat": 43.6457972,
+   "lon": -79.3793131
+  },
+  {
+   "name": "Union Station",
+   "description": "Front St West Wing entrance",
+   "level": "0",
+   "x": 373.8,
+   "y": 5,
+   "lat": 43.6451222,
+   "lon": -79.3819718
+  },
+  {
+   "name": "Union Station",
+   "description": "Great Hall West entrance",
+   "level": "0",
+   "x": 469.6,
+   "y": 10.9,
+   "lat": 43.6452667,
+   "lon": -79.3810579
+  },
+  {
+   "name": "Union Station",
+   "description": "Front St East Wing entrance",
+   "level": "0",
+   "x": 645.7,
+   "y": 3.2,
+   "lat": 43.6456594,
+   "lon": -79.3794255
+  },
+  {
+   "name": "Union Station",
+   "description": "Bay St north entrance",
+   "level": "-1",
+   "x": 654.4,
+   "y": 31.2,
+   "lat": 43.6454847,
+   "lon": -79.3792693
+  },
+  {
+   "name": "Union Station (York East Teamway)",
+   "description": "York East Teamway South End",
+   "level": "-1",
+   "x": 358.7,
+   "y": 204,
+   "lat": 43.6437327,
+   "lon": -79.3815866
+  },
+  {
+   "name": "Union Station (York East Teamway)",
+   "description": "York East Teamway North End",
+   "level": "-1",
+   "x": 358.1,
+   "y": 63.5,
+   "lat": 43.6446922,
+   "lon": -79.3819641
+  },
+  {
+   "name": "Union Station (Bay West Teamway)",
+   "description": "Bay West Teamway South End",
+   "level": "-1",
+   "x": 674.9,
+   "y": 207.1,
+   "lat": 43.6443211,
+   "lon": -79.3786112
+  },
+  {
+   "name": "Union Station (Bay West Teamway)",
+   "description": "Bay West Teamway North End",
+   "level": "-1",
+   "x": 671.8,
+   "y": 64.9,
+   "lat": 43.6452878,
+   "lon": -79.379017
+  },
+  {
+   "name": "Union Station",
+   "description": "",
+   "level": "-1",
+   "x": 512.3,
+   "y": 10.4,
+   "lat": 43.6453527,
+   "lon": -79.3806581
+  },
+  {
+   "name": "Union Station",
+   "description": "Great Hall East entrance",
+   "level": "0",
+   "x": 550.5,
+   "y": 9.9,
+   "lat": 43.6454298,
+   "lon": -79.3803005
+  },
+  {
+   "name": "Union Station",
+   "description": "York St north entrance",
+   "level": "-1",
+   "x": 364.7,
+   "y": 35,
+   "lat": 43.6448998,
+   "lon": -79.3819783
+  },
+  {
+   "name": "UP Express",
+   "description": "York West Teamway entrance",
+   "level": "0",
+   "x": 306.3,
+   "y": 64.8,
+   "lat": 43.6445832,
+   "lon": -79.3824474
+  }
+ ]
+}

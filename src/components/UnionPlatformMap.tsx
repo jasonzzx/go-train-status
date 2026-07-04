@@ -1,168 +1,256 @@
 'use client';
 
 import { useMemo } from 'react';
-import { MAPPED_PLATFORMS } from '@/lib/union-platform-map';
+import {
+  UNION_MAP,
+  type Guidance,
+  type MapPoint,
+  type PlatformFeature,
+} from '@/lib/union-map';
 
-// Simplified schematic of Union Station's Lower Level / Concourses, redrawn
-// from the City of Toronto Union Station Map PDF. It keeps the real
-// wayfinding structure (York St. / Bay St. covered walkways, York + VIA
-// Concourse Halls, Front St. Promenade) but draws each platform (3-13) as
-// its own labelled segment — the source PDF has no such per-platform
-// markers, so this is the most precise representation that's still
-// faithful to what the map actually shows.
+// Union Station schematic drawn from real OpenStreetMap geometry (see
+// scripts/generate-union-map.mjs). Platform strips, concourse access stairs,
+// teamways and entrances all sit at their surveyed positions, so the user's
+// projected geolocation and the platform highlight share one coordinate
+// frame.
 
-export const MAP_VIEWBOX_WIDTH = 1000;
-export const MAP_VIEWBOX_HEIGHT = 360;
+const VB = UNION_MAP.viewBox;
 
-const PLATFORM_STRIP_X0 = 15;
-const PLATFORM_STRIP_X1 = 935;
-const PLATFORM_STRIP_Y0 = 20;
-const PLATFORM_STRIP_Y1 = 70;
-const HALL_Y0 = 75;
-const HALL_Y1 = 340;
+// Default view: the central station zone (headhouse + concourses). The full
+// frame is ~4:1 because the platforms run ~900 m — the tails carry no
+// wayfinding information, so they're only shown in the zoomed-out toggle.
+const STATION_VIEW = { x: 250, y: 0, w: 500, h: VB.height };
 
-const WALKWAY_WIDTH = 40;
-const WEST_WALKWAY_X0 = PLATFORM_STRIP_X0;
-const WEST_WALKWAY_X1 = WEST_WALKWAY_X0 + WALKWAY_WIDTH;
-const EAST_WALKWAY_X1 = PLATFORM_STRIP_X1;
-const EAST_WALKWAY_X0 = EAST_WALKWAY_X1 - WALKWAY_WIDTH;
+export const MAP_VIEWBOX_WIDTH = STATION_VIEW.w;
+export const MAP_VIEWBOX_HEIGHT = STATION_VIEW.h;
 
-const PROMENADE_X0 = 420;
-const PROMENADE_X1 = 500;
+// ~9 m wide platforms, in viewBox units.
+const PLATFORM_STROKE = 9 / UNION_MAP.metresPerUnit;
 
-function platformSegments() {
-  const n = MAPPED_PLATFORMS.length;
-  const segWidth = (PLATFORM_STRIP_X1 - PLATFORM_STRIP_X0) / n;
-  return MAPPED_PLATFORMS.map((platform, i) => ({
-    platform,
-    x: PLATFORM_STRIP_X0 + i * segWidth,
-    width: segWidth,
-  }));
+const toPath = (pts: number[][]) => pts.map(([x, y], i) => `${i === 0 ? 'M' : 'L'}${x},${y}`).join(' ');
+
+function platformLabelAnchors(p: PlatformFeature): MapPoint[] {
+  // Label at fixed fractions along the strip so at least one anchor is
+  // visible in any zoom window.
+  const pts = p.points;
+  const anchors: MapPoint[] = [];
+  for (const f of [0.3, 0.5, 0.7]) {
+    let remaining = f * pts.reduce((s, _, i) => (i > 0 ? s + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]) : 0), 0);
+    for (let i = 1; i < pts.length; i++) {
+      const seg = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      if (remaining <= seg) {
+        const t = seg === 0 ? 0 : remaining / seg;
+        anchors.push({
+          x: pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * t,
+          y: pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * t,
+        });
+        break;
+      }
+      remaining -= seg;
+    }
+  }
+  return anchors;
 }
 
-const SEGMENTS = platformSegments();
-const ZOOM = 3;
+/** Entrances worth labelling on the map (the rest still render as dots). */
+const LABELLED_ENTRANCES = /Great Hall (West|East)|Teamway South End|York St north|Bay St north/;
 
-export function getPlatformSegmentCenterX(platform: number): number | null {
-  const seg = SEGMENTS.find((s) => s.platform === platform);
-  return seg ? seg.x + seg.width / 2 : null;
+function shortEntranceName(e: { name: string; description: string }): string {
+  if (/Great Hall West/.test(e.description)) return 'Great Hall W';
+  if (/Great Hall East/.test(e.description)) return 'Great Hall E';
+  if (/York East Teamway South/.test(e.description)) return 'York Teamway';
+  if (/Bay West Teamway South/.test(e.description)) return 'Bay Teamway';
+  if (/York St north/.test(e.description)) return 'York St';
+  if (/Bay St north/.test(e.description)) return 'Bay St';
+  return e.name;
+}
+
+function fitViewBox(points: MapPoint[], pad: number): { x: number; y: number; w: number; h: number } {
+  const aspect = STATION_VIEW.w / STATION_VIEW.h;
+  let minX = Math.min(...points.map((p) => p.x)) - pad;
+  let maxX = Math.max(...points.map((p) => p.x)) + pad;
+  let minY = Math.min(...points.map((p) => p.y)) - pad;
+  let maxY = Math.max(...points.map((p) => p.y)) + pad;
+  let w = maxX - minX;
+  let h = maxY - minY;
+  if (w / h > aspect) {
+    const grow = w / aspect - h;
+    minY -= grow / 2;
+    h = w / aspect;
+  } else {
+    const grow = h * aspect - w;
+    minX -= grow / 2;
+    w = h * aspect;
+  }
+  // Keep the window on the drawing.
+  minX = Math.max(-20, Math.min(minX, VB.width + 20 - w));
+  minY = Math.max(-20, Math.min(minY, VB.height + 20 - h));
+  return { x: minX, y: minY, w, h };
 }
 
 export default function UnionPlatformMap({
   highlightPlatforms,
   zoomedIn,
+  guidance,
   className,
 }: {
   highlightPlatforms: number[];
   zoomedIn: boolean;
+  guidance: Guidance | null;
   className?: string;
 }) {
+  const highlighted = (p: PlatformFeature) =>
+    p.refs.some((r) => highlightPlatforms.includes(parseInt(r, 10)));
+
   const viewBox = useMemo(() => {
-    if (!zoomedIn || highlightPlatforms.length === 0) {
-      return `0 0 ${MAP_VIEWBOX_WIDTH} ${MAP_VIEWBOX_HEIGHT}`;
+    if (zoomedIn && highlightPlatforms.length > 0) {
+      const focus: MapPoint[] = [];
+      if (guidance) {
+        focus.push(...guidance.path, { x: guidance.access.x, y: guidance.access.y });
+      } else {
+        const strip = UNION_MAP.platforms.find((p) =>
+          p.refs.some((r) => highlightPlatforms.includes(parseInt(r, 10)))
+        );
+        if (strip) {
+          focus.push(...platformLabelAnchors(strip));
+        }
+      }
+      if (focus.length > 0) {
+        const { x, y, w, h } = fitViewBox(focus, 55);
+        return `${x} ${y} ${w} ${h}`;
+      }
     }
-    const centers = highlightPlatforms
-      .map(getPlatformSegmentCenterX)
-      .filter((x): x is number => x !== null);
-    const centerX = centers.reduce((s, x) => s + x, 0) / centers.length;
-    const centerY = PLATFORM_STRIP_Y1;
-    const w = MAP_VIEWBOX_WIDTH / ZOOM;
-    const h = MAP_VIEWBOX_HEIGHT / ZOOM;
-    const minX = Math.min(Math.max(centerX - w / 2, 0), MAP_VIEWBOX_WIDTH - w);
-    const minY = Math.min(Math.max(centerY - h / 2, 0), MAP_VIEWBOX_HEIGHT - h);
-    return `${minX} ${minY} ${w} ${h}`;
-  }, [zoomedIn, highlightPlatforms]);
+    return `${STATION_VIEW.x} ${STATION_VIEW.y} ${STATION_VIEW.w} ${STATION_VIEW.h}`;
+  }, [zoomedIn, highlightPlatforms, guidance]);
+
+  const band = UNION_MAP.concourseBand;
 
   return (
-    <svg
-      viewBox={viewBox}
-      className={className}
-      style={{ transition: 'all 300ms ease-out' }}
-    >
-      {/* Background */}
-      <rect x={0} y={0} width={MAP_VIEWBOX_WIDTH} height={MAP_VIEWBOX_HEIGHT} fill="#f3f4f6" />
+    <svg viewBox={viewBox} className={className} style={{ transition: 'all 300ms ease-out' }}>
+      <rect x={-500} y={-200} width={VB.width + 1000} height={VB.height + 400} fill="#eef1f5" />
 
-      {/* Front Street label + arrow, above the platform strip */}
-      <text x={(PLATFORM_STRIP_X0 + PLATFORM_STRIP_X1) / 2} y={13} textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151">
-        Front Street
-      </text>
+      {/* Headhouse (Great Hall block along Front St.) */}
+      <path d={toPath(UNION_MAP.headhouse) + ' Z'} fill="#e2e6ec" stroke="#b6bec9" strokeWidth={1} />
 
-      {/* Platform strip (tracks) */}
-      {SEGMENTS.map((seg) => {
-        const active = highlightPlatforms.includes(seg.platform);
+      {/* Concourse band — the under-track hall the stairs rise from */}
+      <rect
+        x={band.x0}
+        y={band.y0}
+        width={band.x1 - band.x0}
+        height={band.y1 - band.y0}
+        rx={6}
+        fill="#f8fafc"
+        stroke="#c3ccd6"
+        strokeWidth={1}
+        strokeDasharray="4 3"
+      />
+
+      {/* Teamway tunnels */}
+      {UNION_MAP.teamways.map((tw) => (
+        <g key={tw.name}>
+          <line x1={tw.x} y1={Math.max(0, tw.y0)} x2={tw.x} y2={tw.y1} stroke="#c3ccd6" strokeWidth={7} strokeLinecap="round" />
+          <line x1={tw.x} y1={Math.max(0, tw.y0)} x2={tw.x} y2={tw.y1} stroke="#f8fafc" strokeWidth={4.5} strokeLinecap="round" />
+        </g>
+      ))}
+
+      {/* Platform strips */}
+      {UNION_MAP.platforms.map((p) => {
+        const active = highlighted(p);
+        const label = p.refs.join(' · ');
         return (
-          <g key={seg.platform}>
-            <rect
-              x={seg.x + 1}
-              y={PLATFORM_STRIP_Y0}
-              width={seg.width - 2}
-              height={PLATFORM_STRIP_Y1 - PLATFORM_STRIP_Y0}
-              fill={active ? '#f59e0b' : '#cbd5e1'}
-              stroke={active ? '#b45309' : '#94a3b8'}
-              strokeWidth={active ? 1.5 : 0.75}
+          <g key={p.refs.join(',')} opacity={p.construction && !active ? 0.35 : 1}>
+            <path
+              d={toPath(p.points)}
+              fill="none"
+              stroke={active ? '#f59e0b' : p.construction ? '#9aa4b1' : '#c8d0da'}
+              strokeWidth={PLATFORM_STROKE}
+              strokeLinecap="butt"
+              strokeDasharray={p.construction ? '10 6' : undefined}
             >
-              {active && (
-                <animate attributeName="opacity" values="1;0.55;1" dur="1.4s" repeatCount="indefinite" />
-              )}
-            </rect>
-            <text
-              x={seg.x + seg.width / 2}
-              y={(PLATFORM_STRIP_Y0 + PLATFORM_STRIP_Y1) / 2 + 4}
-              textAnchor="middle"
-              fontSize={active ? 13 : 10}
-              fontWeight={active ? 800 : 600}
-              fill={active ? '#ffffff' : '#475569'}
-            >
-              {seg.platform}
-            </text>
+              {active && <animate attributeName="opacity" values="1;0.6;1" dur="1.4s" repeatCount="indefinite" />}
+            </path>
+            {platformLabelAnchors(p).map((a, i) => (
+              <text
+                key={i}
+                x={a.x}
+                y={a.y + 3}
+                textAnchor="middle"
+                fontSize={active ? 10 : 8}
+                fontWeight={active ? 800 : 600}
+                fill={active ? '#7c2d12' : '#5b6674'}
+              >
+                {label}
+              </text>
+            ))}
           </g>
         );
       })}
 
-      {/* West covered walkway */}
-      <rect x={WEST_WALKWAY_X0} y={PLATFORM_STRIP_Y1} width={WALKWAY_WIDTH} height={HALL_Y1 - PLATFORM_STRIP_Y1} fill="#e5e7eb" stroke="#9ca3af" strokeWidth={0.75} />
-      <text x={WEST_WALKWAY_X0 + 14} y={(PLATFORM_STRIP_Y1 + HALL_Y1) / 2} textAnchor="middle" fontSize="9" fontWeight="600" fill="#4b5563" transform={`rotate(-90 ${WEST_WALKWAY_X0 + 14} ${(PLATFORM_STRIP_Y1 + HALL_Y1) / 2})`}>
-        Covered Walkway — Platforms 4-7, 10-11
-      </text>
+      {/* Guidance path: entrance → concourse → platform stairs */}
+      {guidance && (
+        <g>
+          <path
+            d={toPath(guidance.path.map((p) => [p.x, p.y]))}
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth={3.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray="7 5"
+          >
+            <animate attributeName="stroke-dashoffset" values="24;0" dur="1.6s" repeatCount="indefinite" />
+          </path>
+          {/* Target stairs marker */}
+          <g>
+            <circle cx={guidance.access.x} cy={guidance.access.y} r={9} fill="#2563eb" stroke="#ffffff" strokeWidth={2} />
+            <text x={guidance.access.x} y={guidance.access.y + 3.5} textAnchor="middle" fontSize={10} fill="#ffffff" fontWeight={800}>
+              {guidance.access.escalator ? '≣' : '≡'}
+            </text>
+          </g>
+          {/* Chosen entrance */}
+          <circle cx={guidance.entrance.x} cy={guidance.entrance.y} r={5} fill="#2563eb" stroke="#ffffff" strokeWidth={1.5} />
+        </g>
+      )}
 
-      {/* East covered walkway */}
-      <rect x={EAST_WALKWAY_X0} y={PLATFORM_STRIP_Y1} width={WALKWAY_WIDTH} height={HALL_Y1 - PLATFORM_STRIP_Y1} fill="#e5e7eb" stroke="#9ca3af" strokeWidth={0.75} />
-      <text x={EAST_WALKWAY_X0 + 26} y={(PLATFORM_STRIP_Y1 + HALL_Y1) / 2} textAnchor="middle" fontSize="9" fontWeight="600" fill="#4b5563" transform={`rotate(-90 ${EAST_WALKWAY_X0 + 26} ${(PLATFORM_STRIP_Y1 + HALL_Y1) / 2})`}>
-        Covered Walkway — Platforms 3-13
-      </text>
+      {/* Station entrances (dots; a few labelled) */}
+      {UNION_MAP.entrances.map((e) => {
+        const text = `${e.name} ${e.description}`;
+        const labelled = LABELLED_ENTRANCES.test(text);
+        const isChosen = guidance?.entrance === e;
+        if (isChosen) return null;
+        return (
+          <g key={`${e.x},${e.y}`} opacity={0.85}>
+            <circle cx={e.x} cy={e.y} r={3} fill="#64748b" stroke="#ffffff" strokeWidth={1} />
+            {labelled && (
+              <text x={e.x} y={e.y - 6} textAnchor="middle" fontSize={7.5} fontWeight={600} fill="#475569">
+                {shortEntranceName(e)}
+              </text>
+            )}
+          </g>
+        );
+      })}
+      {guidance && (
+        <text x={guidance.entrance.x} y={guidance.entrance.y - 8} textAnchor="middle" fontSize={8.5} fontWeight={800} fill="#1d4ed8">
+          {shortEntranceName(guidance.entrance)}
+        </text>
+      )}
 
-      {/* York Concourse Hall */}
-      <rect x={WEST_WALKWAY_X1} y={HALL_Y0} width={PROMENADE_X0 - WEST_WALKWAY_X1} height={HALL_Y1 - HALL_Y0} fill="#ffffff" stroke="#9ca3af" strokeWidth={0.75} />
-      <text x={(WEST_WALKWAY_X1 + PROMENADE_X0) / 2} y={(HALL_Y0 + HALL_Y1) / 2 - 6} textAnchor="middle" fontSize="13" fontWeight="700" fill="#1f2937">
-        YORK Concourse Hall
-      </text>
-      <text x={(WEST_WALKWAY_X1 + PROMENADE_X0) / 2} y={(HALL_Y0 + HALL_Y1) / 2 + 12} textAnchor="middle" fontSize="10" fill="#4b5563">
-        Platforms 3-13
-      </text>
+      {/* User location */}
+      {guidance?.userOnMap && (
+        <g>
+          <circle cx={guidance.userOnMap.x} cy={guidance.userOnMap.y} r={12} fill="#3b82f6" opacity={0.25}>
+            <animate attributeName="r" values="8;16;8" dur="2s" repeatCount="indefinite" />
+          </circle>
+          <circle cx={guidance.userOnMap.x} cy={guidance.userOnMap.y} r={5.5} fill="#3b82f6" stroke="#ffffff" strokeWidth={2} />
+        </g>
+      )}
 
-      {/* Front St. Promenade connector */}
-      <rect x={PROMENADE_X0} y={HALL_Y0} width={PROMENADE_X1 - PROMENADE_X0} height={HALL_Y1 - HALL_Y0} fill="#f9fafb" stroke="#9ca3af" strokeWidth={0.75} strokeDasharray="3 3" />
-      <text x={(PROMENADE_X0 + PROMENADE_X1) / 2} y={(HALL_Y0 + HALL_Y1) / 2} textAnchor="middle" fontSize="8" fill="#6b7280" transform={`rotate(-90 ${(PROMENADE_X0 + PROMENADE_X1) / 2} ${(HALL_Y0 + HALL_Y1) / 2})`}>
-        Front St. Promenade
+      {/* Street labels for orientation */}
+      <text x={505} y={-6} textAnchor="middle" fontSize={10} fontWeight={700} fill="#8a94a1" letterSpacing={2}>
+        FRONT ST W
       </text>
-
-      {/* VIA Concourse Hall */}
-      <rect x={PROMENADE_X1} y={HALL_Y0} width={EAST_WALKWAY_X0 - PROMENADE_X1} height={HALL_Y1 - HALL_Y0} fill="#ffffff" stroke="#9ca3af" strokeWidth={0.75} />
-      <text x={(PROMENADE_X1 + EAST_WALKWAY_X0) / 2} y={(HALL_Y0 + HALL_Y1) / 2 - 6} textAnchor="middle" fontSize="13" fontWeight="700" fill="#1f2937">
-        VIA Concourse Hall
-      </text>
-      <text x={(PROMENADE_X1 + EAST_WALKWAY_X0) / 2} y={(HALL_Y0 + HALL_Y1) / 2 + 12} textAnchor="middle" fontSize="10" fill="#4b5563">
-        Platforms 3-13
-      </text>
-
-      {/* York Street label */}
-      <text x={6} y={(PLATFORM_STRIP_Y1 + HALL_Y1) / 2} textAnchor="middle" fontSize="10" fontWeight="700" fill="#374151" transform={`rotate(-90 6 ${(PLATFORM_STRIP_Y1 + HALL_Y1) / 2})`}>
-        York Street
-      </text>
-
-      {/* Bay Street label */}
-      <text x={MAP_VIEWBOX_WIDTH - 6} y={(PLATFORM_STRIP_Y1 + HALL_Y1) / 2} textAnchor="middle" fontSize="10" fontWeight="700" fill="#374151" transform={`rotate(-90 ${MAP_VIEWBOX_WIDTH - 6} ${(PLATFORM_STRIP_Y1 + HALL_Y1) / 2})`}>
-        Bay Street
+      <text x={505} y={VB.height + 14} textAnchor="middle" fontSize={9} fontWeight={600} fill="#a5aeba" letterSpacing={2}>
+        TRACK LEVEL — SOUTH
       </text>
     </svg>
   );
