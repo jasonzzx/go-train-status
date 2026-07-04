@@ -691,12 +691,16 @@ function StationList({
   stops,
   depMins,
   nowMinutes,
+  delayMin,
   onBoard,
   isNext,
 }: {
   stops: StationStop[];
   depMins: number;
   nowMinutes: number | null;
+  /** Live delay — stop rows show scheduled times, so the position indicator
+      compares against `now − delay` to stay on the delayed train's segment. */
+  delayMin: number;
   onBoard: boolean;
   isNext: boolean;
 }) {
@@ -704,8 +708,9 @@ function StationList({
   // For overnight trips (departure >22:00) normalize nowMinutes to absolute scale
   const effectiveNow = useMemo(() => {
     if (nowMinutes === null) return null;
-    return nowMinutes < 360 && depMins > 1200 ? nowMinutes + 1440 : nowMinutes;
-  }, [nowMinutes, depMins]);
+    const adjusted = nowMinutes - delayMin;
+    return adjusted < 360 && depMins > 1200 ? adjusted + 1440 : adjusted;
+  }, [nowMinutes, depMins, delayMin]);
 
   // When On Board: find which segment we're currently in
   // "now" = between stop[i] and stop[i+1]
@@ -1159,11 +1164,14 @@ function TrainCard({
 }) {
   const { t } = useLanguage();
   const hasAlert = alerts.length > 0;
-  const depMins = timeToMinutes(trip.departure);
+  // Expected times: scheduled + live delay, so a delayed train's NOW window
+  // (and on-board position) tracks when it actually runs.
+  const delayMin = tracker?.delay ?? 0;
+  const depMins = timeToMinutes(trip.departure) + delayMin;
   const arrMins = depMins + parseInt(trip.tripTime, 10);
-  // A trip is "now running" only between its exact departure and arrival time.
+  // A trip is "now running" only between its expected departure and arrival.
   // NOTE: isPast becomes true as soon as departure passes, so we must NOT include !isPast here.
-  const isNowRunning = isToday && nowMinutes !== null
+  const isNowRunning = isToday && nowMinutes !== null && !tracker?.cancelled
     && nowMinutes >= depMins && nowMinutes <= arrMins;
   // For display: only gray out if truly past (arrived) AND not currently running
   const effectiveIsPast = isPast && !isNowRunning;
@@ -1290,6 +1298,7 @@ function TrainCard({
             stops={stops}
             depMins={depMins}
             nowMinutes={nowMinutes}
+            delayMin={delayMin}
             onBoard={isOnBoard}
             isNext={isNext}
           />
@@ -1775,20 +1784,37 @@ export default function Home() {
 
   const isToday = selectedDate === todayStr;
 
-  const nextIndex = useMemo(() => {
-    if (!isToday || nowMinutes === null) return -1;
-    return trips.findIndex((t) => parseTime(t.departure) > nowMinutes);
-  }, [trips, isToday, nowMinutes]);
-
-  const alertMap = useMemo(
-    () => buildAlertMap(alerts, direction),
-    [alerts, direction]
-  );
-
   // Tracker lookup maps
   const { inbound: trackerInbound, outbound: trackerOutbound } = useMemo(
     () => buildTrackerMaps(trackerTrips),
     [trackerTrips]
+  );
+
+  // Expected departure in minutes: scheduled + live delay when we have one.
+  // A train running +15 late hasn't left yet — it must stay catchable (NEXT)
+  // instead of flipping to past/NOW at its scheduled minute.
+  const effectiveDeparture = useCallback(
+    (trip: Trip): number => {
+      const info = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
+      return parseTime(trip.departure) + (info?.delay ?? 0);
+    },
+    [isToday, direction, trackerInbound, trackerOutbound]
+  );
+
+  const nextIndex = useMemo(() => {
+    if (!isToday || nowMinutes === null) return -1;
+    // First trip still expected to depart, skipping cancelled ones — a
+    // cancelled train shouldn't hold the NEXT badge or run a countdown.
+    return trips.findIndex((t) => {
+      const info = getTrackerInfo(t, direction, trackerInbound, trackerOutbound);
+      if (info?.cancelled) return false;
+      return effectiveDeparture(t) > nowMinutes;
+    });
+  }, [trips, isToday, nowMinutes, direction, trackerInbound, trackerOutbound, effectiveDeparture]);
+
+  const alertMap = useMemo(
+    () => buildAlertMap(alerts, direction),
+    [alerts, direction]
   );
 
   // Load this browser's remembered platforms for the current service day.
@@ -2116,7 +2142,8 @@ export default function Home() {
         ) : (
           <>
             {trips.map((trip, i) => {
-              const isPast = isToday && nowMinutes !== null && parseTime(trip.departure) < nowMinutes;
+              // Past = expected departure (scheduled + live delay) has gone by.
+              const isPast = isToday && nowMinutes !== null && effectiveDeparture(trip) < nowMinutes;
               const isNext = i === nextIndex;
               const tripAlerts = alertMap.get(trip.departure) ?? [];
               const rawTracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
