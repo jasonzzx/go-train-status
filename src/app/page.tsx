@@ -541,7 +541,9 @@ function PlatformMapSheet({
         {/* Sheet header */}
         <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center font-extrabold text-white shrink-0 bg-yellow-600/80 text-lg">
+            <div className={`min-w-11 h-11 px-1.5 rounded-xl flex items-center justify-center font-extrabold text-white shrink-0 bg-yellow-600/80 whitespace-nowrap leading-none ${
+              mappedPlatforms.length > 1 ? 'text-sm' : 'text-lg'
+            }`}>
               {formatPlatformLabel(platform)}
             </div>
             <div>
