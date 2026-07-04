@@ -5,7 +5,6 @@ import {
   getScheduleForStation,
   tripsForStation,
   timeToMinutes,
-  getServiceType,
   type ServiceType,
   type Trip,
 } from '@/lib/schedule-data';
@@ -84,13 +83,6 @@ function extractTrips(html: string): RailsixTrip[] {
   } catch {
     return [];
   }
-}
-
-function toHHMM(ts: number): string {
-  const d = new Date(ts);
-  const h = String(d.getHours()).padStart(2, '0');
-  const m = String(d.getMinutes()).padStart(2, '0');
-  return `${h}:${m}`;
 }
 
 function mapTrip(raw: RailsixTrip, dir: 'Inbound' | 'Outbound'): TrackerTrip {

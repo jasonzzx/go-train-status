@@ -10,7 +10,6 @@ import {
   getLineSchedule,
   UNION_CODE,
   type GtfsTrip,
-  type StationInfo,
 } from '@/lib/lines';
 
 export type { StationInfo } from '@/lib/lines';

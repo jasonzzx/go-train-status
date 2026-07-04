@@ -1342,7 +1342,6 @@ function detectInstallPlatform(): InstallPlatform {
 function useInstallPrompt() {
   const [isStandalone, setIsStandalone] = useState(false);
   const [platform, setPlatform] = useState<InstallPlatform>('other');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
   useEffect(() => {
@@ -1377,7 +1376,6 @@ function InstallSheet({
   onClose,
 }: {
   platform: InstallPlatform;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deferredPrompt: any;
   install: () => void;
   onClose: () => void;
