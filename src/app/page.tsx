@@ -25,6 +25,7 @@ import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
 import { getMappedPlatforms, getPlatformLabelKey, isPlatformMapped } from '@/lib/union-platform-map';
 import { loadPlatformCache, savePlatformCache } from '@/lib/platform-cache';
+import { torontoNow } from '@/lib/toronto-time';
 import UnionPlatformMap, { MAP_VIEWBOX_WIDTH, MAP_VIEWBOX_HEIGHT } from '@/components/UnionPlatformMap';
 
 // Temporarily disabled — the platform map schematic needs a better source
@@ -35,25 +36,20 @@ const PLATFORM_MAP_ENABLED = false;
 // Helpers
 // ──────────────────────────────────────────────────────────
 
-function toLocalDateStr(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
+// All "what time / day is it" logic runs on the Toronto clock (torontoNow),
+// not the device clock — see src/lib/toronto-time.ts.
 
 function getDefaultDate(): string {
-  return toLocalDateStr(new Date());
+  return torontoNow().dateStr;
 }
 
 function getTomorrowStr(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return toLocalDateStr(d);
+  const [y, m, d] = torontoNow().dateStr.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d + 1)).toISOString().slice(0, 10);
 }
 
 function getDefaultDirection(): Direction {
-  return new Date().getHours() < 12 ? 'homeToOffice' : 'officeToHome';
+  return torontoNow().minutes < 720 ? 'homeToOffice' : 'officeToHome';
 }
 
 function lineDisplayName(line: LineInfo, lang: Lang): string {
@@ -904,13 +900,11 @@ function VehicleBadge({
 // Departure countdown (NEXT card only)
 // ──────────────────────────────────────────────────────────
 
-/** Seconds from now until today's expected departure (scheduled + live delay). */
+/** Seconds from now (Toronto clock) until today's expected departure (scheduled + live delay). */
 function secondsUntilDeparture(departure: string, delayMin: number): number {
-  const now = new Date();
-  const target = new Date(now);
-  target.setHours(0, 0, 0, 0);
-  target.setMinutes(timeToMinutes(departure) + delayMin);
-  return Math.max(0, Math.round((target.getTime() - now.getTime()) / 1000));
+  const now = torontoNow();
+  const targetSec = (timeToMinutes(departure) + delayMin) * 60;
+  return Math.max(0, targetSec - (now.minutes * 60 + now.seconds));
 }
 
 function formatCountdown(totalSeconds: number): string {
@@ -1680,9 +1674,9 @@ export default function Home() {
   // tab focus/visibility return instead of waiting for the next tick.
   useEffect(() => {
     const update = () => {
-      const now = new Date();
-      setNowMinutes(now.getHours() * 60 + now.getMinutes());
-      setTodayStr(toLocalDateStr(now));
+      const now = torontoNow();
+      setNowMinutes(now.minutes);
+      setTodayStr(now.dateStr);
     };
     update();
     const id = setInterval(update, 60_000);
