@@ -26,7 +26,6 @@ export interface ParsedAlert {
   toStation: string;
 }
 
-const GOTRANSIT_ALERTS_URL = 'https://www.gotransit.com/en/service-updates?mode=t';
 const RAILSIX_ALERTS_URL = 'https://railsix.com/alerts';
 
 const FETCH_HEADERS = {
@@ -35,11 +34,6 @@ const FETCH_HEADERS = {
   Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   'Accept-Language': 'en-CA,en;q=0.9',
 };
-
-// ---------------------------------------------------------------------------
-// HTML parser for gotransit.com service-updates — looks for service alerts
-// organized by line. Falls back to railsix.com if no data.
-// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // HTML parser for railsix.com/alerts — alerts are grouped per line, e.g.:
@@ -137,36 +131,6 @@ export async function GET(request: NextRequest) {
 
 async function scrapedAlertsResponse(line: LineInfo) {
   try {
-    // Try official Go Transit website first
-    try {
-      const res = await fetch(GOTRANSIT_ALERTS_URL, {
-        headers: FETCH_HEADERS,
-        next: { revalidate: 60 },
-      });
-
-      if (res.ok) {
-        const html = await res.text();
-        const alerts = parseRailsixAlertsForLine(html, line.name);
-
-        // If we got alerts from official source, return them
-        if (alerts.length > 0) {
-          return NextResponse.json(
-            {
-              alerts,
-              available: true,
-              lastUpdated: new Date().toISOString(),
-              source: 'gotransit' as const,
-            },
-            { headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=120' } }
-          );
-        }
-      }
-    } catch (err) {
-      // Fall through to railsix backup if official source fails
-      console.warn('Failed to fetch from official Go Transit source, falling back to railsix.com:', err);
-    }
-
-    // Fall back to railsix.com
     const res = await fetch(RAILSIX_ALERTS_URL, {
       headers: FETCH_HEADERS,
       next: { revalidate: 60 },

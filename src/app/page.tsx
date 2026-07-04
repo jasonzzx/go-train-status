@@ -1327,139 +1327,6 @@ function TrainCard({
 }
 
 // ──────────────────────────────────────────────────────────
-// Install (Add to Home Screen) detection + sheet
-// ──────────────────────────────────────────────────────────
-
-type InstallPlatform = 'ios' | 'android' | 'desktop-chromium' | 'other';
-
-function detectInstallPlatform(): InstallPlatform {
-  const ua = navigator.userAgent;
-  // All iOS browsers (Safari, Chrome, Firefox, Edge) can add to the Home
-  // Screen via their Share/menu icon, so treat every iOS browser the same.
-  if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
-  if (/Android/.test(ua)) return 'android';
-  if (/Chrome|Edg|Chromium/.test(ua) && !/Firefox/.test(ua)) return 'desktop-chromium';
-  return 'other';
-}
-
-function useInstallPrompt() {
-  const [isStandalone, setIsStandalone] = useState(false);
-  const [platform, setPlatform] = useState<InstallPlatform>('other');
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-
-  useEffect(() => {
-    setIsStandalone(
-      window.matchMedia('(display-mode: standalone)').matches ||
-      (navigator as { standalone?: boolean }).standalone === true
-    );
-    setPlatform(detectInstallPlatform());
-
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const install = useCallback(async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
-  }, [deferredPrompt]);
-
-  return { isStandalone, platform, deferredPrompt, install };
-}
-
-function InstallSheet({
-  platform,
-  deferredPrompt,
-  install,
-  onClose,
-}: {
-  platform: InstallPlatform;
-  deferredPrompt: any;
-  install: () => void;
-  onClose: () => void;
-}) {
-  const { t } = useLanguage();
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onClose}>
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-
-      {/* Sheet */}
-      <div
-        className="relative w-full max-w-md flex flex-col bg-gray-50 rounded-t-2xl max-h-[90vh]"
-        style={{ boxShadow: '0 -4px 30px rgba(0,0,0,0.25)' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Drag handle */}
-        <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-10 h-1 bg-white/40 rounded-full" />
-
-        {/* Sheet header */}
-        <div className="bg-go-dark text-white px-4 pt-6 pb-4 rounded-t-2xl shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="font-bold text-base leading-tight">{t('installSheetTitle')}</div>
-            <button
-              onClick={onClose}
-              className="ml-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white/70 hover:bg-white/20 text-lg leading-none"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="overflow-y-auto flex-1 px-4 pt-4 pb-6">
-          {deferredPrompt ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-              <div className="text-sm text-gray-600 mb-3">{t('getQuickAccess')}</div>
-              <button
-                onClick={install}
-                className="w-full bg-go-green text-white font-semibold py-3 rounded-xl text-sm"
-              >
-                {t('install')}
-              </button>
-            </div>
-          ) : platform === 'ios' ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4">
-              <div className="text-sm text-gray-700 font-medium mb-3 text-center">{t('tapShareThenAdd')}</div>
-              <div className="flex items-center justify-center gap-6">
-                {[
-                  { icon: '⬆️', label: t('stepTapShare') },
-                  { icon: '➕', label: t('stepAddToHomeScreen') },
-                  { icon: '✅', label: t('stepDone') },
-                ].map((step, i) => (
-                  <div key={i} className="flex flex-col items-center gap-1">
-                    <span className="text-2xl leading-none">{step.icon}</span>
-                    <span className="text-[11px] text-gray-500 text-center leading-tight">{step.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : platform === 'android' ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
-              {t('installAndroidSteps')}
-            </div>
-          ) : platform === 'desktop-chromium' ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
-              {t('installDesktopSteps')}
-            </div>
-          ) : (
-            <div className="bg-white rounded-xl border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed">
-              {t('installUnsupported')}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────
 // Weekend notice
 // ──────────────────────────────────────────────────────────
 
@@ -1612,8 +1479,6 @@ export default function Home() {
   const [alertsLastUpdated, setAlertsLastUpdated] = useState<string | null>(null);
   const [showAlertsSheet, setShowAlertsSheet] = useState(false);
   const [platformSheet, setPlatformSheet] = useState<string | null>(null);
-  const [showInstallSheet, setShowInstallSheet] = useState(false);
-  const installPrompt = useInstallPrompt();
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
@@ -2349,15 +2214,6 @@ export default function Home() {
         <PlatformMapSheet platform={platformSheet} onClose={() => setPlatformSheet(null)} />
       )}
 
-      {/* Install Sheet */}
-      {showInstallSheet && (
-        <InstallSheet
-          platform={installPrompt.platform}
-          deferredPrompt={installPrompt.deferredPrompt}
-          install={installPrompt.install}
-          onClose={() => setShowInstallSheet(false)}
-        />
-      )}
     </div>
   );
 }
