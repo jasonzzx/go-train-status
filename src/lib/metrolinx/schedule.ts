@@ -84,8 +84,9 @@ function dateUTC(yyyymmdd: string): number {
 /**
  * "YYYY-MM-DD HH:MM:SS" → "HH:MM" GTFS-style relative to `serviceDate`
  * (YYYYMMDD): a stop at 01:10 on the next calendar day becomes "25:10".
+ * Exported for unit tests.
  */
-function toGtfsTime(raw: string | undefined, serviceDate: string): string | null {
+export function toGtfsTime(raw: string | undefined, serviceDate: string): string | null {
   if (!raw || raw.length < 16) return null;
   const datePart = raw.slice(0, 10).replace(/-/g, '');
   const hh = Number(raw.slice(11, 13));

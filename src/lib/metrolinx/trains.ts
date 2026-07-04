@@ -86,11 +86,15 @@ function hhmmToMinutes(s: string | undefined): number | null {
  * tens of minutes in magnitude (verified live: −54 min, −40 min, …). Treating it
  * as a delay produces a bogus "+N min" once that countdown crosses zero. So we
  * only trust `DelaySeconds` after the trip's scheduled start.
+ *
+ * `now` is injectable for unit tests; defaults to the Toronto wall clock.
  */
-function tripHasStarted(startTime: string | undefined): boolean {
+export function tripHasStarted(
+  startTime: string | undefined,
+  now: number = torontoMinutesNow(),
+): boolean {
   const start = hhmmToMinutes(startTime);
   if (start === null) return true; // no StartTime → don't suppress a real signal
-  const now = torontoMinutesNow();
   if (now >= start) return true;
   // Past-midnight wrap (e.g. start 23:50, now 00:10): still consider it started.
   if (start - now > 720) return true;
