@@ -8,7 +8,7 @@ Live: https://go-train-status.vercel.app/
 
 ## Tech Stack
 
-- **Next.js 14** (App Router, `'use client'` page)
+- **Next.js 16** (App Router, `'use client'` page) + React 19
 - **TypeScript**
 - **Tailwind CSS** with GO Transit colour palette
 - **Vercel** for hosting (auto-deploys from GitHub `main`) + optional Vercel KV (Upstash Redis) for server-side platform memory
