@@ -72,3 +72,9 @@ export function getStationName(code: string, name: string, lang: Lang): string {
   if (lang !== 'zh') return name;
   return (stationNamesZh as Record<string, string>)[code] ?? name;
 }
+
+// Line display name in the active language — kept here beside getStationName
+// so all bilingual naming lives in one place.
+export function lineDisplayName(line: { name: string; nameZh: string }, lang: Lang): string {
+  return lang === 'zh' ? line.nameZh : line.name;
+}
