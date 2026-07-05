@@ -101,14 +101,16 @@ Both no-op safely if their respective env vars aren't set.
 ---
 
 ## Union Station Platform Map (`src/components/UnionPlatformMap.tsx`)
-An SVG schematic of Union Station drawn from **real OpenStreetMap survey geometry** (ODbL — the rendered map keeps the attribution line). `scripts/generate-union-map.mjs` pulls the platform centrelines (with official refs like `12;13`), the headhouse outline, station entrances, teamway corridors, and the concourse→platform stairs/escalators from the Overpass API, projects and rotates everything into one SVG frame, and writes `src/data/union-station-map.json` — regenerate with `npm run generate-union-map` when the station changes. Because the affine transform is stored in that JSON, a live geolocation fix projects onto the same frame as the drawn platforms.
+The base layer is the **official Metrolinx concourse map** (UNI-MA3.4 "Concourse and street level map"), rasterized from the official PDF to `public/union-official-map.webp` (crop `+300,+240 3320×2230` of the 250 dpi render, scaled to 2400 px). The map is concourse-level: platforms are reached via the labelled stair banks ("Platforms 3–13", "20–21", "4–13"), which are hand-annotated pixel anchors in `src/lib/union-official-map.ts` along with the station doors. Note the base map is Metrolinx-copyrighted signage artwork (attributed in the sheet footer), not openly licensed like the OSM data.
+
+OpenStreetMap survey data still powers the geometry underneath: `scripts/generate-union-map.mjs` (run via `npm run generate-union-map`) writes `src/data/union-station-map.json` with real entrance lat/lons and the lat/lon→frame projection (`src/lib/union-map.ts`). An affine transform fitted from six shared building-envelope anchors (Great Hall doors, teamway ends; residuals < 27 px) maps that frame onto the official image, so a live geolocation fix lands on the drawing.
 
 Tapping a Union platform badge opens the map sheet with:
-- the platform strip pulsing, plus a **guidance path**: nearest station entrance → concourse level → the actual stairs up to that platform (`buildGuidance` in `src/lib/union-map.ts`)
+- a pulsing amber ring + platform chip on the stair bank to use, soft rings on the alternates, and a **guidance path**: your position → nearest station door → the stairs (`buildOfficialGuidance` in `src/lib/union-official-map.ts`)
 - the user's live position (browser geolocation, only while the sheet is open) as a dot when near the station
 - a walking estimate to Union and a **"Leave by HH:MM"** time (departure + live delay − walk − platform buffer), which flips to "Leave now" when it's tight
 
-`src/lib/union-platform-map.ts` parses multi-platform tracker strings like `"12, 13"` and matches them against the surveyed refs.
+`src/lib/union-platform-map.ts` parses multi-platform tracker strings like `"12, 13"` and matches them against the signed stair ranges (3–13, 20–21).
 
 ---
 

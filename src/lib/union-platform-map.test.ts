@@ -23,8 +23,8 @@ describe('parsePlatformNumbers', () => {
 });
 
 describe('MAPPED_PLATFORMS', () => {
-  it('covers the GO range 3–13 from the OSM survey', () => {
-    for (const n of [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]) {
+  it('covers the signed ranges 3–13 and 20–21 on the official map', () => {
+    for (const n of [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 20, 21]) {
       expect(MAPPED_PLATFORMS).toContain(n);
     }
   });

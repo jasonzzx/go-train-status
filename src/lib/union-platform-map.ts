@@ -1,12 +1,11 @@
 // Matching between GO's tracker platform strings (e.g. "9", "12 & 13") and
-// the platforms drawn on the Union Station map. The map geometry itself
-// comes from OpenStreetMap (see src/lib/union-map.ts and
-// scripts/generate-union-map.mjs); a platform is "mapped" when its number
-// appears among the surveyed platform refs.
+// the platforms the official Metrolinx concourse map gives stair guidance
+// for (see src/lib/union-official-map.ts). A platform is "mapped" when a
+// signed stair bank covers its number.
 
-import { NUMERIC_PLATFORMS } from '@/lib/union-map';
+import { OFFICIAL_PLATFORMS } from '@/lib/union-official-map';
 
-export const MAPPED_PLATFORMS: readonly number[] = NUMERIC_PLATFORMS;
+export const MAPPED_PLATFORMS: readonly number[] = OFFICIAL_PLATFORMS;
 
 export function parsePlatformNumbers(platform: string): number[] {
   return platform

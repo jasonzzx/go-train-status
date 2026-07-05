@@ -25,11 +25,11 @@ import type { TrackerTrip } from '@/app/api/tracker/route';
 import { useLanguage, getStationName, type Lang } from '@/i18n';
 import { getMappedPlatforms, isPlatformMapped } from '@/lib/union-platform-map';
 import {
-  buildGuidance,
   computeLeaveByMinutes,
   distanceToUnionMetres,
   estimateWalkMinutes,
 } from '@/lib/union-map';
+import { buildOfficialGuidance } from '@/lib/union-official-map';
 import { loadPlatformCache, savePlatformCache } from '@/lib/platform-cache';
 import { torontoNow } from '@/lib/toronto-time';
 import UnionPlatformMap, { MAP_VIEWBOX_WIDTH, MAP_VIEWBOX_HEIGHT } from '@/components/UnionPlatformMap';
@@ -509,7 +509,7 @@ function PlatformMapSheet({
     [geo]
   );
   const guidance = useMemo(
-    () => buildGuidance(user, mappedPlatforms),
+    () => buildOfficialGuidance(user, mappedPlatforms),
     [user, mappedPlatforms]
   );
 
@@ -648,6 +648,7 @@ function PlatformMapSheet({
               {t('platformAccessHint', {
                 platform: formatPlatformLabel(platform),
                 entrance: guidance.entrance.description || guidance.entrance.name,
+                concourse: guidance.access.concourse,
               })}
             </div>
           ) : mappedPlatforms.length === 0 ? (
