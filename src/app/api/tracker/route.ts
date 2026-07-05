@@ -17,6 +17,7 @@ import {
 } from '@/lib/metrolinx/trains';
 import { getLiveDaySchedule } from '@/lib/metrolinx/schedule';
 import { getStoredPlatforms, savePlatforms, torontoDateStr } from '@/lib/platform-store';
+import { resolveDeparturePlatform, resolveRailsixPlatform } from '@/lib/platform-resolve';
 
 // Railsix URL pattern: railsix.com/routes/{home-slug}-to-union (SB) / union-to-{home-slug} (NB)
 function buildRailsixUrls(homeSlug: string) {
@@ -94,18 +95,12 @@ function mapTrip(
   const delayMs = (raw.actualAt ?? raw.scheduledAt) - raw.scheduledAt;
   const delayMin = Math.round(delayMs / 60_000);
 
-  // Same near-departure rule as the official path: railsix mirrors scheduled
-  // home-station platforms all day, but a platform hours before departure
-  // reads as stale/untrustworthy, so only show it once departure is near.
+  // The scraped route page reports the DEPARTURE station's platform (the
+  // home→union page shows home platforms, the union→home page shows Union's),
+  // so the departure-station invariant holds as long as the stored backfill
+  // key matches: bare trip number = Union platform (Outbound), and
+  // `${trip}:${station}` = home platform (Inbound). See platform-resolve.ts.
   const departsSoon = raw.scheduledAt - Date.now() <= 45 * 60_000;
-
-  // Live value from railsix, else — for a trip that has already departed —
-  // the platform the cron/tracker captured in the shared store earlier today,
-  // so a cold open still shows platforms on past/NOW cards even on this
-  // fallback path. Outbound trips are stored under the bare trip number
-  // (Union departure platform); Inbound home-station platforms under
-  // `${trip}:${station}`.
-  const livePlatform = departsSoon && raw.platform && raw.platform !== '-' ? raw.platform : '';
   const departed = raw.scheduledAt <= Date.now();
   const storedKey =
     dir === 'Outbound'
@@ -113,7 +108,12 @@ function mapTrip(
       : raw.tripNumber && homeCode
       ? `${raw.tripNumber}:${homeCode}`
       : '';
-  const platform = livePlatform || (departed && storedKey ? stored[storedKey] ?? '' : '');
+  const platform = resolveRailsixPlatform({
+    feedPlatform: raw.platform && raw.platform !== '-' ? raw.platform : '',
+    departsSoon,
+    departed,
+    stored: storedKey ? stored[storedKey] ?? '' : '',
+  });
 
   const rawStatus = raw.status ?? '';
   const cancelled = rawStatus.toLowerCase().includes('cancel');
@@ -273,32 +273,33 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
       const status = liveStatus.get(tripNumber);
       const hasLive = Boolean(status?.hasLive);
 
-      // Platform: live Union value, else the one the cron/tracker captured
-      // earlier today (Redis), else the home-station scheduled platform (live,
-      // then its stored copy — Redis fields are `${trip}:${station}` since the
-      // home platform is station-specific, unlike the Union `${trip}` fields).
-      //
-      // The home-station fallback only applies to Inbound (homeToOffice) trips,
-      // where homeCode IS the departure station — a legitimately known-ahead
-      // boarding platform. For Outbound (officeToHome) trips homeCode is the
-      // ARRIVAL station, so that platform has nothing to do with which Union
-      // platform the train leaves from; showing it there previously made a
-      // far-future "NEXT" card display a platform (and open the Union map)
-      // well before GO has actually assigned one at Union.
+      // Platform: strictly the DEPARTURE station's (see platform-resolve.ts).
+      // Outbound departs Union → live UnionDepartures value, else its stored
+      // copy (bare trip-number Redis field). Inbound departs the home station
+      // → scheduled home platform (live Schedule/Trip, else its stored
+      // `${trip}:${station}` field), gated to near departure. status.platform
+      // comes from UnionDepartures, so for an Inbound trip it would be the
+      // ARRIVAL platform — resolveDeparturePlatform makes that unusable.
       const homeKey = `${tripNumber}:${homeCode}`;
-      // Same near-departure gate as the prefetch above; without it, a home
-      // platform persisted to Redis earlier (or under the old wider window)
-      // would resurface on a far-future card via the stored fallback.
       const depSoon = timeToMinutes(trip.departure) <= nowMin + 45;
-      const homePlat =
-        directionCd === 'Inbound' && depSoon ? homePlatforms.get(tripNumber) || '' : '';
-      const platform =
-        status?.platform ||
-        storedPlatforms[tripNumber] ||
-        homePlat ||
-        (directionCd === 'Inbound' && depSoon ? storedPlatforms[homeKey] || '' : '');
+      const homePlat = directionCd === 'Inbound' ? homePlatforms.get(tripNumber) || '' : '';
+      const platform = resolveDeparturePlatform({
+        directionCd,
+        unionLive: status?.platform || '',
+        unionStored: storedPlatforms[tripNumber] || '',
+        homeLive: homePlat,
+        homeStored: storedPlatforms[homeKey] || '',
+        depSoon,
+      });
 
-      if (status?.platform && storedPlatforms[tripNumber] !== status.platform) {
+      // Persist sightings under the key matching the station they belong to:
+      // Union platforms (bare trip number) only for Outbound trips, home
+      // platforms only under their station-qualified key.
+      if (
+        directionCd === 'Outbound' &&
+        status?.platform &&
+        storedPlatforms[tripNumber] !== status.platform
+      ) {
         toPersist[tripNumber] = status.platform;
       }
       if (homePlat && storedPlatforms[homeKey] !== homePlat) {
