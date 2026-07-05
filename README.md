@@ -21,7 +21,7 @@ Live: https://go-train-status.vercel.app/
 ```
 src/
   app/
-    page.tsx              # Main UI — line/station picker, schedule list, TrainCard, all client state
+    page.tsx              # Main page — composes the components below; owns all client state + data fetching
     layout.tsx            # Root layout, PWA meta tags, embeds build version, wraps app in LanguageProvider
     en/page.tsx            # Bookmarkable redirect: sets language to English, then → "/"
     zh/page.tsx            # Bookmarkable redirect: sets language to Chinese, then → "/"
@@ -34,12 +34,27 @@ src/
       alerts/route.ts            # GET /api/alerts   — service alerts, per line (Metrolinx API, gotransit/railsix fallback)
       schedule/route.ts          # GET /api/schedule — the selected date's actual (holiday-aware) schedule, official API only
       cron/platforms/route.ts    # GET /api/cron/platforms — captures Union platforms into the server-side store
-  components/
+  components/              # UI components (most have a *.test.tsx beside them)
+    TrainCard.tsx          # One departure card — NEXT/NOW states, platform/expected badges, expandable stops
+    StationList.tsx        # Stop sequence inside an expanded card, with live "← now" position when On Board
+    CountdownChip.tsx      # 1s-tick departure countdown (green → yellow → red urgency)
+    LinePicker.tsx         # Line dropdown with colour badges
+    StationPicker.tsx      # Home-station dropdown for the active line
+    ServiceAlertsSheet.tsx # Bottom sheet: line status + per-trip alert cards
+    PlatformMapSheet.tsx   # Bottom sheet: Union concourse map + walk-time / leave-by guidance
     UnionPlatformMap.tsx   # SVG map of Union Station — official concourse base map, platform highlight, user dot, guidance path
+    WeekendNotice.tsx      # Empty-schedule notice linking to the official schedule page
+    icons.tsx              # Shared SVG icons (status trio, train/bus, arrows)
+    badges.tsx             # Line / station code chips in official line colours
   lib/                     # most modules have a *.test.ts beside them (vitest, run with npm test)
     lines.ts              # Line registry — display metadata (incl. Chinese names) + per-line station/schedule lookup
     schedule-data.ts      # Line-agnostic trip + stop-sequence logic, built on top of lines.ts
     toronto-time.ts       # Toronto wall-clock helpers — all "what time/day is it" logic uses this, never the device clock
+    countdown.ts          # Countdown math + urgency thresholds, HH:MM formatting
+    tracker-info.ts       # /api/tracker response → per-direction lookup maps; platform label formatting
+    line-status.ts        # Overall line status (good / minor delays / no service)
+    alert-match.ts        # Groups parsed alerts by trip departure + direction
+    preferences.ts        # localStorage line/home-station persistence + legacy code migration
     union-map.ts          # Union map data access: lat/lon→map projection, walk/leave-by estimates
     union-official-map.ts # Official-concourse-map pixel anchors (stair banks, doors) + guidance path builder
     union-platform-map.ts # Pure helpers for parsing/mapping platform numbers onto the Union map
@@ -185,7 +200,7 @@ Result: any open tab or installed PWA picks up a new deployment automatically, w
 npm install
 npm run dev       # http://localhost:3000
 npm run build     # production build + type check
-npm test          # vitest unit tests (schedule, platform, map, time logic)
+npm test          # vitest — lib unit tests + component/page tests (jsdom + Testing Library)
 npm run lint      # eslint
 ```
 
