@@ -89,6 +89,11 @@ function mapTrip(raw: RailsixTrip, dir: 'Inbound' | 'Outbound'): TrackerTrip {
   const delayMs = (raw.actualAt ?? raw.scheduledAt) - raw.scheduledAt;
   const delayMin = Math.round(delayMs / 60_000);
 
+  // Same near-departure rule as the official path: railsix mirrors scheduled
+  // home-station platforms all day, but a platform hours before departure
+  // reads as stale/untrustworthy, so only show it once departure is near.
+  const departsSoon = raw.scheduledAt - Date.now() <= 45 * 60_000;
+
   const rawStatus = raw.status ?? '';
   const cancelled = rawStatus.toLowerCase().includes('cancel');
   let expected = 'On Time';
@@ -106,7 +111,7 @@ function mapTrip(raw: RailsixTrip, dir: 'Inbound' | 'Outbound'): TrackerTrip {
   return {
     scheduledTime: raw.scheduledTime ?? '',
     directionCd: dir,
-    platform: raw.platform && raw.platform !== '-' ? raw.platform : '',
+    platform: departsSoon && raw.platform && raw.platform !== '-' ? raw.platform : '',
     expected,
     delay: delayMin > 0 ? delayMin : 0,
     cancelled,
@@ -203,19 +208,21 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
   );
 
   // Batch-fetch the scheduled home-station boarding platform (Schedule/Trip,
-  // cached 2 min) for every live trip AND every train departing soon:
-  // Schedule/Trip knows it all day, so the "now"/"next" cards for Inbound
-  // (homeToOffice) trips get a platform even before the train enters service.
-  // Only Inbound trips use this — homeCode is their departure station. For
-  // Outbound trips homeCode is the arrival station, so its platform is never
-  // the Union departure platform and isn't worth fetching.
+  // cached 2 min) for every live trip AND every train departing soon, so the
+  // "now"/"next" cards for Inbound (homeToOffice) trips get a platform even
+  // before the train enters service. Schedule/Trip knows it all day, but a
+  // platform on a card hours before departure reads as stale/untrustworthy —
+  // only attach it once departure is near (45 min mirrors the client's cache
+  // display window). Only Inbound trips use this — homeCode is their departure
+  // station. For Outbound trips homeCode is the arrival station, so its
+  // platform is never the Union departure platform and isn't worth fetching.
   const nowMin = torontoMinutesNow();
   const platformCandidates = new Set<string>();
   for (const trip of scheduleByDirection.get('homeToOffice')!) {
     if (trip.vehicleType === 'bus') continue; // street stops have no platform
     const tn = tripNumberFromId(trip.tripId);
     const dep = timeToMinutes(trip.departure);
-    if (liveStatus.has(tn) || (dep >= nowMin - 30 && dep <= nowMin + 120)) {
+    if (liveStatus.has(tn) || (dep >= nowMin - 30 && dep <= nowMin + 45)) {
       platformCandidates.add(tn);
     }
   }
@@ -257,12 +264,17 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
       // far-future "NEXT" card display a platform (and open the Union map)
       // well before GO has actually assigned one at Union.
       const homeKey = `${tripNumber}:${homeCode}`;
-      const homePlat = directionCd === 'Inbound' ? homePlatforms.get(tripNumber) || '' : '';
+      // Same near-departure gate as the prefetch above; without it, a home
+      // platform persisted to Redis earlier (or under the old wider window)
+      // would resurface on a far-future card via the stored fallback.
+      const depSoon = timeToMinutes(trip.departure) <= nowMin + 45;
+      const homePlat =
+        directionCd === 'Inbound' && depSoon ? homePlatforms.get(tripNumber) || '' : '';
       const platform =
         status?.platform ||
         storedPlatforms[tripNumber] ||
         homePlat ||
-        (directionCd === 'Inbound' ? storedPlatforms[homeKey] || '' : '');
+        (directionCd === 'Inbound' && depSoon ? storedPlatforms[homeKey] || '' : '');
 
       if (status?.platform && storedPlatforms[tripNumber] !== status.platform) {
         toPersist[tripNumber] = status.platform;

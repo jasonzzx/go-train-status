@@ -1840,12 +1840,17 @@ export default function Home() {
 
   // Platform to show for a trip: the live value, or the last one we cached for
   // it earlier today (survives the feed dropping it after departure / reload).
+  // The cache fallback only applies near/after departure: GO assigns platforms
+  // ~10-15 min ahead, so a cached value for a far-future trip can only be
+  // stale or wrong — a NEXT card hours out must never show one.
   const platformFor = useCallback(
     (trip: { departure: string; arrival: string }): string => {
       const live = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform;
-      return live || platformCache[`${direction}:${trip.departure}`] || '';
+      if (live) return live;
+      if (nowMinutes === null || parseTime(trip.departure) - nowMinutes > 45) return '';
+      return platformCache[`${direction}:${trip.departure}`] || '';
     },
-    [direction, trackerInbound, trackerOutbound, platformCache]
+    [direction, trackerInbound, trackerOutbound, platformCache, nowMinutes]
   );
 
   // Live stop names from tracker: "directionCd:scheduledTime" → stops[]

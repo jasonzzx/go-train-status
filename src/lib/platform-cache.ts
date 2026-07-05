@@ -9,7 +9,10 @@
 // browser. A browser that never saw the platform (e.g. opened after the train
 // left) simply shows nothing, which is an acceptable limitation.
 
-const STORAGE_KEY = 'go-train-platform-cache-v1';
+// v1 caches may hold home-station platforms a since-fixed tracker bug served
+// for far-future Outbound trips; bumping the key discards them everywhere.
+const STORAGE_KEY = 'go-train-platform-cache-v2';
+const LEGACY_KEYS = ['go-train-platform-cache-v1'];
 
 interface StoredCache {
   /** Service day (YYYY-MM-DD) this map belongs to; a new day starts fresh. */
@@ -34,6 +37,11 @@ function readStored(): StoredCache | null {
 
 /** Platforms observed earlier today in this browser; empty on a new day. */
 export function loadPlatformCache(today: string): Record<string, string> {
+  try {
+    for (const key of LEGACY_KEYS) localStorage.removeItem(key);
+  } catch {
+    // best-effort cleanup
+  }
   const stored = readStored();
   if (!stored || stored.date !== today) return {};
   return stored.platforms;
