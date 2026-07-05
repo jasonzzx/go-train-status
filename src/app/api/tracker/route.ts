@@ -202,22 +202,21 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
     ]),
   );
 
-  // Batch-fetch the scheduled home-station platform (Schedule/Trip, cached
-  // 2 min) for every live trip AND every train departing soon: Schedule/Trip
-  // knows the home platform all day, so the "now"/"next" cards get a platform
-  // even before the train enters service.
-  // Outbound: it's the arrival platform (fallback once the Union one is gone).
-  // Inbound: it's the boarding platform (primary source).
+  // Batch-fetch the scheduled home-station boarding platform (Schedule/Trip,
+  // cached 2 min) for every live trip AND every train departing soon:
+  // Schedule/Trip knows it all day, so the "now"/"next" cards for Inbound
+  // (homeToOffice) trips get a platform even before the train enters service.
+  // Only Inbound trips use this — homeCode is their departure station. For
+  // Outbound trips homeCode is the arrival station, so its platform is never
+  // the Union departure platform and isn't worth fetching.
   const nowMin = torontoMinutesNow();
   const platformCandidates = new Set<string>();
-  for (const { direction } of directions) {
-    for (const trip of scheduleByDirection.get(direction)!) {
-      if (trip.vehicleType === 'bus') continue; // street stops have no platform
-      const tn = tripNumberFromId(trip.tripId);
-      const dep = timeToMinutes(trip.departure);
-      if (liveStatus.has(tn) || (dep >= nowMin - 30 && dep <= nowMin + 120)) {
-        platformCandidates.add(tn);
-      }
+  for (const trip of scheduleByDirection.get('homeToOffice')!) {
+    if (trip.vehicleType === 'bus') continue; // street stops have no platform
+    const tn = tripNumberFromId(trip.tripId);
+    const dep = timeToMinutes(trip.departure);
+    if (liveStatus.has(tn) || (dep >= nowMin - 30 && dep <= nowMin + 120)) {
+      platformCandidates.add(tn);
     }
   }
 
@@ -249,10 +248,21 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
       // earlier today (Redis), else the home-station scheduled platform (live,
       // then its stored copy — Redis fields are `${trip}:${station}` since the
       // home platform is station-specific, unlike the Union `${trip}` fields).
+      //
+      // The home-station fallback only applies to Inbound (homeToOffice) trips,
+      // where homeCode IS the departure station — a legitimately known-ahead
+      // boarding platform. For Outbound (officeToHome) trips homeCode is the
+      // ARRIVAL station, so that platform has nothing to do with which Union
+      // platform the train leaves from; showing it there previously made a
+      // far-future "NEXT" card display a platform (and open the Union map)
+      // well before GO has actually assigned one at Union.
       const homeKey = `${tripNumber}:${homeCode}`;
-      const homePlat = homePlatforms.get(tripNumber) || '';
+      const homePlat = directionCd === 'Inbound' ? homePlatforms.get(tripNumber) || '' : '';
       const platform =
-        status?.platform || storedPlatforms[tripNumber] || homePlat || storedPlatforms[homeKey] || '';
+        status?.platform ||
+        storedPlatforms[tripNumber] ||
+        homePlat ||
+        (directionCd === 'Inbound' ? storedPlatforms[homeKey] || '' : '');
 
       if (status?.platform && storedPlatforms[tripNumber] !== status.platform) {
         toPersist[tripNumber] = status.platform;
