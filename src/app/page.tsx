@@ -32,6 +32,27 @@ import {
 import { buildOfficialGuidance } from '@/lib/union-official-map';
 import { loadPlatformCache, savePlatformCache } from '@/lib/platform-cache';
 import { torontoNow } from '@/lib/toronto-time';
+import {
+  buildTrackerMaps,
+  getTrackerInfo,
+  formatPlatformLabel,
+  type TrackerInfo,
+} from '@/lib/tracker-info';
+import { computeLineStatus, type LineStatus } from '@/lib/line-status';
+import { buildAlertMap } from '@/lib/alert-match';
+import {
+  secondsUntilDeparture,
+  formatCountdown,
+  countdownTone,
+  formatMinutesAsHHMM,
+  type CountdownTone,
+} from '@/lib/countdown';
+import {
+  LINE_STORAGE_KEY,
+  homeStationKey,
+  loadHomeStation,
+  loadLineId,
+} from '@/lib/preferences';
 import UnionPlatformMap, { MAP_VIEWBOX_WIDTH, MAP_VIEWBOX_HEIGHT } from '@/components/UnionPlatformMap';
 
 // The map is drawn from real OpenStreetMap survey geometry
@@ -214,95 +235,6 @@ function parseTime(time: string): number {
 }
 
 // ──────────────────────────────────────────────────────────
-// Alert matching helpers
-// ──────────────────────────────────────────────────────────
-
-function buildAlertMap(alerts: ParsedAlert[], direction: Direction): Map<string, ParsedAlert[]> {
-  const map = new Map<string, ParsedAlert[]>();
-  for (const alert of alerts) {
-    if (!alert.scheduledDeparture) continue;
-    if (alert.direction !== 'both') {
-      const expected = direction === 'officeToHome' ? 'northbound' : 'southbound';
-      if (alert.direction !== expected) continue;
-    }
-    const key = alert.scheduledDeparture;
-    if (!map.has(key)) map.set(key, []);
-    map.get(key)!.push(alert);
-  }
-  return map;
-}
-
-// ──────────────────────────────────────────────────────────
-// Overall line status — mirrors gotransit.com's status badge:
-// "Good Service" / "Minor Delays" / "No Scheduled Service Today"
-// ──────────────────────────────────────────────────────────
-
-export type LineStatus = 'good' | 'minor' | 'noService';
-
-function computeLineStatus(trips: Trip[], trackerTrips: TrackerTrip[]): LineStatus {
-  if (trips.length === 0) return 'noService';
-  if (trackerTrips.some((t) => t.cancelled || t.delay > 0)) return 'minor';
-  return 'good';
-}
-
-// ──────────────────────────────────────────────────────────
-// Tracker lookup helpers
-// ──────────────────────────────────────────────────────────
-
-interface TrackerInfo {
-  platform: string;
-  expected: string;
-  delay: number;
-  cancelled: boolean;
-  arriveIn: string;
-}
-
-/**
- * Build lookup maps from tracker trips (source: railsix.com).
- * Both directions key by scheduledTime = departure from origin station:
- *  inbound  (SB) scheduledTime = departure from Unionville → match trip.departure
- *  outbound (NB) scheduledTime = departure from Union      → match trip.departure
- */
-function buildTrackerMaps(trips: TrackerTrip[]): {
-  inbound: Map<string, TrackerInfo>;
-  outbound: Map<string, TrackerInfo>;
-} {
-  const inbound = new Map<string, TrackerInfo>();
-  const outbound = new Map<string, TrackerInfo>();
-  for (const t of trips) {
-    const info: TrackerInfo = {
-      platform: t.platform,
-      expected: t.expected,
-      delay: t.delay,
-      cancelled: t.cancelled,
-      arriveIn: t.arriveIn,
-    };
-    if (t.directionCd === 'Inbound') {
-      inbound.set(t.scheduledTime, info);
-    } else {
-      outbound.set(t.scheduledTime, info);
-    }
-  }
-  return { inbound, outbound };
-}
-
-function getTrackerInfo(
-  trip: { departure: string; arrival: string },
-  direction: Direction,
-  inbound: Map<string, TrackerInfo>,
-  outbound: Map<string, TrackerInfo>
-): TrackerInfo | null {
-  // railsix.com: scheduledTime = departure from origin for both directions
-  if (direction === 'homeToOffice') return inbound.get(trip.departure) ?? null;
-  return outbound.get(trip.departure) ?? null;
-}
-
-/** "7 & 8" / "7,8" / "7/8" → "7 | 8" — Metrolinx's own separator is "&" (see types.ts). */
-function formatPlatformLabel(platform: string): string {
-  return platform.split(/[,/&]/).map((p) => p.trim()).filter(Boolean).join(' | ');
-}
-
-// ──────────────────────────────────────────────────────────
 // Icons
 // ──────────────────────────────────────────────────────────
 
@@ -462,11 +394,6 @@ type GeoState =
 
 const AT_STATION_METRES = 250;
 const MAX_WALK_METRES = 3000;
-
-function formatMinutesAsHHMM(min: number): string {
-  const m = ((min % 1440) + 1440) % 1440;
-  return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-}
 
 function PlatformMapSheet({
   platform,
@@ -1036,36 +963,6 @@ function VehicleBadge({
 // Departure countdown (NEXT card only)
 // ──────────────────────────────────────────────────────────
 
-/** Seconds from now (Toronto clock) until today's expected departure (scheduled + live delay). */
-function secondsUntilDeparture(departure: string, delayMin: number): number {
-  const now = torontoNow();
-  const targetSec = (timeToMinutes(departure) + delayMin) * 60;
-  return Math.max(0, targetSec - (now.minutes * 60 + now.seconds));
-}
-
-function formatCountdown(totalSeconds: number): string {
-  const pad = (n: number) => String(n).padStart(2, '0');
-  const h = Math.floor(totalSeconds / 3600);
-  const m = Math.floor((totalSeconds % 3600) / 60);
-  const s = totalSeconds % 60;
-  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
-}
-
-// Countdown urgency rule — adjust the cutoffs here:
-//   remaining >  COUNTDOWN_WARN_MINUTES   → 'calm'   (green, the default look)
-//   COUNTDOWN_URGENT_MINUTES … WARN       → 'warn'   (yellow — get moving)
-//   remaining <  COUNTDOWN_URGENT_MINUTES → 'urgent' (red — doors close ~1 min early)
-const COUNTDOWN_WARN_MINUTES = 10;
-const COUNTDOWN_URGENT_MINUTES = 3;
-
-type CountdownTone = 'calm' | 'warn' | 'urgent';
-
-function countdownTone(secondsLeft: number): CountdownTone {
-  if (secondsLeft < COUNTDOWN_URGENT_MINUTES * 60) return 'urgent';
-  if (secondsLeft <= COUNTDOWN_WARN_MINUTES * 60) return 'warn';
-  return 'calm';
-}
-
 // Chip colours per tone, tuned for the NEXT card's solid green background.
 const COUNTDOWN_TONE_STYLES: Record<CountdownTone, { chip: string; label: string; value: string }> = {
   calm:   { chip: 'border-white/70 bg-white/10',      label: 'text-white/80',   value: 'text-white' },
@@ -1497,33 +1394,11 @@ function WeekendNotice({ direction }: { direction: Direction }) {
 // Main Page
 // ──────────────────────────────────────────────────────────
 
-const LINE_STORAGE_KEY = 'go-train-line';
-const HOME_STATION_STORAGE_KEY = 'go-train-home-station';
-
-// Home station is remembered per line: "go-train-home-station:LW".
-// The un-suffixed key is the legacy Stouffville-only key (pre multi-line).
-function homeStationKey(lineId: string): string {
-  return `${HOME_STATION_STORAGE_KEY}:${lineId}`;
-}
-
-// Resolve the saved (or default) home station for a line, validating it against
-// the line's stations and migrating pre-GTFS Stouffville codes.
-// These read localStorage and so must only ever run client-side, after
+// Line + home-station persistence lives in src/lib/preferences.ts. The
+// loaders read localStorage and so must only ever run client-side, after
 // mount — never as a useState lazy initializer, or the client's first
 // render (during hydration) won't match the server-rendered default and
 // React will throw a hydration mismatch.
-function loadHomeStation(line: LineInfo): string {
-  let stored = localStorage.getItem(homeStationKey(line.id));
-  if (!stored && line.id === 'ST') stored = localStorage.getItem(HOME_STATION_STORAGE_KEY);
-  const migration: Record<string, string> = { OE: 'LI', ER: 'ST', ML: 'MK', AO: 'AG', CN: 'CE', MK: 'MR' };
-  const code = stored ? (migration[stored] ?? stored) : line.defaultHomeCode;
-  return line.homeStations.some((s) => s.code === code) ? code : line.defaultHomeCode;
-}
-
-function loadLineId(): string {
-  const stored = localStorage.getItem(LINE_STORAGE_KEY) ?? DEFAULT_LINE_ID;
-  return LINES.some((l) => l.id === stored) ? stored : DEFAULT_LINE_ID;
-}
 
 export default function Home() {
   const { lang, setLang, t } = useLanguage();
