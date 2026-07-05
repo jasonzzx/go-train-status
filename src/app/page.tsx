@@ -1400,10 +1400,11 @@ function TrainCard({
         </svg>
       </button>
 
-      {/* Tracker row: platform + expected + departure countdown. The platform
-          chip is only prominent on the NOW/NEXT cards; on every other card it
-          appears when the card is expanded via the chevron (alongside the
-          station list). Today's NEXT card always gets the row so the countdown
+      {/* Tracker row: platform + expected + departure countdown. Platform chip
+          visibility: always on NOW; on NEXT (live-only data, per platformFor);
+          on past cards only when expanded via the chevron; NEVER on future
+          cards below NEXT — even expanded — since no trustworthy platform can
+          exist for them. Today's NEXT card always gets the row so the countdown
           runs even before any live tracker data arrives. */}
       {(tracker || (isNext && isToday)) && (
         <div className="pb-3">
@@ -1413,7 +1414,7 @@ function TrainCard({
             isPast={effectiveIsPast}
             isNext={isNext}
             showCountdown={isNext && isToday}
-            showPlatform={isNext || isNowRunning || isExpanded}
+            showPlatform={isNext || isNowRunning || (effectiveIsPast && isExpanded)}
             direction={direction}
             onPlatformClick={onPlatformClick}
           />
@@ -1838,16 +1839,18 @@ export default function Home() {
     });
   }, [trips, direction, isToday, todayStr, trackerInbound, trackerOutbound]);
 
-  // Platform to show for a trip: the live value, or the last one we cached for
-  // it earlier today (survives the feed dropping it after departure / reload).
-  // The cache fallback only applies near/after departure: GO assigns platforms
-  // ~10-15 min ahead, so a cached value for a far-future trip can only be
-  // stale or wrong — a NEXT card hours out must never show one.
+  // Platform to show for a trip:
+  //  - the live feed value always wins — it's the ONLY source a not-yet-departed
+  //    (NEXT) card may show, since GO assigns platforms ~10-15 min out and
+  //    anything else for a future trip would be a stale guess;
+  //  - once the trip has departed, fall back to the value remembered earlier
+  //    today (localStorage here, Redis via the tracker response) so past/NOW
+  //    cards keep their platform for the whole service day.
   const platformFor = useCallback(
     (trip: { departure: string; arrival: string }): string => {
       const live = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound)?.platform;
       if (live) return live;
-      if (nowMinutes === null || parseTime(trip.departure) - nowMinutes > 45) return '';
+      if (nowMinutes === null || parseTime(trip.departure) > nowMinutes) return '';
       return platformCache[`${direction}:${trip.departure}`] || '';
     },
     [direction, trackerInbound, trackerOutbound, platformCache, nowMinutes]
@@ -2146,10 +2149,11 @@ export default function Home() {
               const isNext = i === nextIndex;
               const tripAlerts = alertMap.get(trip.departure) ?? [];
               const rawTracker = isToday ? getTrackerInfo(trip, direction, trackerInbound, trackerOutbound) : null;
-              // Every card carries its own platform (live value, or the one we
-              // remembered in localStorage / got back-filled from the store), so a
-              // past card keeps showing its platform — dimmed with the card — and
-              // both NOW and NEXT can show one at once. Persists until the day rolls.
+              // Every departed card carries its platform for the whole service
+              // day (live value, or the one remembered in localStorage / the
+              // server store); a future card only ever carries a live value.
+              // Whether the chip is actually visible is decided per-card in
+              // TrainCard (NOW always, NEXT when live, past when expanded).
               const showPlatform = isToday ? platformFor(trip) : '';
               const tracker: TrackerInfo | null = rawTracker
                 ? { ...rawTracker, platform: showPlatform }

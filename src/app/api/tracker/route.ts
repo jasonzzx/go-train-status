@@ -85,7 +85,12 @@ function extractTrips(html: string): RailsixTrip[] {
   }
 }
 
-function mapTrip(raw: RailsixTrip, dir: 'Inbound' | 'Outbound'): TrackerTrip {
+function mapTrip(
+  raw: RailsixTrip,
+  dir: 'Inbound' | 'Outbound',
+  stored: Record<string, string> = {},
+  homeCode?: string,
+): TrackerTrip {
   const delayMs = (raw.actualAt ?? raw.scheduledAt) - raw.scheduledAt;
   const delayMin = Math.round(delayMs / 60_000);
 
@@ -93,6 +98,22 @@ function mapTrip(raw: RailsixTrip, dir: 'Inbound' | 'Outbound'): TrackerTrip {
   // home-station platforms all day, but a platform hours before departure
   // reads as stale/untrustworthy, so only show it once departure is near.
   const departsSoon = raw.scheduledAt - Date.now() <= 45 * 60_000;
+
+  // Live value from railsix, else — for a trip that has already departed —
+  // the platform the cron/tracker captured in the shared store earlier today,
+  // so a cold open still shows platforms on past/NOW cards even on this
+  // fallback path. Outbound trips are stored under the bare trip number
+  // (Union departure platform); Inbound home-station platforms under
+  // `${trip}:${station}`.
+  const livePlatform = departsSoon && raw.platform && raw.platform !== '-' ? raw.platform : '';
+  const departed = raw.scheduledAt <= Date.now();
+  const storedKey =
+    dir === 'Outbound'
+      ? raw.tripNumber ?? ''
+      : raw.tripNumber && homeCode
+      ? `${raw.tripNumber}:${homeCode}`
+      : '';
+  const platform = livePlatform || (departed && storedKey ? stored[storedKey] ?? '' : '');
 
   const rawStatus = raw.status ?? '';
   const cancelled = rawStatus.toLowerCase().includes('cancel');
@@ -111,7 +132,7 @@ function mapTrip(raw: RailsixTrip, dir: 'Inbound' | 'Outbound'): TrackerTrip {
   return {
     scheduledTime: raw.scheduledTime ?? '',
     directionCd: dir,
-    platform: departsSoon && raw.platform && raw.platform !== '-' ? raw.platform : '',
+    platform,
     expected,
     delay: delayMin > 0 ? delayMin : 0,
     cancelled,
@@ -157,7 +178,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<TrackerRes
     }
   }
 
-  return scrapedTrackerResponse(homeSlug);
+  return scrapedTrackerResponse(homeSlug, lineId || undefined);
 }
 
 // ── Official Metrolinx tracker ─────────────────────────────────────────────
@@ -212,8 +233,9 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
   // "now"/"next" cards for Inbound (homeToOffice) trips get a platform even
   // before the train enters service. Schedule/Trip knows it all day, but a
   // platform on a card hours before departure reads as stale/untrustworthy —
-  // only attach it once departure is near (45 min mirrors the client's cache
-  // display window). Only Inbound trips use this — homeCode is their departure
+  // only attach it once departure is near (45 min), so the client can treat
+  // everything the tracker sends as live-worthy data for the NEXT card.
+  // Only Inbound trips use this — homeCode is their departure
   // station. For Outbound trips homeCode is the arrival station, so its
   // platform is never the Union departure platform and isn't worth fetching.
   const nowMin = torontoMinutesNow();
@@ -326,22 +348,53 @@ async function buildOfficialTracker(lineId: string, homeSlug: string): Promise<T
 
 // ── Legacy railsix scraper (fallback) ──────────────────────────────────────
 
-async function scrapedTrackerResponse(homeSlug: string): Promise<NextResponse<TrackerResponse>> {
+async function scrapedTrackerResponse(
+  homeSlug: string,
+  lineId?: string,
+): Promise<NextResponse<TrackerResponse>> {
   const { sb: RAILSIX_SB, nb: RAILSIX_NB } = buildRailsixUrls(homeSlug);
 
   try {
-    const [sbHtml, nbHtml] = await Promise.all([
+    const serviceDay = torontoDateStr();
+    const [sbHtml, nbHtml, stored] = await Promise.all([
       fetchPage(RAILSIX_SB),
       fetchPage(RAILSIX_NB),
+      getStoredPlatforms(serviceDay),
     ]);
 
     const sbRaw = extractTrips(sbHtml);
     const nbRaw = extractTrips(nbHtml);
 
+    // Home-station code (for Inbound stored-platform keys); best-effort.
+    const homeCode = lineId
+      ? getLine(lineId).homeStations.find((s) => s.railsixSlug === homeSlug)?.code
+      : undefined;
+
     const trips: TrackerTrip[] = [
-      ...sbRaw.map((t) => mapTrip(t, 'Inbound')),
-      ...nbRaw.map((t) => mapTrip(t, 'Outbound')),
+      ...sbRaw.map((t) => mapTrip(t, 'Inbound', stored, homeCode)),
+      ...nbRaw.map((t) => mapTrip(t, 'Outbound', stored, homeCode)),
     ];
+
+    // Remember every live platform sighting server-side, so other devices and
+    // cold opens keep it for the rest of the day (mirrors the official path).
+    const toPersist: Record<string, string> = {};
+    for (const t of trips) {
+      if (!t.platform || !t.tripNumber) continue;
+      const key =
+        t.directionCd === 'Outbound'
+          ? t.tripNumber
+          : homeCode
+          ? `${t.tripNumber}:${homeCode}`
+          : '';
+      if (key && stored[key] !== t.platform) toPersist[key] = t.platform;
+    }
+    if (Object.keys(toPersist).length > 0) {
+      try {
+        await savePlatforms(serviceDay, toPersist);
+      } catch {
+        // best-effort: the response still carries the fresh values
+      }
+    }
 
     return NextResponse.json(
       { trips, available: true, lastUpdated: new Date().toISOString(), source: 'railsix' as const },
