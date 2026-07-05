@@ -9,7 +9,6 @@ import {
   timeToMinutes,
   type Direction,
   type Trip,
-  type StationStop,
 } from '@/lib/schedule-data';
 import {
   getLine,
@@ -39,13 +38,7 @@ import {
 } from '@/lib/tracker-info';
 import { computeLineStatus, type LineStatus } from '@/lib/line-status';
 import { buildAlertMap } from '@/lib/alert-match';
-import {
-  secondsUntilDeparture,
-  formatCountdown,
-  countdownTone,
-  formatMinutesAsHHMM,
-  type CountdownTone,
-} from '@/lib/countdown';
+import { formatMinutesAsHHMM } from '@/lib/countdown';
 import {
   LINE_STORAGE_KEY,
   homeStationKey,
@@ -65,6 +58,8 @@ import {
 } from '@/components/icons';
 import LinePicker from '@/components/LinePicker';
 import StationPicker from '@/components/StationPicker';
+import StationList from '@/components/StationList';
+import CountdownChip from '@/components/CountdownChip';
 
 // The map is drawn from real OpenStreetMap survey geometry
 // (src/data/union-station-map.json, regenerate with npm run generate-union-map).
@@ -536,150 +531,6 @@ function ServiceAlertsSheet({
   );
 }
 
-// ──────────────────────────────────────────────────────────
-// Station stop list (expandable inside TrainCard)
-// ──────────────────────────────────────────────────────────
-
-function StationList({
-  stops,
-  depMins,
-  nowMinutes,
-  delayMin,
-  onBoard,
-  isNext,
-}: {
-  stops: StationStop[];
-  depMins: number;
-  nowMinutes: number | null;
-  /** Live delay — stop rows show scheduled times, so the position indicator
-      compares against `now − delay` to stay on the delayed train's segment. */
-  delayMin: number;
-  onBoard: boolean;
-  isNext: boolean;
-}) {
-  const { lang, t } = useLanguage();
-  // For overnight trips (departure >22:00) normalize nowMinutes to absolute scale
-  const effectiveNow = useMemo(() => {
-    if (nowMinutes === null) return null;
-    const adjusted = nowMinutes - delayMin;
-    return adjusted < 360 && depMins > 1200 ? adjusted + 1440 : adjusted;
-  }, [nowMinutes, depMins, delayMin]);
-
-  // When On Board: find which segment we're currently in
-  // "now" = between stop[i] and stop[i+1]
-  // "nextStop" = stop[i+1] (the upcoming station)
-  const nowSegmentAfterIndex = useMemo(() => {
-    if (!onBoard || effectiveNow === null) return -1;
-    for (let i = 0; i < stops.length - 1; i++) {
-      if (effectiveNow >= stops[i].scheduledMinutes && effectiveNow < stops[i + 1].scheduledMinutes) {
-        return i; // we're between stop[i] and stop[i+1]
-      }
-    }
-    // If past last stop, we're at the final station
-    return stops.length - 1;
-  }, [onBoard, effectiveNow, stops]);
-
-  return (
-    <div className="relative pl-2 pr-1">
-      {/* vertical track line */}
-      <div className={`absolute left-[18px] top-3 bottom-3 w-0.5 ${isNext ? 'bg-white/20' : 'bg-gray-100'}`} />
-
-      {stops.map((stop, i) => {
-        const isFirst = i === 0;
-        const isLast = i === stops.length - 1;
-
-        // Passed = we've already left this station
-        const isPassed = onBoard && nowSegmentAfterIndex >= 0 && i <= nowSegmentAfterIndex && nowSegmentAfterIndex < stops.length - 1;
-        // "now" label: shown on the segment line BETWEEN stop[i] and stop[i+1]
-        // We render it as a mid-segment indicator after stop[i] if we're currently between i and i+1
-        const isInTransitAfter = onBoard && i === nowSegmentAfterIndex && nowSegmentAfterIndex < stops.length - 1;
-        // "next" label: the upcoming station = stop[nowSegmentAfterIndex + 1]
-        const isUpcomingStation = onBoard && i === nowSegmentAfterIndex + 1 && nowSegmentAfterIndex >= 0 && nowSegmentAfterIndex < stops.length - 1;
-        // At final station
-        const isAtFinal = onBoard && nowSegmentAfterIndex >= stops.length - 1 && isLast;
-
-        return (
-          <div key={stop.code} className="relative z-10">
-            <div className="flex items-center gap-3 py-1.5">
-              {/* dot */}
-              <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center border-2 transition-all ${
-                isAtFinal
-                  ? 'bg-go-accent border-go-accent shadow-sm'
-                  : isUpcomingStation
-                  ? isNext ? 'bg-white border-white shadow-sm' : 'bg-go-dark border-go-dark shadow-sm'
-                  : isPassed
-                  ? isNext ? 'bg-white/40 border-white/40' : 'bg-go-green/40 border-go-green/40'
-                  : isFirst || isLast
-                  ? isNext ? 'bg-white border-white' : 'bg-go-dark border-go-dark'
-                  : isNext ? 'bg-transparent border-white/40' : 'bg-white border-gray-300'
-              }`}>
-                {(isPassed && !isUpcomingStation && !isAtFinal) && (
-                  <svg className={`w-2.5 h-2.5 ${isNext ? 'text-go-dark' : 'text-white'}`} fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={2.5}>
-                    <polyline points="2,6 5,9 10,3" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                )}
-                {isAtFinal && <span className="w-1.5 h-1.5 rounded-full bg-white block" />}
-              </div>
-
-              {/* station name + time */}
-              <div className="flex-1 flex justify-between items-center min-w-0">
-                <div className="flex items-center gap-1.5 min-w-0">
-                  <span className={`text-sm truncate ${
-                    isAtFinal
-                      ? 'font-bold text-go-accent'
-                      : isUpcomingStation
-                      ? isNext ? 'text-white font-bold' : 'text-go-dark font-bold'
-                      : isPassed
-                      ? isNext ? 'text-white/40' : 'text-gray-400'
-                      : isFirst || isLast
-                      ? isNext ? 'text-white font-semibold' : 'text-go-dark font-semibold'
-                      : isNext ? 'text-white/85' : 'text-gray-700'
-                  }`}>
-                    {getStationName(stop.code, stop.name, lang)}
-                  </span>
-                  {isUpcomingStation && (
-                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
-                      isNext ? 'bg-white/25 text-white' : 'bg-go-dark/10 text-go-dark'
-                    }`}>
-                      {t('next')}
-                    </span>
-                  )}
-                  {isAtFinal && (
-                    <span className="text-[10px] font-bold text-go-accent bg-go-accent/10 px-1.5 py-0.5 rounded-full shrink-0 animate-pulse">
-                      {t('arrived')}
-                    </span>
-                  )}
-                </div>
-                <span className={`text-xs font-mono ml-2 shrink-0 ${
-                  isAtFinal ? 'text-go-accent font-bold'
-                  : isUpcomingStation ? isNext ? 'text-white font-bold' : 'text-go-dark font-bold'
-                  : isPassed ? isNext ? 'text-white/35' : 'text-gray-300'
-                  : isNext ? 'text-white/70' : 'text-gray-500'
-                }`}>
-                  {stop.scheduledTime}
-                </span>
-              </div>
-            </div>
-
-            {/* "now" indicator: mid-segment, shown after the departed station */}
-            {isInTransitAfter && (
-              <div className="flex items-center gap-3 py-0.5 relative z-10">
-                {/* dot placeholder to align with track */}
-                <div className="w-5 shrink-0 flex items-center justify-center">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse block" />
-                </div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-500 animate-pulse">
-                  ← now
-                </span>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 function VehicleBadge({
   type,
   isNext,
@@ -701,64 +552,6 @@ function VehicleBadge({
     <div className="flex flex-col items-center justify-center w-10 shrink-0">
       {type === 'train' ? <TrainIcon className={iconCls} inverted={isNext} /> : <BusIcon className={iconCls} />}
       <span className={textCls}>{type === 'train' ? t('train') : t('bus')}</span>
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────
-// Departure countdown (NEXT card only)
-// ──────────────────────────────────────────────────────────
-
-// Chip colours per tone, tuned for the NEXT card's solid green background.
-const COUNTDOWN_TONE_STYLES: Record<CountdownTone, { chip: string; label: string; value: string }> = {
-  calm:   { chip: 'border-white/70 bg-white/10',      label: 'text-white/80',   value: 'text-white' },
-  warn:   { chip: 'border-yellow-300 bg-yellow-300/15', label: 'text-yellow-200', value: 'text-yellow-100' },
-  urgent: { chip: 'border-red-400 bg-red-500/25',     label: 'text-red-200',    value: 'text-red-50' },
-};
-
-// Live min:sec countdown to the expected departure — same chip shape as the
-// platform badge. Self-contained 1s tick so only the chip re-renders; each
-// tick recomputes from the wall clock, so a throttled background tab snaps
-// back to the correct value on its first tick after resume. Tapping the chip
-// itself opens the door-close note (no separate "i" button).
-function CountdownChip({ departure, delayMin }: { departure: string; delayMin: number }) {
-  const { t } = useLanguage();
-  const [secondsLeft, setSecondsLeft] = useState(() => secondsUntilDeparture(departure, delayMin));
-  const [infoOpen, setInfoOpen] = useState(false);
-
-  useEffect(() => {
-    const tick = () => setSecondsLeft(secondsUntilDeparture(departure, delayMin));
-    tick();
-    const id = setInterval(tick, 1_000);
-    return () => clearInterval(id);
-  }, [departure, delayMin]);
-
-  const label = formatCountdown(secondsLeft);
-  const tone = COUNTDOWN_TONE_STYLES[countdownTone(secondsLeft)];
-  return (
-    <div className="relative shrink-0">
-      <button
-        type="button"
-        aria-label={t('boardingInfoLabel')}
-        onClick={(e) => { e.stopPropagation(); setInfoOpen((o) => !o); }}
-        className={`flex flex-col items-center leading-none px-2 py-1 rounded-lg border-[3px] transition-colors ${tone.chip}`}
-      >
-        <span className={`text-[8px] font-bold uppercase tracking-wide ${tone.label}`}>
-          {t('departsIn')}
-        </span>
-        <span className={`font-black leading-none mt-0.5 tabular-nums ${tone.value} ${label.length > 5 ? 'text-lg' : 'text-2xl'}`}>
-          {label}
-        </span>
-      </button>
-      {infoOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={(e) => { e.stopPropagation(); setInfoOpen(false); }} />
-          <div className="absolute bottom-full right-0 mb-2 w-56 bg-gray-800 text-gray-100 text-[11px] rounded-lg px-3 py-2 shadow-lg z-50 leading-relaxed">
-            {t('doorCloseInfo')}
-            <div className="absolute -bottom-1 right-1.5 w-2 h-2 bg-gray-800 rotate-45" />
-          </div>
-        </>
-      )}
     </div>
   );
 }
