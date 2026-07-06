@@ -76,10 +76,14 @@ describe('ServiceAlertsSheet states', () => {
   });
 
   it('footer links to the line service-updates page and shows last-updated', () => {
-    renderSheet({ lastUpdated: '2026-07-06T13:00:00.000Z' });
+    const iso = '2026-07-06T13:00:00.000Z';
+    renderSheet({ lastUpdated: iso });
     const link = screen.getByText(en.viewOnGotransit).closest('a')!;
     expect(link.href).toContain('code=ST');
-    expect(screen.getByText(/09:00/).textContent).toContain('09:00'); // Toronto time
+    // The component formats in the machine's timezone, so compute the
+    // expectation the same way — CI runs in UTC, dev machines in Toronto.
+    const time = new Date(iso).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' });
+    expect(screen.getByText(en.lastUpdated.replace('{time}', time))).toBeTruthy();
   });
 
   it('closes on the ✕ button and on backdrop click, not on sheet click', () => {
