@@ -6,7 +6,7 @@ import type { ParsedAlert } from '@/app/api/alerts/route';
 import { formatPlatformLabel, type TrackerInfo } from '@/lib/tracker-info';
 import { isPlatformMapped } from '@/lib/union-platform-map';
 import { useLanguage } from '@/i18n';
-import { TrainIcon, BusIcon, ArrowRightIcon } from '@/components/icons';
+import { TrainIcon, BusIcon, ArrowRightIcon, BellIcon } from '@/components/icons';
 import StationList from '@/components/StationList';
 import CountdownChip from '@/components/CountdownChip';
 
@@ -183,6 +183,9 @@ export default function TrainCard({
   isExpanded,
   isOnBoard,
   liveStops,
+  watchable,
+  isWatched,
+  onToggleWatch,
   onToggleExpand,
   onToggleOnBoard,
   onAlertClick,
@@ -201,6 +204,11 @@ export default function TrainCard({
   isExpanded: boolean;
   isOnBoard: boolean;
   liveStops: string[];
+  /** Show the notification bell (today's not-yet-departed trains, when the
+      browser can do push and notifications are configured server-side). */
+  watchable: boolean;
+  isWatched: boolean;
+  onToggleWatch: () => void;
   onToggleExpand: () => void;
   onToggleOnBoard: () => void;
   onAlertClick: () => void;
@@ -291,6 +299,30 @@ export default function TrainCard({
           </div>
           <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>{t('arrive')}</div>
         </div>
+
+        {/* Notification bell — watch this trip for delay/cancellation/platform
+            pushes. Same interaction pattern as the alert badge: a role=button
+            div, since it sits inside the expand <button>. */}
+        {watchable && (
+          <div
+            onClick={(e) => { e.stopPropagation(); onToggleWatch(); }}
+            role="button"
+            aria-pressed={isWatched}
+            aria-label={isWatched ? t('notifyOn') : t('notifyMe')}
+            title={isWatched ? t('notifyOn') : t('notifyMe')}
+            className={`
+              ml-1 shrink-0 w-8 h-8 rounded-full flex items-center justify-center
+              transition-colors active:scale-95
+              ${isWatched
+                ? 'bg-go-accent text-white'
+                : isNext
+                ? 'bg-white/20 text-white/80'
+                : 'bg-gray-100 text-gray-400'}
+            `}
+          >
+            <BellIcon className="w-[18px] h-[18px]" />
+          </div>
+        )}
 
         {/* Alert badge */}
         {hasAlert && (

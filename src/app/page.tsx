@@ -35,6 +35,17 @@ import {
   loadHomeStation,
   loadLineId,
 } from '@/lib/preferences';
+import {
+  pushSupported,
+  getNotificationConfig,
+  ensurePushSubscription,
+  getCurrentSubscription,
+  watchTrip,
+  unwatchTrip,
+  watchKey,
+  loadWatched,
+  saveWatched,
+} from '@/lib/push-client';
 import { BellIcon, LineStatusIcon, ArrowRightIcon } from '@/components/icons';
 import LinePicker from '@/components/LinePicker';
 import StationPicker from '@/components/StationPicker';
@@ -169,6 +180,18 @@ export default function Home() {
   const [trackerSource, setTrackerSource] = useState<string | null>(null);
   const [alertsSource, setAlertsSource] = useState<string | null>(null);
   const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
+
+  // Push-notification watches — which of today's trips this browser asked to
+  // be notified about ("directionCd:departure" → trip number). Mirrored in
+  // localStorage; the authoritative copy lives server-side (notification-store)
+  // where /api/cron/notify reads it.
+  const [watched, setWatched] = useState<Record<string, string>>({});
+  // True when this browser can do Web Push AND the server has it configured —
+  // gates whether bells render at all.
+  const [notifReady, setNotifReady] = useState(false);
+  // Transient feedback for the bell (permission denied, confirmed, …).
+  const [notifNotice, setNotifNotice] = useState<string | null>(null);
+  const notifNoticeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Last-known platform per train ("direction:departure" → platform), remembered
   // in this browser's localStorage for the current service day. The live feed
@@ -368,6 +391,77 @@ export default function Home() {
   useEffect(() => {
     if (todayStr) setPlatformCache(loadPlatformCache(todayStr));
   }, [todayStr]);
+
+  // Restore today's watched trips + check whether push is available at all
+  // (browser support and server configuration) so bells only render when a
+  // tap can actually succeed.
+  useEffect(() => {
+    if (todayStr) setWatched(loadWatched(todayStr));
+  }, [todayStr]);
+
+  useEffect(() => {
+    if (!pushSupported()) return;
+    let cancelled = false;
+    getNotificationConfig().then((cfg) => {
+      if (!cancelled) setNotifReady(cfg.enabled);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const showNotifNotice = useCallback((message: string) => {
+    if (notifNoticeTimer.current) clearTimeout(notifNoticeTimer.current);
+    setNotifNotice(message);
+    notifNoticeTimer.current = setTimeout(() => setNotifNotice(null), 6_000);
+  }, []);
+
+  // Bell toggle: subscribe this browser to pushes for one specific trip today
+  // (delay ≥5 min, cancellation, Union platform assignment), or unsubscribe.
+  // The first watch triggers the browser's notification-permission prompt.
+  const handleToggleWatch = useCallback(async (trip: Trip) => {
+    if (!todayStr) return;
+    const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
+    const key = watchKey(dirKey, trip.departure);
+    const tripNumber = trip.tripId.split('-').pop() ?? '';
+    if (!tripNumber) return;
+
+    if (watched[key]) {
+      const next = { ...watched };
+      delete next[key];
+      setWatched(next);
+      saveWatched(todayStr, next);
+      const sub = await getCurrentSubscription();
+      if (sub) unwatchTrip(sub.endpoint, tripNumber);
+      return;
+    }
+
+    try {
+      const cfg = await getNotificationConfig();
+      if (!cfg.enabled) {
+        showNotifNotice(t('notifUnavailable'));
+        return;
+      }
+      const sub = await ensurePushSubscription(cfg.publicKey);
+      await watchTrip(sub, {
+        tripNumber,
+        lineId,
+        directionCd: dirKey,
+        departure: trip.departure,
+        dest:
+          direction === 'homeToOffice'
+            ? t('unionStation')
+            : getStationName(homeStation.code, homeStation.shortName, lang),
+        lang,
+      });
+      const next = { ...watched, [key]: tripNumber };
+      setWatched(next);
+      saveWatched(todayStr, next);
+      showNotifNotice(t('notifWatchOn', { departure: trip.departure }));
+    } catch (err) {
+      showNotifNotice(
+        err instanceof Error && err.message === 'denied' ? t('notifDenied') : t('notifWatchFailed'),
+      );
+    }
+  }, [watched, todayStr, direction, lineId, homeStation, lang, t, showNotifNotice]);
 
   // Record every platform the live feed publishes, so we can keep showing it
   // after the feed drops it at departure. Only the viewed direction carries a
@@ -732,6 +826,15 @@ export default function Home() {
                     isExpanded={isExpanded}
                     isOnBoard={isOnBoard}
                     liveStops={liveStops}
+                    watchable={
+                      notifReady &&
+                      isToday &&
+                      !isPast &&
+                      trip.vehicleType === 'train' &&
+                      !tracker?.cancelled
+                    }
+                    isWatched={Boolean(watched[watchKey(dirKey, trip.departure)])}
+                    onToggleWatch={() => handleToggleWatch(trip)}
                     onToggleExpand={() => setExpandedDep(isExpanded ? null : trip.departure)}
                     onToggleOnBoard={() => setOnBoardDep(isOnBoard ? null : trip.departure)}
                     onAlertClick={() => setShowAlertsSheet(true)}
@@ -908,6 +1011,15 @@ export default function Home() {
       {/* Platform Map Sheet */}
       {platformSheet && (
         <PlatformMapSheet {...platformSheet} onClose={() => setPlatformSheet(null)} />
+      )}
+
+      {/* Transient bell feedback (permission denied, watch confirmed, …) */}
+      {notifNotice && (
+        <div className="fixed bottom-4 inset-x-4 z-[90] max-w-md mx-auto pointer-events-none">
+          <div className="bg-gray-900/95 text-white text-sm rounded-xl px-4 py-3 shadow-lg text-center">
+            {notifNotice}
+          </div>
+        </div>
       )}
 
     </div>

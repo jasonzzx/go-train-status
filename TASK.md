@@ -15,12 +15,17 @@ for free.
 
 ## P0 — Highest impact
 
-- [ ] **1. Push notifications for delays, cancellations, and platform assignment**
+- [x] **1. Push notifications for delays, cancellations, and platform assignment**
   The single biggest win. Today the user must open the app to learn their 5:40
   is cancelled. Notify when *their* usual train is delayed/cancelled, and the
   moment its Union platform is assigned (~10–15 min out) — removes the
   departure-board huddle entirely. The server-side platform capture
   (`/api/cron/platforms`, `platform-store.ts`) already exists to build on.
+  *Shipped as a per-trip bell on today's train cards → Web Push (delay ≥5 min
+  with growth/recovery follow-ups, cancellation, Union platform assignment),
+  driven by `GET /api/cron/notify` every 1–2 min. Needs `VAPID_*` keys + the
+  cron schedule configured in production (see README). Saved "usual trips"
+  (recurring auto-watch) is a natural follow-up.*
 
 - [ ] **2. Offline support (service worker)**
   There is currently **no service worker at all** — underground at Union or in

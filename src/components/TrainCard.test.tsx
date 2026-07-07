@@ -36,6 +36,9 @@ function renderCard(overrides: Partial<Props> = {}) {
     isExpanded: false,
     isOnBoard: false,
     liveStops: [],
+    watchable: false,
+    isWatched: false,
+    onToggleWatch: vi.fn(),
     onToggleExpand: vi.fn(),
     onToggleOnBoard: vi.fn(),
     onAlertClick: vi.fn(),
@@ -166,6 +169,26 @@ describe('platform chip visibility spec', () => {
   it('formats multi-platform labels with a pipe', () => {
     renderCard({ isNext: true, tracker: tracker({ platform: '7 & 8' }) });
     expect(screen.getByText('7 | 8')).toBeTruthy();
+  });
+});
+
+describe('notification bell', () => {
+  it('hidden unless the trip is watchable', () => {
+    renderCard();
+    expect(screen.queryByLabelText(en.notifyMe)).toBeNull();
+  });
+
+  it('fires onToggleWatch without expanding the card', () => {
+    const props = renderCard({ watchable: true });
+    fireEvent.click(screen.getByLabelText(en.notifyMe));
+    expect(props.onToggleWatch).toHaveBeenCalledOnce();
+    expect(props.onToggleExpand).not.toHaveBeenCalled();
+  });
+
+  it('reflects the watched state (label + aria-pressed)', () => {
+    renderCard({ watchable: true, isWatched: true });
+    const bell = screen.getByLabelText(en.notifyOn);
+    expect(bell.getAttribute('aria-pressed')).toBe('true');
   });
 });
 

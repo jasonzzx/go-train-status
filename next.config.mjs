@@ -10,6 +10,9 @@ const nextConfig = {
       { source: '/', headers: [noCache] },
       { source: '/manifest.json', headers: [noCache] },
       { source: '/version.json', headers: [noCache] },
+      // The service worker must never be cached, or push-handling fixes
+      // would take a full browser SW-update cycle to reach installed PWAs.
+      { source: '/sw.js', headers: [noCache] },
     ];
   },
 };

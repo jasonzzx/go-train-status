@@ -11,13 +11,12 @@
 // UnionDepartures and writes here (see /api/cron/platforms); /api/tracker reads
 // here to backfill departed trains.
 //
-// Backed by the REST API of the Redis store Vercel provisions for KV (env vars
-// KV_REST_API_URL / KV_REST_API_TOKEN, with UPSTASH_* as fallbacks). If those
-// aren't set, every call safely no-ops so the app still runs (falling back to
-// the client's localStorage), and nothing breaks before the store is created.
+// Backed by the KV/Redis REST transport in src/lib/kv.ts. If the store env
+// vars aren't set, every call safely no-ops so the app still runs (falling
+// back to the client's localStorage), and nothing breaks before the store is
+// created.
 
-const REST_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
-const REST_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
+import { kvEnabled, kvCommand as redis } from '@/lib/kv';
 
 // Self-housekeeping: each service day is one Redis key (`goplat:<date>`) and
 // the app only ever reads the CURRENT one. Past days are kept for a week so
@@ -34,7 +33,7 @@ let readCache: { serviceDay: string; at: number; value: Record<string, string> }
 
 /** True when a KV/Redis store is wired up; otherwise all ops no-op. */
 export function platformStoreEnabled(): boolean {
-  return Boolean(REST_URL && REST_TOKEN);
+  return kvEnabled();
 }
 
 /** Service day (YYYY-MM-DD, America/Toronto) used as the storage key. */
@@ -50,23 +49,6 @@ export function torontoDateStr(now: Date = new Date()): string {
 
 function keyFor(serviceDay: string): string {
   return `goplat:${serviceDay}`;
-}
-
-/** Run one Redis command via the Upstash REST API. Throws on transport error. */
-async function redis(command: (string | number)[]): Promise<unknown> {
-  const res = await fetch(REST_URL, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${REST_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(command),
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error(`KV REST HTTP ${res.status}`);
-  const json = (await res.json()) as { result?: unknown; error?: string };
-  if (json.error) throw new Error(`KV error: ${json.error}`);
-  return json.result;
 }
 
 /**
