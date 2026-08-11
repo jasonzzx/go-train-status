@@ -1,6 +1,6 @@
 // ── Raw wire shapes for the official Metrolinx Open Data API ───────────────
 // Field names, nesting and value types below were VALIDATED against live JSON
-// payloads (api.openmetrolinx.com, 2026-06) — see docs/api-migration-plan.md.
+// payloads (api.openmetrolinx.com, 2026-06).
 // Values are JSON-native: some fields arrive as numbers/booleans, not strings.
 
 /** ServiceataGlance/Trains/All → Trips.Trip[] (currently-live train trips). */

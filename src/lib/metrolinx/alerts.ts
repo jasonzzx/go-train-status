@@ -1,7 +1,7 @@
 // ── Service alert wrapper (ServiceUpdate/ServiceAlert) ─────────────────────
 // Returns alerts for a given line, mapped to the app's ParsedAlert contract.
 //
-// Mapping VERIFIED against live payloads (2026-06). See docs/api-migration-plan.md.
+// Mapping verified against live payloads (2026-06).
 
 import { fetchJson, listFrom, toArray, metrolinxLineCode } from './client';
 import type { RawAlertMessage, RawAlertLine } from './types';

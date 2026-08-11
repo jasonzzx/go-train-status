@@ -3,7 +3,7 @@
 // against our GTFS schedule. Cached briefly so the 30s client poll and
 // concurrent users collapse onto one upstream call.
 //
-// Mapping VERIFIED against live payloads (2026-06). See docs/api-migration-plan.md.
+// Mapping verified against live payloads (2026-06).
 
 import { fetchJson, listFrom, toArray, metrolinxLineCode } from './client';
 import type { RawLiveTrain, RawUnionDeparture, RawExceptionTrain } from './types';

@@ -9,7 +9,7 @@
 //     the 30s client poll) collapse onto a single upstream request per window
 //
 // Wire format notes (confirmed via the go_transit_ruby wrapper, NOT yet against
-// a live payload — see docs/api-migration-plan.md):
+// a live payload):
 //   • Every URL is `${BASE}/${path}?key=KEY`; responses are JSON by default.
 //   • The JSON mirrors the XML shape: lists are nested as
 //       { "<Plural>": { "<Singular>": [ {...}, {...} ] } }

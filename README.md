@@ -112,7 +112,6 @@ Both routes try the **official Metrolinx Open Data API** first when `METROLINX_A
 - **Alerts**: `src/lib/metrolinx/alerts.ts` calls `ServiceUpdate/ServiceAlert/All`, filtered by line code (amenity/elevator notices are dropped). Fallback: scrapes gotransit.com's service-updates page, then railsix.com/alerts.
 - All official calls go through `src/lib/metrolinx/client.ts`: a 300/sec token-bucket rate limiter, a short-TTL in-memory cache with in-flight de-dupe (so the 30s client poll collapses to one upstream call), and `metrolinxLineCode()` to map app line ids to API line codes (Kitchener is `GT` in the live feed).
 
-See `docs/api-migration-plan.md` for the full mapping notes, known gaps, and verification history.
 
 ### Platform memory (`src/lib/platform-store.ts`, `src/lib/platform-cache.ts`)
 GO only publishes a Union departure's platform ~10–15 minutes before departure and wipes it from every API the instant the train leaves, so an already-departed ("NOW") trip has no platform anywhere. Two complementary caches paper over this:
@@ -221,7 +220,7 @@ npm run generate-icons      # re-render public/icons/*.png from the logo
 | `CRON_SECRET` | Shared secret required by `GET /api/cron/platforms` (`Authorization: Bearer …` or `?secret=`) |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV (or `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`) for the server-side platform store |
 
-Deploy is via `git push` to `main` — Vercel auto-deploys from there. To finish enabling the official API path in production, set `METROLINX_API_KEY`/`METROLINX_API_ENABLED` (and the KV vars, if using the platform store) in the Vercel project's environment, then redeploy; see `docs/api-migration-plan.md` for the rollout checklist.
+Deploy is via `git push` to `main` — Vercel auto-deploys from there. To finish enabling the official API path in production, set `METROLINX_API_KEY`/`METROLINX_API_ENABLED` (and the KV vars, if using the platform store) in the Vercel project's environment, then redeploy.
 
 ---
 
