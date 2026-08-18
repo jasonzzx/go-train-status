@@ -1,8 +1,55 @@
 # GO Train Status
 
-A mobile-first PWA for GO Transit rail commuters. Supports all 7 GO rail lines (Lakeshore West, Lakeshore East, Stouffville, Richmond Hill, Barrie, Kitchener, Milton) — pick your line and home station, the office terminus is always **Union Station**. Shows live departure schedules, real-time platform/delay status, service alerts, an interactive Union Station platform map, and expandable stop-by-stop breakdowns. Available in English and Simplified Chinese.
+[![CI](https://github.com/jasonzzx/go-train-status/actions/workflows/ci.yml/badge.svg)](https://github.com/jasonzzx/go-train-status/actions/workflows/ci.yml)
+[![Live demo](https://img.shields.io/badge/demo-go--train--status.vercel.app-brightgreen)](https://go-train-status.vercel.app/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Live: https://go-train-status.vercel.app/
+A mobile-first PWA for GO Transit rail commuters. Pick your line and home station and it
+shows live departures, real-time platform and delay status, service alerts, an interactive
+Union Station concourse map, and stop-by-stop progress for the train you are on. All 7 GO
+rail lines, in English and Simplified Chinese.
+
+**Live app → https://go-train-status.vercel.app/**
+
+<!-- Screenshots: drop 2-3 images in docs/screenshots/ and uncomment.
+<p align="center">
+  <img src="docs/screenshots/departures.png" width="30%" alt="Departure list" />
+  <img src="docs/screenshots/platform-map.png" width="30%" alt="Union platform map" />
+  <img src="docs/screenshots/alerts.png" width="30%" alt="Service alerts" />
+</p>
+-->
+
+## Why it exists
+
+GO Transit only publishes a Union departure's platform 10-15 minutes before it leaves, and
+wipes it from every upstream feed the instant the train departs - so the official app shows
+nothing exactly when a platform-side commuter needs it. This app layers a server-side and
+client-side platform cache over the Metrolinx feed so a platform survives departure, and
+adds a concourse map with a "leave by HH:MM" walking estimate on top.
+
+## Highlights
+
+- **Live departures with countdown** - next-train chip ticking green -> yellow -> red, plus
+  an On Board view with a live position indicator down the stop sequence
+- **Platform memory** - two-layer cache (Vercel KV + client) that keeps a Union platform
+  visible after the upstream feed drops it
+- **Resilient data layer** - official Metrolinx Open Data API first, with HTML-scraping
+  fallbacks; a 300/sec token bucket, short-TTL cache, and in-flight de-duping collapse the
+  30s client poll into one upstream call
+- **Interactive Union Station map** - real OSM geometry over the official concourse map,
+  live geolocation, and walk-time guidance to your platform
+- **Bilingual** - full English / Simplified Chinese UI including station names
+- **Installable PWA** - standalone display, custom icons, auto-reload on new deploy
+
+## Engineering
+
+- **166 unit and component tests** (vitest + Testing Library) across 24 test files
+- **CI on every push and PR** - type check, lint, tests, production build, and a
+  `npm audit` advisory pass
+- **~7,000 lines of TypeScript** in 66 source files; `page.tsx` was deliberately decomposed
+  into tested components and pure `lib/` helpers
+- All time logic goes through a single Toronto wall-clock module rather than the device
+  clock, so schedules stay correct regardless of the user's timezone
 
 ---
 
