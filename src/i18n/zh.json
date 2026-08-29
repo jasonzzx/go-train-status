@@ -45,7 +45,7 @@
   "doorCloseInfo": "温馨提示：列车车门将于发车前约 1 分钟关闭，请提前到达站台。",
   "exitOnBoard": "✕ 退出乘车模式",
   "onBoard": "🚆 乘车模式",
-  "onBoardDelayNotice": "实时延误 {min} 分钟 · 到站时间已更新",
+  "delayAdjustedNotice": "实时延误 {min} 分钟 · 到站时间已更新",
   "addToHomeScreen": "添加到主屏幕",
   "share": "分享",
   "serviceUpdatesTitle": "服务更新",

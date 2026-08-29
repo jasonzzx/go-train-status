@@ -11,16 +11,19 @@ export default function StationList({
   depMins,
   nowMinutes,
   delayMin,
+  adjustTimes,
   onBoard,
   isNext,
 }: {
   stops: StationStop[];
   depMins: number;
   nowMinutes: number | null;
-  /** Live delay (minutes, positive = late). In On Board mode every stop time
-      is re-rendered as scheduled + delay, so the list shows when the train is
-      actually expected; the value refreshes with each tracker poll. */
+  /** Live delay in minutes (positive = late), refreshed by each tracker poll. */
   delayMin: number;
+  /** Re-render every stop time as scheduled + delay, keeping the timetable
+      time beside it struck through. Set for the cards whose delay is live —
+      NEXT and NOW — whether or not the user is On Board. */
+  adjustTimes: boolean;
   onBoard: boolean;
   isNext: boolean;
 }) {
@@ -32,10 +35,10 @@ export default function StationList({
     return adjusted < 360 && depMins > 1200 ? adjusted + 1440 : adjusted;
   }, [nowMinutes, depMins, delayMin]);
 
-  // On Board + a live delay: show each stop's expected time (scheduled +
-  // delay) instead of the timetable time, with the scheduled one struck
-  // through beside it. Collapsed/off-board lists keep the timetable times.
-  const showAdjusted = onBoard && delayMin !== 0;
+  // With a live delay, show each stop's expected time (scheduled + delay)
+  // instead of the timetable time. Cards without live delay data — past ones,
+  // and the future ones below NEXT — keep the timetable times.
+  const showAdjusted = adjustTimes && delayMin !== 0;
   const signedDelay = delayMin > 0 ? `+${delayMin}` : `${delayMin}`;
   // "Scheduled:" / "排定时间：" — reused as a tooltip, so drop the trailing colon.
   const scheduledLabel = t('scheduled').replace(/[:：]\s*$/, '');
@@ -62,7 +65,7 @@ export default function StationList({
           isNext ? 'bg-white/15 text-amber-100' : 'bg-amber-50 text-amber-700'
         }`}>
           <span className="leading-none">⚠</span>
-          <span>{t('onBoardDelayNotice', { min: signedDelay })}</span>
+          <span>{t('delayAdjustedNotice', { min: signedDelay })}</span>
         </div>
       )}
 

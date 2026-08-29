@@ -179,39 +179,82 @@ describe('On Board', () => {
     expect(screen.queryByText(en.onBoard)).toBeNull();
   });
 
-  it('on board with a live delay: arrival and stop times shift by the delay', () => {
-    const delay = 12;
-    renderCard({
-      isPast: true,
-      nowMinutes: depMins + 5,
-      isExpanded: true,
-      isOnBoard: true,
-      tracker: tracker({ delay }),
-    });
-    // Card header + the final stop row both carry the shifted arrival.
-    const arrMins = depMins + parseInt(trip.tripTime, 10) + delay;
-    expect(screen.getAllByText(minutesToTime(arrMins)).length).toBeGreaterThanOrEqual(2);
-    // The scheduled arrival stays visible (struck through) next to it.
-    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(en.onBoardDelayNotice.replace('{min}', `+${delay}`))).toBeTruthy();
-  });
-
-  it('on board with no delay leaves the scheduled arrival alone', () => {
-    renderCard({
-      isPast: true,
-      nowMinutes: depMins + 5,
-      isExpanded: true,
-      isOnBoard: true,
-      tracker: tracker({ delay: 0 }),
-    });
-    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText(en.onBoardDelayNotice.replace('{min}', '+0'))).toBeNull();
-  });
-
   it('toggling On Board fires the callback without collapsing the card', () => {
     const props = renderCard({ isPast: true, nowMinutes: depMins + 5, isExpanded: true });
     fireEvent.click(screen.getByText(en.onBoard));
     expect(props.onToggleOnBoard).toHaveBeenCalledOnce();
     expect(props.onToggleExpand).not.toHaveBeenCalled();
+  });
+});
+
+describe('delay-adjusted times', () => {
+  const delay = 12;
+  const arrMins = depMins + parseInt(trip.tripTime, 10) + delay;
+  // The trip is under way once the clock passes its EXPECTED departure
+  // (scheduled + delay), which is what makes the card NOW.
+  const runningNow = depMins + delay + 5;
+
+  it('NOW card shifts departure, arrival and every stop time — no On Board needed', () => {
+    renderCard({
+      isPast: true,
+      nowMinutes: runningNow,
+      isExpanded: true,
+      isOnBoard: false,
+      tracker: tracker({ delay }),
+    });
+    expect(screen.getByText(en.nowBadge)).toBeTruthy();
+    // Header + first stop row carry the shifted departure, header + last stop
+    // row the shifted arrival.
+    expect(screen.getAllByText(minutesToTime(depMins + delay)).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText(minutesToTime(arrMins)).length).toBeGreaterThanOrEqual(2);
+    // The scheduled times stay visible (struck through) beside them.
+    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(en.delayAdjustedNotice.replace('{min}', `+${delay}`))).toBeTruthy();
+  });
+
+  it('NEXT card shifts its times too', () => {
+    renderCard({
+      isNext: true,
+      isExpanded: true,
+      nowMinutes: depMins - 20,
+      tracker: tracker({ delay }),
+    });
+    expect(screen.getAllByText(minutesToTime(depMins + delay)).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(en.delayAdjustedNotice.replace('{min}', `+${delay}`))).toBeTruthy();
+  });
+
+  it('being On Board changes nothing about the shift', () => {
+    renderCard({
+      isPast: true,
+      nowMinutes: runningNow,
+      isExpanded: true,
+      isOnBoard: true,
+      tracker: tracker({ delay }),
+    });
+    expect(screen.getAllByText(minutesToTime(arrMins)).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByText(en.delayAdjustedNotice.replace('{min}', `+${delay}`))).toBeTruthy();
+  });
+
+  it('no delay leaves the scheduled times alone', () => {
+    renderCard({
+      isPast: true,
+      nowMinutes: depMins + 5,
+      isExpanded: true,
+      tracker: tracker({ delay: 0 }),
+    });
+    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(en.delayAdjustedNotice.replace('{min}', '+0'))).toBeNull();
+  });
+
+  it('a past (arrived) card keeps timetable times even with a stale delay', () => {
+    renderCard({
+      isPast: true,
+      nowMinutes: depMins + 600,
+      isExpanded: true,
+      tracker: tracker({ delay }),
+    });
+    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(minutesToTime(arrMins))).toBeNull();
+    expect(screen.queryByText(en.delayAdjustedNotice.replace('{min}', `+${delay}`))).toBeNull();
   });
 });

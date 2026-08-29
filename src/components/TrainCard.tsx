@@ -221,10 +221,13 @@ export default function TrainCard({
   const effectiveIsPast = isPast && !isNowRunning;
   // Show "On Board" only when trip is in progress
   const canOnBoard = isNowRunning;
-  // On Board with a live delay: the card's arrival (and every stop time in the
-  // list below) is re-rendered as scheduled + delay. delayMin comes straight
-  // from the tracker poll, so these follow the delay as it changes.
-  const showAdjustedTimes = isOnBoard && delayMin !== 0;
+  // A live delay re-renders the card's departure/arrival — and every stop time
+  // in the list below — as scheduled + delay. Only NEXT and NOW carry a
+  // trustworthy live delay (past cards are stale, future ones have no tracker
+  // data), so those are the cards that shift; being On Board isn't required.
+  // delayMin comes straight from the tracker poll, so these follow the delay
+  // as it changes.
+  const showAdjustedTimes = (isNext || isNowRunning) && delayMin !== 0;
   const adjustedDeparture = showAdjustedTimes ? minutesToTime(depMins) : null;
   const adjustedArrival = showAdjustedTimes ? minutesToTime(arrMins) : null;
 
@@ -369,6 +372,7 @@ export default function TrainCard({
             depMins={depMins}
             nowMinutes={nowMinutes}
             delayMin={delayMin}
+            adjustTimes={showAdjustedTimes}
             onBoard={isOnBoard}
             isNext={isNext}
           />

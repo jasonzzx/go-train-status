@@ -36,7 +36,7 @@ src/
       cron/platforms/route.ts    # GET /api/cron/platforms — captures Union platforms into the server-side store
   components/              # UI components (most have a *.test.tsx beside them)
     TrainCard.tsx          # One departure card — NEXT/NOW states, platform/expected badges, expandable stops
-    StationList.tsx        # Stop sequence inside an expanded card, with live "← now" position and delay-adjusted stop times when On Board
+    StationList.tsx        # Stop sequence inside an expanded card — delay-adjusted stop times, plus a live "← now" position when On Board
     CountdownChip.tsx      # 1s-tick departure countdown (green → yellow → red urgency)
     LinePicker.tsx         # Line dropdown with colour badges
     StationPicker.tsx      # Home-station dropdown for the active line
@@ -181,7 +181,8 @@ Result: any open tab or installed PWA picks up a new deployment automatically, w
 - **Direction toggle** — Home → Union / Union → Home, defaulting by time of day (mornings → Union)
 - **Date picker + Today/Tomorrow shortcut** — browse any date's schedule, holiday-aware when the official API is enabled
 - **"Next" badge + live countdown** — the next departure gets a min:sec "Departs in" chip that shifts green → yellow → red as departure approaches
-- **"Now" badge + On Board** — amber pulsing badge and expandable progress view for in-progress trains. While On Board, the card's departure/arrival and every stop time are re-rendered as **scheduled + live delay** (the timetable time stays beside them, struck through) and follow the delay as each 30-second tracker poll changes it
+- **"Now" badge + On Board** — amber pulsing badge and expandable progress view for in-progress trains
+- **Delay-adjusted times** — on the NEXT and NOW cards, the departure/arrival and every stop time are re-rendered as **scheduled + live delay** (the timetable time stays beside them, struck through) and follow the delay as each 30-second tracker poll changes it. Past cards and the future ones below NEXT keep timetable times, since no live delay applies to them
 - **Expandable stop list** — shows intermediate stations with estimated times and a live position indicator
 - **Platform + delay badges** — from the official Metrolinx API (railsix fallback), refreshed every 30 seconds, with server- and client-side caching so a platform survives a train's departure
 - **Union Station platform map** — tap a platform badge for an interactive concourse map with live geolocation, walking guidance, and a "Leave by HH:MM" estimate

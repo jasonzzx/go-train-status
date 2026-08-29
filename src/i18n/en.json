@@ -45,7 +45,7 @@
   "doorCloseInfo": "Please note: train doors close approximately 1 minute before departure. Plan to be on the platform early.",
   "exitOnBoard": "✕ Exit On Board",
   "onBoard": "🚆 On Board",
-  "onBoardDelayNotice": "Live delay {min} min · stop times updated",
+  "delayAdjustedNotice": "Live delay {min} min · stop times updated",
   "addToHomeScreen": "Add to Home Screen",
   "share": "Share",
   "serviceUpdatesTitle": "Service Updates",
