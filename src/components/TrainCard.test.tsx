@@ -3,7 +3,7 @@ import { describe, it, expect, afterEach, vi } from 'vitest';
 import { render, screen, cleanup, fireEvent } from '@testing-library/react';
 import TrainCard from './TrainCard';
 import { LanguageProvider } from '@/i18n';
-import { getScheduleForStation, timeToMinutes } from '@/lib/schedule-data';
+import { getScheduleForStation, minutesToTime, timeToMinutes } from '@/lib/schedule-data';
 import { MAPPED_PLATFORMS } from '@/lib/union-platform-map';
 import type { TrackerInfo } from '@/lib/tracker-info';
 import type { ParsedAlert } from '@/app/api/alerts/route';
@@ -177,6 +177,35 @@ describe('On Board', () => {
 
     renderCard({ nowMinutes: depMins - 60, isExpanded: true });
     expect(screen.queryByText(en.onBoard)).toBeNull();
+  });
+
+  it('on board with a live delay: arrival and stop times shift by the delay', () => {
+    const delay = 12;
+    renderCard({
+      isPast: true,
+      nowMinutes: depMins + 5,
+      isExpanded: true,
+      isOnBoard: true,
+      tracker: tracker({ delay }),
+    });
+    // Card header + the final stop row both carry the shifted arrival.
+    const arrMins = depMins + parseInt(trip.tripTime, 10) + delay;
+    expect(screen.getAllByText(minutesToTime(arrMins)).length).toBeGreaterThanOrEqual(2);
+    // The scheduled arrival stays visible (struck through) next to it.
+    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(en.onBoardDelayNotice.replace('{min}', `+${delay}`))).toBeTruthy();
+  });
+
+  it('on board with no delay leaves the scheduled arrival alone', () => {
+    renderCard({
+      isPast: true,
+      nowMinutes: depMins + 5,
+      isExpanded: true,
+      isOnBoard: true,
+      tracker: tracker({ delay: 0 }),
+    });
+    expect(screen.getAllByText(trip.arrival).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText(en.onBoardDelayNotice.replace('{min}', '+0'))).toBeNull();
   });
 
   it('toggling On Board fires the callback without collapsing the card', () => {

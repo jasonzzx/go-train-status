@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { getStops, timeToMinutes, type Direction, type Trip } from '@/lib/schedule-data';
+import { getStops, minutesToTime, timeToMinutes, type Direction, type Trip } from '@/lib/schedule-data';
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import { formatPlatformLabel, type TrackerInfo } from '@/lib/tracker-info';
 import { isPlatformMapped } from '@/lib/union-platform-map';
@@ -221,6 +221,12 @@ export default function TrainCard({
   const effectiveIsPast = isPast && !isNowRunning;
   // Show "On Board" only when trip is in progress
   const canOnBoard = isNowRunning;
+  // On Board with a live delay: the card's arrival (and every stop time in the
+  // list below) is re-rendered as scheduled + delay. delayMin comes straight
+  // from the tracker poll, so these follow the delay as it changes.
+  const showAdjustedTimes = isOnBoard && delayMin !== 0;
+  const adjustedDeparture = showAdjustedTimes ? minutesToTime(depMins) : null;
+  const adjustedArrival = showAdjustedTimes ? minutesToTime(arrMins) : null;
 
   const stops = useMemo(
     () => getStops(lineId, trip, direction, homeStationCode, liveStops.length > 0 ? liveStops : undefined),
@@ -267,10 +273,20 @@ export default function TrainCard({
 
         {/* Departure */}
         <div className="flex-1">
-          <div className={`text-2xl font-bold leading-none ${isNext ? 'text-white' : isNowRunning ? 'text-amber-700' : 'text-go-dark'}`}>
-            {trip.departure}
+          <div className={`text-2xl font-bold leading-none ${
+            adjustedDeparture ? (isNext ? 'text-amber-200' : 'text-amber-600')
+              : isNext ? 'text-white' : isNowRunning ? 'text-amber-700' : 'text-go-dark'
+          }`}>
+            {adjustedDeparture ?? trip.departure}
           </div>
-          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>{t('depart')}</div>
+          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>
+            {adjustedDeparture && (
+              <span className={`font-mono line-through mr-1 ${isNext ? 'text-white/50' : 'text-gray-400'}`}>
+                {trip.departure}
+              </span>
+            )}
+            {t('depart')}
+          </div>
         </div>
 
         {/* Center arrow */}
@@ -286,10 +302,19 @@ export default function TrainCard({
 
         {/* Arrival */}
         <div className="flex-1 text-right">
-          <div className={`text-2xl font-bold leading-none ${isNext ? 'text-white' : isNowRunning ? 'text-go-dark' : 'text-go-dark'}`}>
-            {trip.arrival}
+          <div className={`text-2xl font-bold leading-none ${
+            adjustedArrival ? (isNext ? 'text-amber-200' : 'text-amber-600') : isNext ? 'text-white' : 'text-go-dark'
+          }`}>
+            {adjustedArrival ?? trip.arrival}
           </div>
-          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>{t('arrive')}</div>
+          <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>
+            {adjustedArrival && (
+              <span className={`font-mono line-through mr-1 ${isNext ? 'text-white/50' : 'text-gray-400'}`}>
+                {trip.arrival}
+              </span>
+            )}
+            {t('arrive')}
+          </div>
         </div>
 
         {/* Alert badge */}

@@ -17,6 +17,13 @@ const stops: StationStop[] = [
   { code: 'UN', name: 'Union Station', scheduledTime: '08:45', scheduledMinutes: 525 },
 ];
 
+/** "HH:MM" + n minutes, same wrap-free range the fixtures use. */
+function shift(time: string, min: number): string {
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m + min;
+  return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
+}
+
 function renderList(props: Partial<Parameters<typeof StationList>[0]> = {}) {
   return render(
     <LanguageProvider>
@@ -62,6 +69,44 @@ describe('StationList', () => {
     renderList({ onBoard: true, nowMinutes: 505, delayMin: 10 });
     const nextTag = screen.getByText(en.next);
     expect(nextTag.parentElement!.textContent).toContain('Agincourt');
+  });
+
+  it('on board with a live delay: every stop time shifts by the delay', () => {
+    // +7 rather than +10 so no shifted time collides with another stop's
+    // scheduled time (the fixtures are 10 min apart).
+    renderList({ onBoard: true, nowMinutes: 502, delayMin: 7 });
+    // Expected times = scheduled + 7, with the scheduled time kept alongside.
+    for (const stop of stops) {
+      expect(screen.getByText(stop.scheduledTime)).toBeTruthy();
+      expect(screen.getByText(shift(stop.scheduledTime, 7))).toBeTruthy();
+    }
+    expect(screen.getByText(en.onBoardDelayNotice.replace('{min}', '+7'))).toBeTruthy();
+  });
+
+  it('a growing delay re-renders the stop times against the new value', () => {
+    const { rerender } = renderList({ onBoard: true, nowMinutes: 505, delayMin: 10 });
+    expect(screen.getByText('08:55')).toBeTruthy(); // Union 08:45 +10
+
+    rerender(
+      <LanguageProvider>
+        <StationList stops={stops} depMins={480} nowMinutes={505} delayMin={22} onBoard isNext={false} />
+      </LanguageProvider>
+    );
+    expect(screen.queryByText('08:55')).toBeNull();
+    expect(screen.getByText('09:07')).toBeTruthy(); // Union 08:45 +22
+    expect(screen.getByText(en.onBoardDelayNotice.replace('{min}', '+22'))).toBeTruthy();
+  });
+
+  it('on board with no delay: scheduled times only, no delay notice', () => {
+    renderList({ onBoard: true, nowMinutes: 495, delayMin: 0 });
+    for (const stop of stops) expect(screen.getByText(stop.scheduledTime)).toBeTruthy();
+    expect(screen.queryByText(en.onBoardDelayNotice.replace('{min}', '+0'))).toBeNull();
+  });
+
+  it('delayed times are not shown until On Board is on', () => {
+    renderList({ onBoard: false, nowMinutes: 505, delayMin: 10 });
+    expect(screen.getByText('08:45')).toBeTruthy();
+    expect(screen.queryByText('08:55')).toBeNull();
   });
 
   it('past the last stop: ARRIVED at the final station, no now-segment', () => {
