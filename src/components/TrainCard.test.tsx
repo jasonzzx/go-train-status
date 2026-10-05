@@ -8,6 +8,7 @@ import { MAPPED_PLATFORMS } from '@/lib/union-platform-map';
 import type { TrackerInfo } from '@/lib/tracker-info';
 import type { ParsedAlert } from '@/app/api/alerts/route';
 import en from '@/i18n/en.json';
+import { scheduledArrivalAt, reminderId, type ArrivalReminder } from '@/lib/arrival-reminder';
 
 afterEach(cleanup);
 
@@ -170,6 +171,30 @@ describe('platform chip visibility spec', () => {
 });
 
 describe('On Board', () => {
+  it('shows a delayed destination estimate and only 1–5 minute reminder choices', () => {
+    const base: ArrivalReminder = {
+      id: '', token: '7b0ab8c8-5bb0-4d88-a400-102030405060',
+      deviceId: 'a7ed1351-d5c9-4e7d-a7b8-102030405060',
+      serviceDate: '2026-07-06', lineId: 'ST', direction: 'homeToOffice',
+      tripNumber: trip.tripId.split('-').at(-1)!, scheduledDeparture: trip.departure,
+      homeStationCode: 'UI', destinationCode: 'UN', destinationName: 'Union Station',
+      scheduledArrival: trip.arrival, scheduledArrivalAt: scheduledArrivalAt('2026-07-06', trip),
+      delayMin: 10, leadMin: 2, enabled: true, lang: 'en', sent: false,
+    };
+    const reminder = { ...base, id: reminderId(base) };
+    const onReminderLeadChange = vi.fn();
+    const onReminderEnabledChange = vi.fn();
+    renderCard({ isPast: true, nowMinutes: depMins + 5, isExpanded: true, isOnBoard: true,
+      reminder, reminderDelivery: 'push', onReminderLeadChange, onReminderEnabledChange });
+    const selector = screen.getByLabelText(en.remindBeforeArrival) as HTMLSelectElement;
+    expect(Array.from(selector.options).map((option) => option.value)).toEqual(['1', '2', '3', '4', '5']);
+    expect(screen.getByText(en.reminderAdjustedForDelay.replace('{min}', '10'))).toBeTruthy();
+    fireEvent.change(selector, { target: { value: '5' } });
+    expect(onReminderLeadChange).toHaveBeenCalledWith(5);
+    fireEvent.click(screen.getByRole('checkbox'));
+    expect(onReminderEnabledChange).toHaveBeenCalledWith(false);
+  });
+
   it('offers the On Board button only while the trip is running', () => {
     renderCard({ isPast: true, nowMinutes: depMins + 5, isExpanded: true });
     expect(screen.getByText(en.onBoard)).toBeTruthy();

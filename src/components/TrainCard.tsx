@@ -6,9 +6,11 @@ import type { ParsedAlert } from '@/app/api/alerts/route';
 import { formatPlatformLabel, type TrackerInfo } from '@/lib/tracker-info';
 import { isPlatformMapped } from '@/lib/union-platform-map';
 import { useLanguage } from '@/i18n';
-import { TrainIcon, BusIcon, ArrowRightIcon } from '@/components/icons';
+import { TrainIcon, BusIcon, ArrowRightIcon, BellIcon } from '@/components/icons';
 import StationList from '@/components/StationList';
 import CountdownChip from '@/components/CountdownChip';
+import { expectedArrivalAt, type ArrivalReminder } from '@/lib/arrival-reminder';
+import type { ReminderDelivery } from '@/lib/arrival-notifications';
 
 // The map is drawn from real OpenStreetMap survey geometry
 // (src/data/union-station-map.json, regenerate with npm run generate-union-map).
@@ -183,6 +185,12 @@ export default function TrainCard({
   isExpanded,
   isOnBoard,
   liveStops,
+  reminder,
+  reminderDelivery,
+  reminderDueInApp,
+  onReminderEnabledChange,
+  onReminderLeadChange,
+  onPreviewReminder,
   onToggleExpand,
   onToggleOnBoard,
   onAlertClick,
@@ -201,6 +209,12 @@ export default function TrainCard({
   isExpanded: boolean;
   isOnBoard: boolean;
   liveStops: string[];
+  reminder?: ArrivalReminder | null;
+  reminderDelivery?: ReminderDelivery;
+  reminderDueInApp?: boolean;
+  onReminderEnabledChange?: (enabled: boolean) => void;
+  onReminderLeadChange?: (leadMin: number) => void;
+  onPreviewReminder?: () => void;
   onToggleExpand: () => void;
   onToggleOnBoard: () => void;
   onAlertClick: () => void;
@@ -221,6 +235,10 @@ export default function TrainCard({
   const effectiveIsPast = isPast && !isNowRunning;
   // Show "On Board" only when trip is in progress
   const canOnBoard = isNowRunning;
+  const reminderArrival = reminder ? expectedArrivalAt(reminder) : null;
+  const displayTorontoTime = (epoch: number) => new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Toronto', hour: '2-digit', minute: '2-digit', hour12: false,
+  }).format(new Date(epoch));
 
   const stops = useMemo(
     () => getStops(lineId, trip, direction, homeStationCode, liveStops.length > 0 ? liveStops : undefined),
@@ -287,9 +305,10 @@ export default function TrainCard({
         {/* Arrival */}
         <div className="flex-1 text-right">
           <div className={`text-2xl font-bold leading-none ${isNext ? 'text-white' : isNowRunning ? 'text-go-dark' : 'text-go-dark'}`}>
-            {trip.arrival}
+            {isOnBoard && reminderArrival !== null ? displayTorontoTime(reminderArrival) : trip.arrival}
           </div>
           <div className={`text-xs mt-0.5 ${isNext ? 'text-white/75' : 'text-gray-500'}`}>{t('arrive')}</div>
+          {isOnBoard && reminder?.delayMin ? <div className="text-[10px] text-amber-700">{t('scheduled')} {trip.arrival}</div> : null}
         </div>
 
         {/* Alert badge */}
@@ -337,7 +356,7 @@ export default function TrainCard({
       )}
 
       {/* ── Expandable station list ── */}
-      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[500px] pb-3' : 'max-h-0'}`}>
+      <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[900px] pb-3' : 'max-h-0'}`}>
         <div className={`border-t pt-3 ${isNext ? 'border-white/20' : 'border-gray-100'}`}>
           <StationList
             stops={stops}
@@ -348,8 +367,47 @@ export default function TrainCard({
             isNext={isNext}
           />
 
+          {isOnBoard && reminder && (
+            <div className="mt-3 rounded-xl border border-go-green/20 bg-go-light p-3 text-go-dark" aria-label={t('arrivalReminder')}>
+              <label className="flex items-center gap-2 text-sm font-semibold">
+                <BellIcon className="h-4 w-4" />
+                <span>{t('arrivalReminder')}</span>
+                <input type="checkbox" className="ml-auto h-5 w-5 accent-go-green"
+                  checked={reminder.enabled} onChange={(event) => onReminderEnabledChange?.(event.target.checked)} />
+              </label>
+              <div className="mt-3 flex items-center justify-between gap-3 text-xs">
+                <label htmlFor={`arrival-lead-${trip.departure}`}>{t('remindBeforeArrival')}</label>
+                <select id={`arrival-lead-${trip.departure}`} aria-label={t('remindBeforeArrival')}
+                  className="rounded-lg border border-go-green/20 bg-white px-2 py-1.5 text-sm"
+                  value={reminder.leadMin} disabled={!reminder.enabled}
+                  onChange={(event) => onReminderLeadChange?.(Number(event.target.value))}>
+                  {[1, 2, 3, 4, 5].map((minute) => (
+                    <option key={minute} value={minute}>{t('reminderMinutes', { min: minute })}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="mt-3 border-t border-go-green/15 pt-2 text-xs font-medium" aria-live="polite">
+                {!reminder.enabled ? t('reminderOff') : reminder.sent ? t('reminderSent')
+                  : reminderDueInApp ? t('reminderDueNow')
+                  : t('reminderSetFor', { time: displayTorontoTime(reminderArrival! - reminder.leadMin * 60_000) })}
+              </p>
+              {reminder.enabled && reminder.delayMin > 0 && (
+                <p className="mt-1 text-[11px] text-go-dark/70">{t('reminderAdjustedForDelay', { min: reminder.delayMin })}</p>
+              )}
+              {reminder.enabled && reminderDelivery && reminderDelivery !== 'push' && (
+                <p className="mt-1 text-[11px] text-amber-800">
+                  {t(reminderDelivery === 'foreground' ? 'reminderForegroundOnly'
+                    : reminderDelivery === 'checking' ? 'reminderPreparing' : 'reminderPermissionNeeded')}
+                </p>
+              )}
+              {reminder.enabled && reminderDelivery !== 'blocked' && reminderDelivery !== 'unsupported' && (
+                <button type="button" className="mt-2 text-xs font-medium text-go-green underline" onClick={onPreviewReminder}>{t('previewReminder')}</button>
+              )}
+            </div>
+          )}
+
           {/* On Board button */}
-          {canOnBoard && (
+          {(canOnBoard || isOnBoard) && (
             <button
               onClick={(e) => { e.stopPropagation(); onToggleOnBoard(); }}
               className={`mt-3 w-full py-2 rounded-lg text-sm font-semibold transition-all active:scale-98 ${

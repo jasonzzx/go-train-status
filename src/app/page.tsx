@@ -42,6 +42,12 @@ import TrainCard from '@/components/TrainCard';
 import WeekendNotice from '@/components/WeekendNotice';
 import ServiceAlertsSheet from '@/components/ServiceAlertsSheet';
 import PlatformMapSheet, { type PlatformSheetInfo } from '@/components/PlatformMapSheet';
+import {
+  REMINDER_LEAD_KEY, REMINDER_STORAGE_KEY, expectedArrivalAt, reminderDue,
+  reminderId, scheduledArrivalAt, tripNumber, validLead, validReminder,
+  type ArrivalReminder,
+} from '@/lib/arrival-reminder';
+import { prepareArrivalNotifications, showArrivalNotification, type ReminderDelivery } from '@/lib/arrival-notifications';
 
 // ──────────────────────────────────────────────────────────
 // Helpers
@@ -94,6 +100,30 @@ export default function Home() {
   const line: LineInfo = getLine(lineId);
   const [homeStationCode, setHomeStationCode] = useState<string>(() => getLine(DEFAULT_LINE_ID).defaultHomeCode);
   const homeStation: StationInfo = getStation(lineId, homeStationCode);
+  const [expandedDep, setExpandedDep] = useState<string | null>(null);
+  const [arrivalReminder, setArrivalReminder] = useState<ArrivalReminder | null>(null);
+  const activeReminderRef = useRef<ArrivalReminder | null>(null);
+  const pushSubscriptionRef = useRef<PushSubscriptionJSON | null>(null);
+  const [reminderLead, setReminderLead] = useState(2);
+  const [reminderEnabled, setReminderEnabled] = useState(true);
+  const [reminderDelivery, setReminderDelivery] = useState<ReminderDelivery>('checking');
+  const [reminderDueInApp, setReminderDueInApp] = useState(false);
+  const [reminderLoaded, setReminderLoaded] = useState(false);
+  const localNotificationPending = useRef(false);
+
+  const cancelArrivalReminder = useCallback(() => {
+    const active = activeReminderRef.current;
+    activeReminderRef.current = null;
+    setArrivalReminder(null);
+    setReminderDueInApp(false);
+    localStorage.removeItem(REMINDER_STORAGE_KEY);
+    if (active) {
+      fetch('/api/arrival-reminder', {
+        method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId: active.deviceId, id: active.id, token: active.token }),
+      }).catch(() => {});
+    }
+  }, []);
 
   // Switching line: remember the choice and restore that line's home station.
   // Persistence happens here (and in handleHomeStationChange below) — only on
@@ -103,24 +133,52 @@ export default function Home() {
   // pass (still holding the pre-restoration closure) would overwrite the
   // just-restored localStorage value with the SSR default.
   const handleLineChange = useCallback((newLineId: string) => {
+    if (newLineId !== lineId) cancelArrivalReminder();
+    setExpandedDep(null);
     const newHome = loadHomeStation(getLine(newLineId));
     setLineId(newLineId);
     setHomeStationCode(newHome);
     localStorage.setItem(LINE_STORAGE_KEY, newLineId);
     localStorage.setItem(homeStationKey(newLineId), newHome);
-  }, []);
+  }, [lineId, cancelArrivalReminder]);
 
   const handleHomeStationChange = useCallback((code: string) => {
+    if (code !== homeStationCode) cancelArrivalReminder();
+    setExpandedDep(null);
     setHomeStationCode(code);
     localStorage.setItem(homeStationKey(lineId), code);
-  }, [lineId]);
+  }, [lineId, homeStationCode, cancelArrivalReminder]);
 
   // Restore the persisted line/home station after mount (client-only) —
   // read-only, does not touch localStorage.
   useEffect(() => {
-    const storedLineId = loadLineId();
-    setLineId(storedLineId);
-    setHomeStationCode(loadHomeStation(getLine(storedLineId)));
+    setReminderLead(validLead(localStorage.getItem(REMINDER_LEAD_KEY)));
+    setReminderEnabled(localStorage.getItem('go-train-arrival-enabled') !== 'false');
+    let saved: ArrivalReminder | null = null;
+    try {
+      const raw = JSON.parse(localStorage.getItem(REMINDER_STORAGE_KEY) ?? 'null');
+      if (validReminder(raw) && expectedArrivalAt(raw) > Date.now()
+        && getLine(raw.lineId).homeStations.some((station) => station.code === raw.homeStationCode)) saved = raw;
+    } catch { /* ignore malformed stored data */ }
+    if (saved) {
+      setLineId(saved.lineId);
+      setHomeStationCode(saved.homeStationCode);
+      setSelectedDate(saved.serviceDate);
+      setDirection(saved.direction);
+      activeReminderRef.current = saved;
+      setArrivalReminder(saved);
+      setExpandedDep(saved.scheduledDeparture);
+      prepareArrivalNotifications(false).then(({ delivery, subscription }) => {
+        pushSubscriptionRef.current = subscription;
+        setReminderDelivery(delivery);
+      }).catch(() => setReminderDelivery('unsupported'));
+    } else {
+      localStorage.removeItem(REMINDER_STORAGE_KEY);
+      const storedLineId = loadLineId();
+      setLineId(storedLineId);
+      setHomeStationCode(loadHomeStation(getLine(storedLineId)));
+    }
+    setReminderLoaded(true);
   }, []);
 
   // Tracker state (platform + expected)
@@ -164,8 +222,6 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
-  const [expandedDep, setExpandedDep] = useState<string | null>(null);
-  const [onBoardDep, setOnBoardDep] = useState<string | null>(null);
   const [trackerSource, setTrackerSource] = useState<string | null>(null);
   const [alertsSource, setAlertsSource] = useState<string | null>(null);
   const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
@@ -457,11 +513,148 @@ export default function Home() {
     return () => clearTimeout(t);
   }, [scrollTargetIndex, selectedDate, direction, alertsLoading]);
 
-  // Collapse expanded cards when switching line, date or direction
+  const beginOnBoard = useCallback((trip: Trip) => {
+    const destinationCode = direction === 'homeToOffice' ? 'UN' : homeStationCode;
+    const destinationName = direction === 'homeToOffice' ? t('unionStation') : getStationName(homeStation.code, homeStation.name, lang);
+    const number = tripNumber(trip.tripId);
+    const deviceKey = 'go-train-arrival-device';
+    let deviceId = localStorage.getItem(deviceKey);
+    if (!deviceId) {
+      deviceId = crypto.randomUUID();
+      localStorage.setItem(deviceKey, deviceId);
+    }
+    const rawTracker = getTrackerInfo(trip, direction, trackerInbound, trackerOutbound);
+    const reminder: ArrivalReminder = {
+      id: '', token: crypto.randomUUID(), deviceId, serviceDate: selectedDate, lineId, direction,
+      tripNumber: number, scheduledDeparture: trip.departure,
+      homeStationCode, destinationCode, destinationName,
+      scheduledArrival: trip.arrival,
+      scheduledArrivalAt: scheduledArrivalAt(selectedDate, trip),
+      delayMin: rawTracker?.expected && !rawTracker.cancelled ? rawTracker.delay : 0,
+      leadMin: reminderLead, enabled: reminderEnabled, lang, sent: false,
+    };
+    reminder.id = reminderId(reminder);
+    if (activeReminderRef.current?.id === reminder.id) {
+      cancelArrivalReminder();
+      return;
+    }
+    if (activeReminderRef.current) cancelArrivalReminder();
+    activeReminderRef.current = reminder;
+    setArrivalReminder(reminder);
+    setReminderDueInApp(false);
+    setExpandedDep(trip.departure);
+    if (reminder.enabled) {
+      // Permission is requested directly from the On Board tap.
+      prepareArrivalNotifications(true).then(({ delivery, subscription }) => {
+        if (activeReminderRef.current?.id !== reminder.id) return;
+        pushSubscriptionRef.current = subscription;
+        setReminderDelivery(delivery);
+      }).catch(() => setReminderDelivery('unsupported'));
+    }
+  }, [direction, homeStationCode, homeStation.code, homeStation.name, lang, t, trackerInbound, trackerOutbound,
+    selectedDate, lineId, reminderLead, reminderEnabled, cancelArrivalReminder]);
+
   useEffect(() => {
-    setExpandedDep(null);
-    setOnBoardDep(null);
-  }, [lineId, selectedDate, direction]);
+    activeReminderRef.current = arrivalReminder;
+    if (!reminderLoaded) return;
+    if (arrivalReminder) localStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(arrivalReminder));
+    else localStorage.removeItem(REMINDER_STORAGE_KEY);
+  }, [arrivalReminder, reminderLoaded]);
+
+  // A vanished tracker row does not erase the last useful delay. An explicit
+  // on-time row can still move the estimate back to the schedule.
+  useEffect(() => {
+    const active = activeReminderRef.current;
+    if (!active) return;
+    const directionCd = active.direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
+    const live = trackerTrips.find((row) => row.tripNumber === active.tripNumber
+      && row.directionCd === directionCd && row.scheduledTime === active.scheduledDeparture);
+    if (!live) return;
+    if (live.cancelled) { cancelArrivalReminder(); return; }
+    if (!live.expected || !Number.isInteger(live.delay) || live.delay < 0 || live.delay === active.delayMin) return;
+    setArrivalReminder((previous) => previous?.id === active.id ? { ...previous, delayMin: live.delay } : previous);
+  }, [trackerTrips, cancelArrivalReminder]);
+
+  useEffect(() => {
+    setArrivalReminder((previous) => {
+      if (!previous) return previous;
+      const name = previous.destinationCode === 'UN'
+        ? t('unionStation') : getStationName(previous.destinationCode, homeStation.name, lang);
+      return previous.lang !== lang || previous.destinationName !== name
+        ? { ...previous, lang, destinationName: name } : previous;
+    });
+  }, [lang, homeStation.name, t]);
+
+  useEffect(() => {
+    if (!arrivalReminder || reminderDelivery !== 'push' || !pushSubscriptionRef.current) return;
+    const active = arrivalReminder;
+    const request = active.enabled
+      ? fetch('/api/arrival-reminder', {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reminder: active, subscription: pushSubscriptionRef.current }),
+        })
+      : fetch('/api/arrival-reminder', {
+          method: 'DELETE', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId: active.deviceId, id: active.id, token: active.token }),
+        });
+    request.then(async (response) => {
+      if (!response.ok) { setReminderDelivery('foreground'); return; }
+      if (active.enabled) {
+        const data = await response.json() as { sent?: boolean };
+        if (data.sent) setArrivalReminder((previous) => previous?.id === active.id && !previous.sent
+          ? { ...previous, sent: true } : previous);
+      }
+    }).catch(() => setReminderDelivery('foreground'));
+  }, [arrivalReminder, reminderDelivery]);
+
+  useEffect(() => {
+    if (!arrivalReminder) return;
+    const check = () => {
+      const active = activeReminderRef.current;
+      if (!active) return;
+      setReminderDueInApp(reminderDue(active, Date.now()));
+      if (Date.now() > expectedArrivalAt(active) + 2 * 60_000) {
+        cancelArrivalReminder();
+        return;
+      }
+      if (reminderDelivery === 'push' || reminderDelivery === 'checking'
+        || reminderDelivery === 'blocked' || reminderDelivery === 'unsupported'
+        || localNotificationPending.current || !reminderDue(active, Date.now())) return;
+      localNotificationPending.current = true;
+      showArrivalNotification(active).then(() => {
+        setArrivalReminder((previous) => previous?.id === active.id ? { ...previous, sent: true } : previous);
+      }).catch(() => {}).finally(() => { localNotificationPending.current = false; });
+    };
+    check();
+    const interval = setInterval(check, 10_000);
+    const onVisible = () => { if (document.visibilityState === 'visible') check(); };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', check);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', check);
+    };
+  }, [arrivalReminder, reminderDelivery, cancelArrivalReminder]);
+
+  const changeReminderEnabled = useCallback((enabled: boolean) => {
+    setReminderEnabled(enabled);
+    localStorage.setItem('go-train-arrival-enabled', String(enabled));
+    setArrivalReminder((previous) => previous ? {
+      ...previous, enabled, token: enabled && !previous.enabled ? crypto.randomUUID() : previous.token,
+    } : previous);
+    if (enabled) prepareArrivalNotifications(true).then(({ delivery, subscription }) => {
+      pushSubscriptionRef.current = subscription;
+      setReminderDelivery(delivery);
+    }).catch(() => setReminderDelivery('unsupported'));
+  }, []);
+
+  const changeReminderLead = useCallback((lead: number) => {
+    const valid = validLead(lead);
+    setReminderLead(valid);
+    localStorage.setItem(REMINDER_LEAD_KEY, String(valid));
+    setArrivalReminder((previous) => previous ? { ...previous, leadMin: valid } : previous);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col max-w-md mx-auto">
@@ -597,7 +790,7 @@ export default function Home() {
         {/* Direction tabs */}
         <div className="flex mx-4 mb-3 bg-white/10 rounded-xl p-1 gap-1">
           <button
-            onClick={() => setDirection('homeToOffice')}
+            onClick={() => { if (direction !== 'homeToOffice') { cancelArrivalReminder(); setExpandedDep(null); } setDirection('homeToOffice'); }}
             className={`flex-1 py-2 px-2 rounded-lg text-sm font-semibold transition-all ${
               direction === 'homeToOffice' ? 'bg-go-green text-white shadow' : 'text-white/70'
             }`}
@@ -606,7 +799,7 @@ export default function Home() {
             <div className="text-sm text-white/60">{t('homeToUnion')}</div>
           </button>
           <button
-            onClick={() => setDirection('officeToHome')}
+            onClick={() => { if (direction !== 'officeToHome') { cancelArrivalReminder(); setExpandedDep(null); } setDirection('officeToHome'); }}
             className={`flex-1 py-2 px-2 rounded-lg text-sm font-semibold transition-all ${
               direction === 'officeToHome' ? 'bg-go-green text-white shadow' : 'text-white/70'
             }`}
@@ -630,7 +823,7 @@ export default function Home() {
               ref={dateInputRef}
               type="date"
               value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
+              onChange={(e) => { if (e.target.value !== selectedDate) { cancelArrivalReminder(); setExpandedDep(null); } setSelectedDate(e.target.value); }}
               onClick={(e) => {
                 e.currentTarget.showPicker?.();
               }}
@@ -641,6 +834,8 @@ export default function Home() {
             <button
               key="tomorrow-btn"
               onClick={() => {
+                cancelArrivalReminder();
+                setExpandedDep(null);
                 setSelectedDate(getTomorrowStr());
                 setDirection('homeToOffice');
               }}
@@ -652,6 +847,8 @@ export default function Home() {
             <button
               key="today-btn"
               onClick={() => {
+                cancelArrivalReminder();
+                setExpandedDep(null);
                 setSelectedDate(todayStr);
                 setDirection(getDefaultDirection());
               }}
@@ -713,7 +910,10 @@ export default function Home() {
                 ? { platform: showPlatform, expected: '', delay: 0, cancelled: false, arriveIn: '' }
                 : null;
               const isExpanded = expandedDep === trip.departure;
-              const isOnBoard = onBoardDep === trip.departure;
+              const id = reminderId({ serviceDate: selectedDate, lineId, direction,
+                tripNumber: tripNumber(trip.tripId), homeStationCode,
+                destinationCode: direction === 'homeToOffice' ? 'UN' : homeStationCode });
+              const isOnBoard = arrivalReminder?.id === id;
               const dirKey = direction === 'homeToOffice' ? 'Inbound' : 'Outbound';
               const liveStops = trackerStopsMap.get(`${dirKey}:${trip.departure}`) ?? [];
               return (
@@ -731,9 +931,17 @@ export default function Home() {
                     isToday={isToday}
                     isExpanded={isExpanded}
                     isOnBoard={isOnBoard}
+                    reminder={isOnBoard ? arrivalReminder : null}
+                    reminderDelivery={reminderDelivery}
+                    reminderDueInApp={reminderDueInApp}
+                    onReminderEnabledChange={changeReminderEnabled}
+                    onReminderLeadChange={changeReminderLead}
+                    onPreviewReminder={() => {
+                      if (arrivalReminder) showArrivalNotification(arrivalReminder, true).catch(() => {});
+                    }}
                     liveStops={liveStops}
                     onToggleExpand={() => setExpandedDep(isExpanded ? null : trip.departure)}
-                    onToggleOnBoard={() => setOnBoardDep(isOnBoard ? null : trip.departure)}
+                    onToggleOnBoard={() => beginOnBoard(trip)}
                     onAlertClick={() => setShowAlertsSheet(true)}
                     onPlatformClick={(platform) =>
                       setPlatformSheet({
