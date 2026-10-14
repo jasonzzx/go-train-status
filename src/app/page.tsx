@@ -28,6 +28,10 @@ import {
   type TrackerInfo,
 } from '@/lib/tracker-info';
 import { computeLineStatus, type LineStatus } from '@/lib/line-status';
+import {
+  getLiveDataStatus,
+  type TrackerRequestState,
+} from '@/lib/live-data-status';
 import { buildAlertMap } from '@/lib/alert-match';
 import {
   LINE_STORAGE_KEY,
@@ -125,11 +129,16 @@ export default function Home() {
 
   // Tracker state (platform + expected)
   const [trackerTrips, setTrackerTrips] = useState<TrackerTrip[]>([]);
+  const [trackerRequestState, setTrackerRequestState] = useState<TrackerRequestState>('loading');
+  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [trackerSource, setTrackerSource] = useState<string | null>(null);
 
   // Clear stale tracker data immediately when line or home station changes
   useEffect(() => {
     setTrackerTrips([]);
     setLastRefreshed(null);
+    setTrackerSource(null);
+    setTrackerRequestState('loading');
   }, [lineId, homeStationCode]);
 
   // The selected date's actual schedule from the official API (holiday-aware,
@@ -162,11 +171,9 @@ export default function Home() {
   const [showAlertsSheet, setShowAlertsSheet] = useState(false);
   const [platformSheet, setPlatformSheet] = useState<PlatformSheetInfo | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [refreshCountdown, setRefreshCountdown] = useState(30);
   const [expandedDep, setExpandedDep] = useState<string | null>(null);
   const [onBoardDep, setOnBoardDep] = useState<string | null>(null);
-  const [trackerSource, setTrackerSource] = useState<string | null>(null);
   const [alertsSource, setAlertsSource] = useState<string | null>(null);
   const [showDataSourceInfo, setShowDataSourceInfo] = useState(false);
 
@@ -252,14 +259,21 @@ export default function Home() {
   const fetchTracker = useCallback(async () => {
     try {
       const res = await fetch(`/api/tracker?home=${homeStation.railsixSlug}&code=${lineId}`);
-      if (!res.ok) return;
+      if (!res.ok) throw new Error(`Tracker request failed: ${res.status}`);
       const data = await res.json();
+      if (!data.available) {
+        setTrackerRequestState('unavailable');
+        return;
+      }
       setTrackerTrips(data.trips ?? []);
       setTrackerSource(data.source ?? null);
-      setLastRefreshed(new Date());
+      const sourceTime = data.lastUpdated ? new Date(data.lastUpdated) : new Date();
+      setLastRefreshed(Number.isNaN(sourceTime.getTime()) ? new Date() : sourceTime);
+      setTrackerRequestState('available');
       setRefreshCountdown(30);
     } catch {
-      // non-critical
+      // Keep any previously received details visible, but label them stale.
+      setTrackerRequestState('unavailable');
     }
   }, [homeStation.railsixSlug, lineId]);
 
@@ -330,6 +344,46 @@ export default function Home() {
   }, [liveDay, lineId, direction, serviceType, homeStationCode]);
 
   const isToday = selectedDate === todayStr;
+
+  const liveDataStatus = getLiveDataStatus({
+    isToday,
+    requestState: trackerRequestState,
+    lastUpdated: lastRefreshed,
+    now: new Date(),
+  });
+  const liveDataAge = liveDataStatus.ageSeconds === null
+    ? ''
+    : liveDataStatus.ageSeconds < 60
+    ? t('liveUpdatedSeconds', { seconds: liveDataStatus.ageSeconds })
+    : t('liveUpdatedMinutes', { minutes: Math.floor(liveDataStatus.ageSeconds / 60) });
+  const liveDataLabel = (() => {
+    switch (liveDataStatus.state) {
+      case 'scheduleOnly': return t('scheduledOnly');
+      case 'loading': return t('liveLoading');
+      case 'fresh': return liveDataAge;
+      case 'stale': {
+        const age = liveDataStatus.ageSeconds !== null && liveDataStatus.ageSeconds < 60
+          ? `${liveDataStatus.ageSeconds}s`
+          : `${Math.floor((liveDataStatus.ageSeconds ?? 0) / 60)}m`;
+        return t('liveDataStale', { age });
+      }
+      case 'unavailable': return t('liveDataUnavailable');
+    }
+  })();
+  const liveDataTone = {
+    scheduleOnly: 'border-gray-200 bg-gray-50 text-gray-600',
+    loading: 'border-blue-200 bg-blue-50 text-blue-700',
+    fresh: 'border-green-200 bg-green-50 text-green-800',
+    stale: 'border-amber-200 bg-amber-50 text-amber-800',
+    unavailable: 'border-red-200 bg-red-50 text-red-700',
+  }[liveDataStatus.state];
+  const liveDataDot = {
+    scheduleOnly: 'bg-gray-400',
+    loading: 'bg-blue-500 animate-pulse',
+    fresh: 'bg-go-green',
+    stale: 'bg-amber-500',
+    unavailable: 'bg-red-500',
+  }[liveDataStatus.state];
 
   // Tracker lookup maps
   const { inbound: trackerInbound, outbound: trackerOutbound } = useMemo(
@@ -691,6 +745,15 @@ export default function Home() {
 
       {/* Train list */}
       <main className="flex-1 px-3 py-3 overflow-y-auto">
+        <div
+          role="status"
+          aria-live="polite"
+          data-testid="live-data-status"
+          className={`mb-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold ${liveDataTone}`}
+        >
+          <span className={`h-2 w-2 shrink-0 rounded-full ${liveDataDot}`} aria-hidden="true" />
+          <span>{liveDataLabel}</span>
+        </div>
         {trips.length === 0 ? (
           <WeekendNotice direction={direction} />
         ) : (
@@ -762,17 +825,17 @@ export default function Home() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                       ) : (
-                        <span className="w-2 h-2 rounded-full bg-go-green inline-block" />
+                        <span className={`w-2 h-2 rounded-full inline-block ${liveDataDot}`} />
                       )}
                       <span className="text-xs font-medium text-gray-700">
-                        {isRefreshing ? t('refreshing') : t('liveData')}
+                        {isRefreshing ? t('refreshing') : liveDataLabel}
                       </span>
                       <svg className="w-3 h-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
                       </svg>
                     </div>
                     <span className="text-xs text-gray-400">
-                      {!isRefreshing && t('nextRefreshIn', { seconds: refreshCountdown })}
+                      {!isRefreshing && isToday && trackerRequestState === 'available' && t('nextRefreshIn', { seconds: refreshCountdown })}
                     </span>
                   </div>
                   {lastRefreshed && (
