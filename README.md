@@ -183,6 +183,7 @@ Result: any open tab or installed PWA picks up a new deployment automatically, w
 - **"Next" badge + live countdown** — the next departure gets a min:sec "Departs in" chip that shifts green → yellow → red as departure approaches
 - **"Now" badge + On Board** — amber pulsing badge and expandable progress view for in-progress trains
 - **Delay-adjusted times** — on the NEXT and NOW cards, the departure/arrival and every stop time are re-rendered as **scheduled + live delay** (the timetable time stays beside them, struck through) and follow the delay as each 30-second tracker poll changes it. Past cards and the future ones below NEXT keep timetable times, since no live delay applies to them
+- **Arrival reminder** — On Board riders can receive one notification 1–5 minutes (default 2) before their estimated destination arrival. The estimate follows the latest live delay and retains the last known delay if the feed temporarily drops the train.
 - **Expandable stop list** — shows intermediate stations with estimated times and a live position indicator
 - **Platform + delay badges** — from the official Metrolinx API (railsix fallback), refreshed every 30 seconds, with server- and client-side caching so a platform survives a train's departure
 - **Union Station platform map** — tap a platform badge for an interactive concourse map with live geolocation, walking guidance, and a "Leave by HH:MM" estimate
@@ -193,6 +194,14 @@ Result: any open tab or installed PWA picks up a new deployment automatically, w
 - **PWA** — installable, standalone display mode, custom icon, auto-updates on deploy
 
 ---
+
+## Arrival reminders
+
+Tap **On Board** on a running trip to arm an arrival reminder. The default is 2 minutes before the destination, adjustable from 1–5 minutes. The app estimates arrival from the scheduled destination time plus the latest live delay. A missing tracker row keeps the last known delay; an explicit updated delay moves the pending reminder. One reminder is sent per journey. Exiting On Board, changing the route/date/station, or a cancellation disarms it. The browser remembers the active journey through a reload.
+
+When the app is open, it can show a notification through its service worker with browser permission. Reliable background delivery additionally requires Web Push configuration and a recurring server check. Generate a VAPID key pair with `npx web-push generate-vapid-keys`, then set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` in the deployment environment. Configure the existing Redis REST variables and `CRON_SECRET`. Have a scheduler call `GET /api/cron/arrival-reminders` with `Authorization: Bearer <CRON_SECRET>` about every 30 seconds. The existing platform cron's 5-minute interval is too slow. The reminder endpoint never accepts the secret in a query string.
+
+Web Push is best effort: network or operating-system delays can shift delivery. On iPhone and iPad, notifications require the app to be installed to the Home Screen and iOS/iPadOS 16.4 or later. If background push is not configured, the reminder panel tells riders to keep the app open.
 
 ## Local Development
 
@@ -220,6 +229,7 @@ npm run generate-icons      # re-render public/icons/*.png from the logo
 | `METROLINX_API_ENABLED` | `1`/`true` to use the official API (with key set); otherwise routes use the legacy scrapers |
 | `CRON_SECRET` | Shared secret required by `GET /api/cron/platforms` (`Authorization: Bearer …` or `?secret=`) |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Vercel KV (or `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`) for the server-side platform store |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` | Web Push key pair for background arrival reminders |
 
 Deploy is via `git push` to `main` — Vercel auto-deploys from there. To finish enabling the official API path in production, set `METROLINX_API_KEY`/`METROLINX_API_ENABLED` (and the KV vars, if using the platform store) in the Vercel project's environment, then redeploy.
 
